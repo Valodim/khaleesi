@@ -1,0 +1,7 @@
+[package]
+name = "khaleesi"
+version = "0.1.0"
+authors = ["Nora <nora.widdecke@tu-bs.de>"]
+
+[dependencies]
+libc = "0.2.43"
