@@ -1,9 +1,9 @@
 use std::env;
-use std::fs::File;
+//use std::fs::{File, read_dir};
+use std::fs::{self, File};
+use std::path::{Path, PathBuf};
 use std::io::prelude::*;
-use libc::c_void;
-use libc::c_int;
-use libc::time_t;
+use libc::{c_void, c_int, time_t};
 use chrono::{NaiveDate, Datelike, Duration};
 
 extern crate libc;
@@ -86,9 +86,9 @@ pub fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
       let bucket = format!("{}-{:02}", start_date.iso_week().year(), start_date.iso_week().week());
       buckets.push(bucket);
       start_date = start_date.checked_add_signed(Duration::days(7)).unwrap();
-    }
-    buckets
-  } ).flatten().collect();
+      }
+      buckets
+      } ).flatten().collect();
   buckets.sort();
   buckets.dedup();
   buckets
@@ -140,26 +140,76 @@ extern {
   pub fn icaltime_as_timet(foo: icaltimetype) -> time_t;
 }
 
+fn read_file_to_string(path: &PathBuf) -> Option<String> {
+  if let Ok(mut file) = File::open(&path) {
+    let mut contents = String::new();
+    if file.read_to_string(&mut contents).is_ok() {
+      //println!("Contents of {}:\n{}", path.display(), contents);
+      println!("Contents of {}:\n{}", path.display(), contents);
+      Some(contents)
+    } else {
+      println!("something went wrong reading the file");
+      None
+    }
+  } else {
+    println!("could not open {} for reading", path.display());
+    None
+  }
+}
+
 fn main() {
   let args: Vec<String> = env::args().collect();
 
-  //let query = &args[1];
-  let filename = &args[1];
+  //let filename = &args[1];
+  let mut filename = "";
+  let dir = &args[1];
 
-  //println!("Searching for {}", query);
-  println!("In file {}", filename);
+  if let Ok(entries) = fs::read_dir(dir) {
+    for entry in entries {
+      if let Ok(entry) = entry {
+        // Here, `entry` is a `DirEntry`.
+        if entry.path().is_file() {
+          // entry.path().extension().and_then(eq_ics) {
+          if let Ok(extension) = entry.path().extension().ok_or(0) {
+            if extension == "ics" {
+              if let Ok(mut file) = File::open(entry.path()) {
+                let mut contents = String::new();
+                if file.read_to_string(&mut contents).is_ok() {
+                  let mut comp = parse_component(&contents);
+                  let mut foo = get_buckets(&mut comp);
+                  //println!("Contents of {}:\n{}", entry.path().display(), contents);
+                  println!("File {} goes in {} buckets", entry.path().display(), foo.len());
+                  //alles gut
+                } else {
+                  println!("something went wrong reading the file");
+                }
+              } else {
+                println!("something went wrong reading the file {}", entry.path().display())
+              }
+            }
+          }
+        }
+      }
+      //      println!("File: {}", path.unwrap().display())
+      //    }
+    } 
+  }
 
-  let mut f = File::open(filename).expect("file not found");
 
-  let mut contents = String::new();
-  f.read_to_string(&mut contents)
-    .expect("something went wrong reading the file");
-
-  println!("With text:\n{}", contents);
-
-  let mut comp = parse_component(&contents);
-
-  let mut foo = get_buckets(&mut comp);
-  println!("{}", foo.join("\n"));
+//  //println!("Searching for {}", query);
+//  println!("In file {}", filename);
+//
+//  let mut f = File::open(filename).expect("file not found");
+//
+//  let mut contents = String::new();
+//  f.read_to_string(&mut contents)
+//    .expect("something went wrong reading the file");
+//
+//  println!("With text:\n{}", contents);
+//
+//  let mut comp = parse_component(&contents);
+//
+//  let mut foo = get_buckets(&mut comp);
+//  println!("{}", foo.join("\n"));
 }
 
