@@ -4,11 +4,14 @@ use std::io::prelude::*;
 use libc::c_void;
 use libc::c_int;
 use libc::time_t;
+use chrono::{NaiveDate, Datelike, Duration};
 
 extern crate libc;
+extern crate chrono;
 
 pub struct Icalcomponent {
-  pub ptr: *const c_void
+  iterating: bool,
+  pub ptr: *const c_void,
 }
 
 impl Drop for Icalcomponent {
@@ -19,10 +22,37 @@ impl Drop for Icalcomponent {
   }
 }
 
+impl Icalcomponent {
+  fn from_ptr(ptr: *const c_void) -> Icalcomponent {
+    Icalcomponent { ptr: ptr, iterating: false }   
+  }     
+}
+
+impl Iterator for Icalcomponent {
+  type Item = Icalcomponent;
+
+  fn next (&mut self) -> Option< Icalcomponent > {
+    unsafe {
+      let ptr = if !self.iterating {
+        self.iterating = true;
+        icalcomponent_get_first_component(self.ptr, ICAL_VEVENT_COMPONENT)
+      } else {
+        icalcomponent_get_next_component(self.ptr, ICAL_VEVENT_COMPONENT)
+      };
+      if ptr.is_null() {
+        None
+      } else {
+        let comp = Icalcomponent::from_ptr ( ptr );        
+        Some(comp)
+      }
+    }
+  }    
+}
+
 pub fn parse_component(str: &String) -> Icalcomponent {
   unsafe {
     let parsed_event = icalparser_parse_string(str.as_ptr());
-    Icalcomponent { ptr: parsed_event }        
+    Icalcomponent::from_ptr ( parsed_event )
   }
 }
 
@@ -33,11 +63,35 @@ pub fn get_dtstart_unix(comp: &Icalcomponent) -> i64 {
   }
 } 
 
-pub fn get_dtstart(comp: &Icalcomponent) -> String {
+pub fn get_dtend(comp: &Icalcomponent) -> NaiveDate {
+  unsafe {
+    let dtend = icalcomponent_get_dtend(comp.ptr);
+    NaiveDate::from_ymd(dtend.year, dtend.month as u32, dtend.day as u32)
+  }
+}
+
+pub fn get_dtstart(comp: &Icalcomponent) -> NaiveDate {
   unsafe {
     let dtstart = icalcomponent_get_dtstart(comp.ptr);
-    format!("{}-{:02}-{:02}", dtstart.year, dtstart.month, dtstart.day)
+    NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
   }
+}
+
+pub fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
+  let mut buckets: Vec<String> = comp.map( |x| {
+    let mut start_date = get_dtstart(&x);
+    let end_date = get_dtend(&x);
+    let mut buckets = Vec::new();
+    while start_date.iso_week() <= end_date.iso_week() {
+      let bucket = format!("{}-{:02}", start_date.iso_week().year(), start_date.iso_week().week());
+      buckets.push(bucket);
+      start_date = start_date.checked_add_signed(Duration::days(7)).unwrap();
+    }
+    buckets
+  } ).flatten().collect();
+  buckets.sort();
+  buckets.dedup();
+  buckets
 } 
 
 #[repr(C)]
@@ -58,6 +112,11 @@ pub struct icaltimetype {
       pub zone : *const c_void ,
 }
 
+pub type IcalcomponentKind = u32;
+
+pub const ICAL_NO_COMPONENT : IcalcomponentKind = 0 ; pub const ICAL_ANY_COMPONENT : IcalcomponentKind = 1 ; pub const ICAL_XROOT_COMPONENT : IcalcomponentKind = 2 ; pub const ICAL_XATTACH_COMPONENT : IcalcomponentKind = 3 ; pub const ICAL_VEVENT_COMPONENT : IcalcomponentKind = 4 ; pub const ICAL_VTODO_COMPONENT : IcalcomponentKind = 5 ; pub const ICAL_VJOURNAL_COMPONENT : IcalcomponentKind = 6 ; pub const ICAL_VCALENDAR_COMPONENT : IcalcomponentKind = 7 ; pub const ICAL_VAGENDA_COMPONENT : IcalcomponentKind = 8 ; pub const ICAL_VFREEBUSY_COMPONENT : IcalcomponentKind = 9 ; pub const ICAL_VALARM_COMPONENT : IcalcomponentKind = 10 ; pub const ICAL_XAUDIOALARM_COMPONENT : IcalcomponentKind = 11 ; pub const ICAL_XDISPLAYALARM_COMPONENT : IcalcomponentKind = 12 ; pub const ICAL_XEMAILALARM_COMPONENT : IcalcomponentKind = 13 ; pub const ICAL_XPROCEDUREALARM_COMPONENT : IcalcomponentKind = 14 ; pub const ICAL_VTIMEZONE_COMPONENT : IcalcomponentKind = 15 ; pub const ICAL_XSTANDARD_COMPONENT : IcalcomponentKind = 16 ; pub const ICAL_XDAYLIGHT_COMPONENT : IcalcomponentKind = 17 ; pub const ICAL_X_COMPONENT : IcalcomponentKind = 18 ; pub const ICAL_VSCHEDULE_COMPONENT : IcalcomponentKind = 19 ; pub const ICAL_VQUERY_COMPONENT : IcalcomponentKind = 20 ; pub const ICAL_VREPLY_COMPONENT : IcalcomponentKind = 21 ; pub const ICAL_VCAR_COMPONENT : IcalcomponentKind = 22 ; pub const ICAL_VCOMMAND_COMPONENT : IcalcomponentKind = 23 ; pub const ICAL_XLICINVALID_COMPONENT : IcalcomponentKind = 24 ; pub const ICAL_XLICMIMEPART_COMPONENT : IcalcomponentKind = 25 ; pub const ICAL_VAVAILABILITY_COMPONENT : IcalcomponentKind = 26 ; pub const ICAL_XAVAILABLE_COMPONENT : IcalcomponentKind = 27 ; pub const ICAL_VPOLL_COMPONENT : IcalcomponentKind = 28 ; pub const ICAL_VVOTER_COMPONENT : IcalcomponentKind = 29 ; pub const ICAL_XVOTE_COMPONENT : IcalcomponentKind = 30 ; pub const ICAL_VPATCH_COMPONENT : IcalcomponentKind = 31 ; pub const ICAL_XPATCH_COMPONENT : IcalcomponentKind = 32 ;
+
+
 #[link(name = "ical")]
 extern {
   //  icalcomponent* icalparser_parse_string  (  const char *   str )  
@@ -67,6 +126,15 @@ extern {
 
   //LIBICAL_ICAL_EXPORT struct icaltimetype icalcomponent_get_dtstart(icalcomponent *comp);
   pub fn icalcomponent_get_dtstart(icalcomponent: *const c_void) -> icaltimetype;
+  pub fn icalcomponent_get_dtend(icalcomponent: *const c_void) -> icaltimetype;
+
+  //LIBICAL_ICAL_EXPORT icalcomponent *icalcomponent_get_first_component(icalcomponent *component,
+  //                                                                     IcalcomponentKind kind);
+  pub fn icalcomponent_get_first_component(comp: *const c_void, kind: IcalcomponentKind) -> *const c_void;
+
+  //LIBICAL_ICAL_EXPORT icalcomponent *icalcomponent_get_next_component(icalcomponent *component,
+  //                                                                    IcalcomponentKind kind);
+  pub fn icalcomponent_get_next_component(comp: *const c_void, kind: IcalcomponentKind) -> *const c_void;
 
   //time_t icaltime_as_timet  (  const struct icaltimetype    )  
   pub fn icaltime_as_timet(foo: icaltimetype) -> time_t;
@@ -89,9 +157,9 @@ fn main() {
 
   println!("With text:\n{}", contents);
 
-  let comp = parse_component(&contents);
-  let time = get_dtstart(&comp);
+  let mut comp = parse_component(&contents);
 
-  println!("{}", time);
+  let mut foo = get_buckets(&mut comp);
+  println!("{}", foo.join("\n"));
 }
 
