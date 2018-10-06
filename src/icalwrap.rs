@@ -23,6 +23,13 @@ impl Icalcomponent {
       iterating: false, }
   }
 
+  pub fn from_str(str: &str) -> Icalcomponent {
+    unsafe {
+      let parsed_event = icalparser_parse_string(str.as_ptr());
+      Icalcomponent::from_ptr(parsed_event)
+    }
+  }
+
   pub fn get_dtstart_unix(self: &Icalcomponent) -> i64 {
     unsafe {
       let dtstart = icalcomponent_get_dtstart(self.ptr);
@@ -71,13 +78,6 @@ impl Iterator for Icalcomponent {
         Some(comp)
       }
     }
-  }
-}
-
-pub fn parse_component(str: &String) -> Icalcomponent {
-  unsafe {
-    let parsed_event = icalparser_parse_string(str.as_ptr());
-    Icalcomponent::from_ptr(parsed_event)
   }
 }
 

@@ -1,15 +1,17 @@
-use std::env;
-//use std::fs::{File, read_dir};
-use chrono::{Datelike, Duration};
-use std::collections::HashMap;
-use std::fs::{self, File};
-use std::io::prelude::*;
-use std::path::PathBuf;
+pub mod icalwrap;
+pub mod prettyprint;
+pub mod utils;
 
 extern crate chrono;
 extern crate libc;
 
-pub mod icalwrap;
+use std::env;
+//use std::fs::{File, read_dir};
+use chrono::{Datelike, Duration};
+use std::collections::HashMap;
+use std::path::Path;
+use std::fs;
+
 use icalwrap::*;
 
 pub fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
@@ -35,38 +37,26 @@ pub fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
   buckets
 }
 
-fn read_file_to_string(path: &PathBuf) -> Result<String, String> {
-  if let Ok(mut file) = File::open(&path) {
-    let mut contents = String::new();
-    if file.read_to_string(&mut contents).is_ok() {
-      Ok(contents)
-    } else {
-      //println!("something went wrong reading the file");
-      Err("something went wrong reading the file".to_string())
-    }
-  } else {
-    //println!("could not open {} for reading", path.display());
-    Err(format!("could not open {} for reading", path.display()))
-  }
-}
-
-fn vec_from_string(str: String) -> Vec<String> {
-  let mut vec: Vec<String> = Vec::new();
-  vec.push(str);
-  vec
-}
-
-fn write_file(filename: &String, contents: String) -> std::io::Result<()> {
-  let mut filepath: String = "Index/".to_owned();
-  filepath.push_str(&filename);
-  let mut file = File::create(filepath)?;
-  file.write_all(contents.as_bytes())?;
-  Ok(())
-}
-
 fn main() {
   let args: Vec<String> = env::args().collect();
 
+  match args[0].as_ref() {
+    "index" => action_index(&args[1..]),
+    "print" => action_prettyprint(&args[1..]),
+    _  => ()
+  }
+
+  // do_other_stuff(args)
+  // do_stuff(args)
+}
+
+fn action_prettyprint(args: &[String]) {
+  let file = &args[1];
+  let filepath = Path::new(file);
+  prettyprint::prettyprint_file(filepath)
+}
+
+fn action_index(args: &[String]) {
   //let filename = &args[1];
   let dir = &args[1];
   let mut buckets: HashMap<String, Vec<String>> = HashMap::new();
@@ -81,14 +71,14 @@ fn main() {
             .extension()
             .map_or(false, |extension| extension == "ics")
           {
-            if let Ok(contents) = read_file_to_string(&entry.path()) {
-              let mut comp = parse_component(&contents); //
+            if let Ok(contents) = ::utils::read_file_to_string(&entry.path()) {
+              let mut comp = Icalcomponent::from_str(&contents); //
               let comp_buckets = get_buckets(&mut comp);
               for bucketid in comp_buckets {
                 buckets
                   .entry(bucketid)
                   .and_modify(|items| items.push(comp.get_uid()))
-                  .or_insert(vec_from_string(comp.get_uid()));
+                  .or_insert(::utils::vec_from_string(comp.get_uid()));
               }
             }
           }
@@ -97,7 +87,7 @@ fn main() {
     }
   }
   for (key, val) in buckets.iter() {
-    write_file(key, val.join("\n"));
+    ::utils::write_file(key, val.join("\n"));
   }
 
   //  //println!("Searching for {}", query);
