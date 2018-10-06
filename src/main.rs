@@ -15,8 +15,8 @@ use icalwrap::*;
 pub fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
   let mut buckets: Vec<String> = comp
     .map(|x| {
-      let mut start_date = get_dtstart(&x);
-      let end_date = get_dtend(&x);
+      let mut start_date = x.get_dtstart();
+      let end_date = x.get_dtend();
       let mut buckets = Vec::new();
       while start_date.iso_week() <= end_date.iso_week() {
         let bucket = format!(
@@ -87,8 +87,8 @@ fn main() {
               for bucketid in comp_buckets {
                 buckets
                   .entry(bucketid)
-                  .and_modify(|items| items.push(get_uid(&comp)))
-                  .or_insert(vec_from_string(get_uid(&comp)));
+                  .and_modify(|items| items.push(comp.get_uid()))
+                  .or_insert(vec_from_string(comp.get_uid()));
               }
             }
           }

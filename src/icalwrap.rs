@@ -22,6 +22,35 @@ impl Icalcomponent {
       ptr: ptr,
       iterating: false, }
   }
+
+  pub fn get_dtstart_unix(self: &Icalcomponent) -> i64 {
+    unsafe {
+      let dtstart = icalcomponent_get_dtstart(self.ptr);
+      icaltime_as_timet(dtstart)
+    }
+  }
+
+  pub fn get_dtend(self: &Icalcomponent) -> NaiveDate {
+    unsafe {
+      let dtend = icalcomponent_get_dtend(self.ptr);
+      NaiveDate::from_ymd(dtend.year, dtend.month as u32, dtend.day as u32)
+    }
+  }
+
+  pub fn get_dtstart(self: &Icalcomponent) -> NaiveDate {
+    unsafe {
+      let dtstart = icalcomponent_get_dtstart(self.ptr);
+      NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
+    }
+  }
+
+  pub fn get_uid(self: &Icalcomponent) -> String {
+    unsafe {
+      let foo = CStr::from_ptr(icalcomponent_get_uid(self.ptr));
+      foo.to_string_lossy().into_owned()
+    }
+  }
+
 }
 
 impl Iterator for Icalcomponent {
@@ -49,34 +78,6 @@ pub fn parse_component(str: &String) -> Icalcomponent {
   unsafe {
     let parsed_event = icalparser_parse_string(str.as_ptr());
     Icalcomponent::from_ptr(parsed_event)
-  }
-}
-
-pub fn get_dtstart_unix(comp: &Icalcomponent) -> i64 {
-  unsafe {
-    let dtstart = icalcomponent_get_dtstart(comp.ptr);
-    icaltime_as_timet(dtstart)
-  }
-}
-
-pub fn get_dtend(comp: &Icalcomponent) -> NaiveDate {
-  unsafe {
-    let dtend = icalcomponent_get_dtend(comp.ptr);
-    NaiveDate::from_ymd(dtend.year, dtend.month as u32, dtend.day as u32)
-  }
-}
-
-pub fn get_dtstart(comp: &Icalcomponent) -> NaiveDate {
-  unsafe {
-    let dtstart = icalcomponent_get_dtstart(comp.ptr);
-    NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
-  }
-}
-
-pub fn get_uid(comp: &Icalcomponent) -> String {
-  unsafe {
-    let foo = CStr::from_ptr(icalcomponent_get_uid(comp.ptr));
-    foo.to_string_lossy().into_owned()
   }
 }
 
