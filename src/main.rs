@@ -1,6 +1,7 @@
 pub mod icalwrap;
 pub mod prettyprint;
 pub mod utils;
+pub mod ical;
 
 extern crate chrono;
 extern crate libc;
@@ -40,10 +41,10 @@ pub fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
 fn main() {
   let args: Vec<String> = env::args().collect();
 
-  match args[0].as_ref() {
-    "index" => action_index(&args[1..]),
-    "print" => action_prettyprint(&args[1..]),
-    _  => ()
+  match args[1].as_str() {
+    "index" => action_index(&args[2..]),
+    "print" => action_prettyprint(&args[2..]),
+    _  => println!("Usage: {} index|action", args[0])
   }
 
   // do_other_stuff(args)
@@ -51,14 +52,14 @@ fn main() {
 }
 
 fn action_prettyprint(args: &[String]) {
-  let file = &args[1];
+  let file = &args[0];
   let filepath = Path::new(file);
   prettyprint::prettyprint_file(filepath)
 }
 
 fn action_index(args: &[String]) {
   //let filename = &args[1];
-  let dir = &args[1];
+  let dir = &args[0];
   let mut buckets: HashMap<String, Vec<String>> = HashMap::new();
 
   if let Ok(entries) = fs::read_dir(dir) {
@@ -71,7 +72,7 @@ fn action_index(args: &[String]) {
             .extension()
             .map_or(false, |extension| extension == "ics")
           {
-            if let Ok(contents) = ::utils::read_file_to_string(&entry.path()) {
+            if let Ok(contents) = utils::read_file_to_string(&entry.path()) {
               let mut comp = Icalcomponent::from_str(&contents); //
               let comp_buckets = get_buckets(&mut comp);
               for bucketid in comp_buckets {
@@ -87,7 +88,7 @@ fn action_index(args: &[String]) {
     }
   }
   for (key, val) in buckets.iter() {
-    ::utils::write_file(key, val.join("\n"));
+    utils::write_file(key, val.join("\n"));
   }
 
   //  //println!("Searching for {}", query);
