@@ -6,6 +6,10 @@ pub mod ical;
 extern crate chrono;
 extern crate libc;
 
+#[macro_use]
+extern crate log;
+extern crate simple_logger;
+
 use std::env;
 //use std::fs::{File, read_dir};
 use chrono::{Datelike, Duration};
@@ -39,6 +43,8 @@ pub fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
 }
 
 fn main() {
+  simple_logger::init().unwrap();
+
   let args: Vec<String> = env::args().collect();
 
   match args[1].as_str() {
@@ -66,29 +72,33 @@ fn action_index(args: &[String]) {
     for entry in entries {
       if let Ok(entry) = entry {
         // Here, `entry` is a `DirEntry`.
-        if entry.path().is_file() {
-          if entry
-            .path()
-            .extension()
-            .map_or(false, |extension| extension == "ics")
-          {
-            if let Ok(contents) = utils::read_file_to_string(&entry.path()) {
-              let mut comp = Icalcomponent::from_str(&contents); //
-              let comp_buckets = get_buckets(&mut comp);
-              for bucketid in comp_buckets {
-                buckets
-                  .entry(bucketid)
-                  .and_modify(|items| items.push(comp.get_uid()))
-                  .or_insert(::utils::vec_from_string(comp.get_uid()));
-              }
+        if ! entry.path().is_file() {
+          continue
+        }
+        if entry
+          .path()
+          .extension()
+          .map_or(false, |extension| extension == "ics")
+        {
+          if let Ok(contents) = utils::read_file_to_string(&entry.path()) {
+            let mut comp = Icalcomponent::from_str(&contents); //
+            let comp_buckets = get_buckets(&mut comp);
+            for bucketid in comp_buckets {
+              buckets
+                .entry(bucketid)
+                .and_modify(|items| items.push(comp.get_uid()))
+                .or_insert(::utils::vec_from_string(comp.get_uid()));
             }
           }
         }
       }
     }
   }
+  info!("{} buckets", buckets.len());
   for (key, val) in buckets.iter() {
-    utils::write_file(key, val.join("\n"));
+    if let Err(error) = utils::write_file(key, val.join("\n")) {
+        error!("{}", error);
+    }
   }
 
   //  //println!("Searching for {}", query);
