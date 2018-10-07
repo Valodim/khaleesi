@@ -6,3 +6,5 @@ authors = ["Nora <nora.widdecke@tu-bs.de>"]
 [dependencies]
 libc = "0.2.43"
 chrono = "0.4"
+log = "0.4.5"
+simple_logger = "1.0.1"
