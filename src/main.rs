@@ -39,7 +39,6 @@ fn action_prettyprint(args: &[String]) {
 }
 
 fn action_index(args: &[String]) {
-  //let filename = &args[1];
   let dir = &args[0];
   index::index_dir(dir)
 }
