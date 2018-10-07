@@ -22,12 +22,10 @@ pub fn read_file_to_string(path: &Path) -> Result<String, String> {
     if file.read_to_string(&mut contents).is_ok() {
       Ok(contents)
     } else {
-      //println!("something went wrong reading the file");
-      Err("something went wrong reading the file".to_string())
+      Err("Something went wrong reading the file".to_string())
     }
   } else {
-    //println!("could not open {} for reading", path.display());
-    Err(format!("could not open {} for reading", path.display()))
+    Err(format!("Could not open {} for reading", path.display()))
   }
 }
 
