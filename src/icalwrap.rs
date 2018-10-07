@@ -51,6 +51,14 @@ impl<'a> IcalProperty<'a> {
       foo.to_string_lossy().into_owned()
     }
   }
+
+  pub fn get_value_as_date(&self) -> NaiveDate {
+    unsafe {
+      let foo = ical::icalproperty_get_value_as_string(self.ptr);
+      let time = ical::icaltime_from_string(foo);
+      NaiveDate::from_ymd(time.year, time.month as u32, time.day as u32)
+    }
+  }
 }
 
 impl<'a> Icalcomponent<'a> {
