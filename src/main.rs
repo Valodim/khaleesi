@@ -2,6 +2,7 @@ pub mod icalwrap;
 pub mod prettyprint;
 pub mod utils;
 pub mod ical;
+pub mod cal;
 
 extern crate chrono;
 extern crate libc;
@@ -50,6 +51,7 @@ fn main() {
   match args[1].as_str() {
     "index" => action_index(&args[2..]),
     "print" => action_prettyprint(&args[2..]),
+    "cal" => cal::printcal(),
     _  => println!("Usage: {} index|action", args[0])
   }
 
