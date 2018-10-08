@@ -5,13 +5,13 @@ use std::ptr;
 use ical;
 
 pub struct Icalcomponent<'a> {
-  pub ptr: *mut ical::icalcomponent,
+  ptr: *mut ical::icalcomponent,
   iterating: bool,
   parent: &'a *const ical::icalcomponent,
 }
 
 pub struct IcalProperty<'a> {
-  pub ptr: *mut ical::icalproperty,
+  ptr: *mut ical::icalproperty,
   parent: &'a Icalcomponent<'a>,
 }
 

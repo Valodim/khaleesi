@@ -6,6 +6,7 @@ pub mod cal;
 
 extern crate chrono;
 extern crate libc;
+extern crate itertools;
 
 #[macro_use]
 extern crate log;
