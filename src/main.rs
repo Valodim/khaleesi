@@ -14,6 +14,8 @@ extern crate itertools;
 
 #[macro_use]
 extern crate log;
+#[macro_use]
+extern crate indoc;
 extern crate simple_logger;
 
 use std::env;
