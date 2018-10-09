@@ -1,7 +1,18 @@
-use std::path::{Path};
+use std::path::{Path,PathBuf};
+use std::io::prelude::*;
 use std::fs;
 use std::io;
-use std::io::prelude::*;
+use std::iter;
+
+pub fn file_iter(dir: &Path) -> Box<Iterator<Item = PathBuf>> {
+  if let Ok(entries) = fs::read_dir(dir) {
+      let valid_entries = entries.filter(|x| x.is_ok());
+      let extracted_paths = valid_entries.map(move |x| x.unwrap().path());
+      Box::new(extracted_paths)
+  } else {
+      Box::new(iter::empty())
+  }
+}
 
 pub fn vec_from_string(str: String) -> Vec<String> {
   let mut vec: Vec<String> = Vec::new();

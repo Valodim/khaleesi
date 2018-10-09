@@ -34,7 +34,7 @@ impl<'a> Drop for IcalProperty<'a> {
 
 
 impl<'a> IcalProperty<'a> {
-  fn from_ptr(ptr: *mut ical::icalproperty, parent: &'a Icalcomponent) -> IcalProperty<'a> {
+  fn from_ptr(ptr: *mut ical::icalproperty, parent: &'a Icalcomponent) -> Self {
     IcalProperty { ptr, parent }
   }
 
@@ -62,7 +62,7 @@ impl<'a> IcalProperty<'a> {
 }
 
 impl<'a> Icalcomponent<'a> {
-  fn from_ptr<'x>(ptr: *mut ical::icalcomponent) -> Icalcomponent<'x> {
+  fn from_ptr<'x>(ptr: *mut ical::icalcomponent) -> Self {
     Icalcomponent {
       ptr: ptr,
       parent: &ptr::null(),
@@ -81,14 +81,14 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
-  pub fn from_str(str: &str) -> Icalcomponent<'a> {
+  pub fn from_str(str: &str) -> Self {
     unsafe {
       let parsed_comp = ical::icalparser_parse_string(CString::new(str).unwrap().as_ptr());
       Icalcomponent::from_ptr(parsed_comp)
     }
   }
 
-  pub fn get_inner(&self) -> Icalcomponent<'a> {
+  pub fn get_inner(&self) -> Self {
     unsafe {
       let inner_comp = ical::icalcomponent_get_inner(self.ptr);
       Icalcomponent::from_ptr_with_parent(inner_comp, self.parent)

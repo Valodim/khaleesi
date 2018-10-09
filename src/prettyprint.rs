@@ -3,7 +3,7 @@ use std::path::{Path};
 use ::icalwrap::*;
 
 pub fn prettyprint_file(filepath: &Path) {
-  match ::utils::read_file_to_string(filepath) {
+  match utils::read_file_to_string(filepath) {
     Ok(content) => {
       let comp = Icalcomponent::from_str(&content);
       let inner = comp.get_inner();
