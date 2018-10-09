@@ -1,4 +1,4 @@
-use chrono::{NaiveDate};
+use chrono::{NaiveDate, NaiveDateTime};
 use std::ffi::{CStr,CString};
 use std::ptr;
 
@@ -102,17 +102,19 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
-  pub fn get_dtend(&self) -> NaiveDate {
+  pub fn get_dtend(&self) -> NaiveDateTime {
     unsafe {
       let dtend = ical::icalcomponent_get_dtend(self.ptr);
       NaiveDate::from_ymd(dtend.year, dtend.month as u32, dtend.day as u32)
+        .and_hms(dtend.hour as u32, dtend.minute as u32, dtend.second as u32)
     }
   }
 
-  pub fn get_dtstart(&self) -> NaiveDate {
+  pub fn get_dtstart(&self) -> NaiveDateTime {
     unsafe {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
       NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
+        .and_hms(dtstart.hour as u32, dtstart.minute as u32, dtstart.second as u32)
     }
   }
 

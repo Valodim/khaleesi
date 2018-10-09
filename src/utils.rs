@@ -24,8 +24,7 @@ pub fn write_file(filename: &String, contents: String) -> Result<(), io::Error> 
   let mut filepath: String = "Index/".to_owned();
   filepath.push_str(&filename);
   let mut file = fs::File::create(filepath)?;
-  file.write_all(contents.as_bytes())?;
-  Ok(())
+  file.write_all(contents.as_bytes())
 }
 
 pub fn read_file_to_string(path: &Path) -> Result<String, String> {
@@ -34,12 +33,10 @@ pub fn read_file_to_string(path: &Path) -> Result<String, String> {
     if file.read_to_string(&mut contents).is_ok() {
       Ok(contents)
     } else {
-      //println!("something went wrong reading the file");
-      Err("something went wrong reading the file".to_string())
+      Err("Something went wrong reading the file".to_string())
     }
   } else {
-    //println!("could not open {} for reading", path.display());
-    Err(format!("could not open {} for reading", path.display()))
+    Err(format!("Could not open {} for reading", path.display()))
   }
 }
 
