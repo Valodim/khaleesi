@@ -14,8 +14,9 @@ fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
       let mut end_date = x.get_dtend();
       //info!("start: {}", start_date);
       //info!("end: {}", end_date);
+
       // end-dtimes are non-inclusive 
-      // so in case of date-only events, the dtend given is one day after the last day of the event
+      // so in case of date-only events, the last day of the event is dtend-1 
       if end_date.time() == NaiveTime::from_hms(0, 0, 0) {
         end_date = end_date.checked_sub_signed(Duration::days(1)).unwrap();
       }
