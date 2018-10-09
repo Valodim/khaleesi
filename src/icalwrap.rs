@@ -147,10 +147,25 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
-  pub fn get_description(&self) -> String {
+  pub fn get_summary(&self) -> Option<String> {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalcomponent_get_description(self.ptr));
-      foo.to_string_lossy().into_owned()
+      let ptr = ical::icalcomponent_get_summary(self.ptr);
+      if ! ptr.is_null() {
+          Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
+      } else {
+          None
+      }
+    }
+  }
+
+  pub fn get_description(&self) -> Option<String> {
+    unsafe {
+      let ptr = ical::icalcomponent_get_description(self.ptr);
+      if ! ptr.is_null() {
+          Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
+      } else {
+          None
+      }
     }
   }
 

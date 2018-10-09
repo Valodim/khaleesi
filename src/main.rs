@@ -52,6 +52,7 @@ fn main() {
   match args[1].as_str() {
     "index" => action_index(&args[2..]),
     "print" => action_prettyprint(&args[2..]),
+    "short" => action_prettyprint_all(&args[2..]),
     "cal" => cal::printcal(),
     _  => println!("Usage: {} index|action", args[0])
   }
@@ -64,6 +65,12 @@ fn action_prettyprint(args: &[String]) {
   let file = &args[0];
   let filepath = Path::new(file);
   prettyprint::prettyprint_file(filepath)
+}
+
+fn action_prettyprint_all(args: &[String]) {
+  let file = &args[0];
+  let filepath = Path::new(file);
+  prettyprint::shortprint_dir(filepath)
 }
 
 fn action_index(args: &[String]) {
