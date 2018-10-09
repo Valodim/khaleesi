@@ -2,10 +2,7 @@ pub mod icalwrap;
 pub mod prettyprint;
 pub mod utils;
 pub mod ical;
-<<<<<<< HEAD
 pub mod cal;
-=======
->>>>>>> c47b6b7511567c7e6488bccf756cd53acd48eb63
 pub mod index;
 
 extern crate chrono;
