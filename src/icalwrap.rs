@@ -102,7 +102,11 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
+<<<<<<< HEAD
   pub fn get_dtend(&self) -> NaiveDateTime {
+=======
+  pub fn get_dtend(self: &Icalcomponent<'a>) -> NaiveDateTime {
+>>>>>>> c47b6b7511567c7e6488bccf756cd53acd48eb63
     unsafe {
       let dtend = ical::icalcomponent_get_dtend(self.ptr);
       NaiveDate::from_ymd(dtend.year, dtend.month as u32, dtend.day as u32)
@@ -110,7 +114,11 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
+<<<<<<< HEAD
   pub fn get_dtstart(&self) -> NaiveDateTime {
+=======
+  pub fn get_dtstart(self: &Icalcomponent<'a>) -> NaiveDateTime {
+>>>>>>> c47b6b7511567c7e6488bccf756cd53acd48eb63
     unsafe {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
       NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
