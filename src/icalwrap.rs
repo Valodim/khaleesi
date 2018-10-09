@@ -1,6 +1,7 @@
 use chrono::{NaiveDate, NaiveDateTime};
 use std::ffi::{CStr,CString};
 use std::ptr;
+use std::path::PathBuf;
 
 use ical;
 
@@ -8,6 +9,7 @@ pub struct Icalcomponent<'a> {
   ptr: *mut ical::icalcomponent,
   iterating: bool,
   parent: &'a *const ical::icalcomponent,
+  path: Option<PathBuf>,
 }
 
 pub struct IcalProperty<'a> {
@@ -67,6 +69,7 @@ impl<'a> Icalcomponent<'a> {
       ptr: ptr,
       parent: &ptr::null(),
       iterating: false,
+      path: None,
     }
   }
 
@@ -78,13 +81,20 @@ impl<'a> Icalcomponent<'a> {
       ptr,
       parent,
       iterating: false,
+      path: None,
     }
   }
 
-  pub fn from_str(str: &str) -> Self {
+  pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, String> {
     unsafe {
       let parsed_comp = ical::icalparser_parse_string(CString::new(str).unwrap().as_ptr());
-      Icalcomponent::from_ptr(parsed_comp)
+      if !parsed_comp.is_null() {
+        let mut comp = Icalcomponent::from_ptr(parsed_comp);
+        comp.path = path;
+        Ok(comp)
+      } else {
+        Err("could not read component".to_string())
+      } 
     }
   }
 

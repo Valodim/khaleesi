@@ -47,5 +47,6 @@ fn action_prettyprint_all(args: &[String]) {
 
 fn action_index(args: &[String]) {
   let dir = &args[0];
-  index::index_dir(dir)
+  let dirpath = Path::new(dir);
+  index::index_dir(dirpath)
 }

@@ -12,8 +12,8 @@ pub fn shortprint_dir(dir: &Path) {
 pub fn shortprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
-      let comp = Icalcomponent::from_str(&content);
-      let inner = comp.get_inner();
+      let comp = Icalcomponent::from_str(&content, None);
+      let inner = comp.unwrap().get_inner();
       shortprint_comp(&inner);
     },
     Err(error) => print!("{}", error)
@@ -23,7 +23,7 @@ pub fn shortprint_file(filepath: &Path) {
 pub fn prettyprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
-      let comp = Icalcomponent::from_str(&content);
+      let comp = Icalcomponent::from_str(&content, Some(filepath.to_path_buf())).unwrap();
       let inner = comp.get_inner();
       prettyprint_comp(&inner);
     },
