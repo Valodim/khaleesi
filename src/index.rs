@@ -8,8 +8,7 @@ use utils;
 use std::path::Path;
 
 fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
-  let mut buckets: Vec<String> = comp
-    .map(|x| {
+  let mut buckets: Vec<String> = comp.into_iter().map(|x| {
       let mut start_date = x.get_dtstart();
       let mut end_date = x.get_dtend();
       //info!("start: {}", start_date);

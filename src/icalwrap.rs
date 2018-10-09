@@ -7,13 +7,17 @@ use ical;
 
 pub struct Icalcomponent<'a> {
   ptr: *mut ical::icalcomponent,
-  iterating: bool,
   parent: &'a *const ical::icalcomponent,
   path: Option<PathBuf>,
 }
 
 pub struct IcalProperty<'a> {
   ptr: *mut ical::icalproperty,
+  parent: &'a Icalcomponent<'a>,
+}
+
+pub struct IcalCompIter<'a> {
+  ptr: ical::icalcompiter,
   parent: &'a Icalcomponent<'a>,
 }
 
@@ -34,6 +38,13 @@ impl<'a> Drop for IcalProperty<'a> {
   }
 }
 
+impl<'a> Drop for IcalCompIter<'a> {
+  fn drop(&mut self) {
+    unsafe {
+      ical::icalcompiter_deref(&mut self.ptr);
+    }
+  }
+}
 
 impl<'a> IcalProperty<'a> {
   fn from_ptr(ptr: *mut ical::icalproperty, parent: &'a Icalcomponent) -> Self {
@@ -68,7 +79,6 @@ impl<'a> Icalcomponent<'a> {
     Icalcomponent {
       ptr: ptr,
       parent: &ptr::null(),
-      iterating: false,
       path: None,
     }
   }
@@ -80,7 +90,6 @@ impl<'a> Icalcomponent<'a> {
     Icalcomponent {
       ptr,
       parent,
-      iterating: false,
       path: None,
     }
   }
@@ -189,21 +198,34 @@ impl<'a> Icalcomponent<'a> {
   }
 }
 
-impl <'a> Iterator for Icalcomponent<'a> {
+impl<'a> IcalCompIter<'a> {
+  fn from_comp(comp: &'a Icalcomponent, kind: ical::icalcomponent_kind) -> Self {
+    let ptr = unsafe {
+      ical::icalcomponent_begin_component(comp.ptr, kind)
+    };
+    IcalCompIter{ptr, parent: &comp}
+  }
+}
+
+impl<'a> IntoIterator for &'a Icalcomponent<'a> {
+  type Item = Icalcomponent<'a>;
+  type IntoIter = IcalCompIter<'a>;
+
+  fn into_iter(self) -> Self::IntoIter {
+    IcalCompIter::from_comp(&self, ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT)
+  }
+}
+
+impl <'a> Iterator for IcalCompIter<'a> {
   type Item = Icalcomponent<'a>;
 
   fn next(&mut self) -> Option<Icalcomponent<'a>> {
     unsafe {
-      let ptr = if !self.iterating {
-        self.iterating = true;
-        ical::icalcomponent_get_first_component(self.ptr, ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT)
-      } else {
-        ical::icalcomponent_get_next_component(self.ptr, ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT)
-      };
+      let ptr = ical::icalcompiter_next(&mut self.ptr);
       if ptr.is_null() {
         None
       } else {
-        let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent);
+        let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent.parent);
         Some(comp)
       }
     }
