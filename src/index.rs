@@ -4,8 +4,8 @@ extern crate libc;
 use chrono::{Datelike, Duration, NaiveTime};
 use icalwrap::*;
 use std::collections::HashMap;
-use std::fs;
 use utils;
+use std::path::Path;
 
 fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
   let mut buckets: Vec<String> = comp
@@ -14,8 +14,9 @@ fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
       let mut end_date = x.get_dtend();
       //info!("start: {}", start_date);
       //info!("end: {}", end_date);
+
       // end-dtimes are non-inclusive 
-      // so in case of date-only events, the dtend given is one day after the last day of the event
+      // so in case of date-only events, the last day of the event is dtend-1 
       if end_date.time() == NaiveTime::from_hms(0, 0, 0) {
         end_date = end_date.checked_sub_signed(Duration::days(1)).unwrap();
       }
@@ -50,31 +51,25 @@ fn add_buckets_for_component(buckets: &mut HashMap<String, Vec<String>>, comp: &
   }
 }
 
-pub fn index_dir(dir: &str) {
+pub fn index_dir(dir: &Path ) {
   let mut buckets: HashMap<String, Vec<String>> = HashMap::new();
 
-  if let Ok(entries) = fs::read_dir(dir) {
-    for entry in entries {
-      if let Ok(entry) = entry {
-        if ! entry.path().is_file() {
-          continue;
-        }
-        if entry
-          .path()
-          .extension()
-          .map_or(false, |extension| extension == "ics")
-        {
-          match utils::read_file_to_string(&entry.path()) {
-            Ok(content) => {
-              let mut comp = Icalcomponent::from_str(&content);
-              add_buckets_for_component(&mut buckets, &mut comp);
-            }
-            Err(error) => error!("{}", error),
-          }
+  let ics_files = utils::file_iter(dir)
+    .filter( |path| path.is_file() )
+    .filter( |path| path.extension().map_or(false, |extension| extension == "ics"));
+  
+  for file in ics_files {
+    match utils::read_file_to_string(&file) {
+      Ok(content) => {
+        match Icalcomponent::from_str(&content, Some(file)) {
+          Ok(mut comp) => add_buckets_for_component(&mut buckets, &mut comp),
+          Err(error) => error!("{}", error)
         }
       }
+      Err(error) => error!("{}", error),
     }
   }
+
   info!("{} buckets", buckets.len());
   for (key, val) in buckets.iter() {
     if let Err(error) = utils::write_file(key, val.join("\n")) {
@@ -86,18 +81,17 @@ pub fn index_dir(dir: &str) {
 #[test]
 fn buckets_multi_day_allday() {
   let event_str = "BEGIN:VCALENDAR
-    VERSION:2.0
-    BEGIN:VEVENT
-    UID:20070423T123432Z-541111@example.com
-    DTSTAMP:20070423T123432Z
-    DTSTART;VALUE=DATE:20070628
-    DTEND;VALUE=DATE:20070709
-    SUMMARY:Festival International de Jazz de Montreal
-    TRANSP:TRANSPARENT
-    END:VEVENT
-    END:VCALENDAR";
-
-  let mut comp = Icalcomponent::from_str(event_str);
+VERSION:2.0
+BEGIN:VEVENT
+UID:20070423T123432Z-541111@example.com
+DTSTAMP:20070423T123432Z
+DTSTART;VALUE=DATE:20070628
+DTEND;VALUE=DATE:20070709
+SUMMARY:Festival International de Jazz de Montreal
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR";
+  let mut comp = Icalcomponent::from_str(event_str, None).unwrap();
   let comp_buckets = get_buckets(&mut comp);
   assert_eq!(comp_buckets, ["2007-26", "2007-27"]);
 }
