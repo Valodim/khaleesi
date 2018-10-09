@@ -86,16 +86,16 @@ pub fn index_dir(dir: &str) {
 #[test]
 fn buckets_multi_day_allday() {
   let event_str = "BEGIN:VCALENDAR
-    VERSION:2.0
-    BEGIN:VEVENT
-    UID:20070423T123432Z-541111@example.com
-    DTSTAMP:20070423T123432Z
-    DTSTART;VALUE=DATE:20070628
-    DTEND;VALUE=DATE:20070709
-    SUMMARY:Festival International de Jazz de Montreal
-    TRANSP:TRANSPARENT
-    END:VEVENT
-    END:VCALENDAR";
+VERSION:2.0
+BEGIN:VEVENT
+UID:20070423T123432Z-541111@example.com
+DTSTAMP:20070423T123432Z
+DTSTART;VALUE=DATE:20070628
+DTEND;VALUE=DATE:20070709
+SUMMARY:Festival International de Jazz de Montreal
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR";
 
   let mut comp = Icalcomponent::from_str(event_str);
   let comp_buckets = get_buckets(&mut comp);
