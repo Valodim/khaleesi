@@ -17,7 +17,7 @@ pub struct IcalProperty<'a> {
 }
 
 pub struct IcalCompIter<'a> {
-  ptr: ical::icalcompiter,
+  iter: ical::icalcompiter,
   parent: &'a Icalcomponent<'a>,
 }
 
@@ -34,14 +34,6 @@ impl<'a> Drop for IcalProperty<'a> {
   fn drop(&mut self) {
     unsafe {
       ical::icalproperty_free(self.ptr);
-    }
-  }
-}
-
-impl<'a> Drop for IcalCompIter<'a> {
-  fn drop(&mut self) {
-    unsafe {
-      ical::icalcompiter_deref(&mut self.ptr);
     }
   }
 }
@@ -200,10 +192,10 @@ impl<'a> Icalcomponent<'a> {
 
 impl<'a> IcalCompIter<'a> {
   fn from_comp(comp: &'a Icalcomponent, kind: ical::icalcomponent_kind) -> Self {
-    let ptr = unsafe {
+    let iter = unsafe {
       ical::icalcomponent_begin_component(comp.ptr, kind)
     };
-    IcalCompIter{ptr, parent: &comp}
+    IcalCompIter{iter, parent: &comp}
   }
 }
 
@@ -212,7 +204,7 @@ impl<'a> IntoIterator for &'a Icalcomponent<'a> {
   type IntoIter = IcalCompIter<'a>;
 
   fn into_iter(self) -> Self::IntoIter {
-    IcalCompIter::from_comp(&self, ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT)
+    IcalCompIter::from_comp(&self, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
   }
 }
 
@@ -221,7 +213,7 @@ impl <'a> Iterator for IcalCompIter<'a> {
 
   fn next(&mut self) -> Option<Icalcomponent<'a>> {
     unsafe {
-      let ptr = ical::icalcompiter_next(&mut self.ptr);
+      let ptr = ical::icalcompiter_next(&mut self.iter);
       if ptr.is_null() {
         None
       } else {
