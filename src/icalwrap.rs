@@ -13,7 +13,7 @@ pub struct Icalcomponent<'a> {
 
 pub struct IcalProperty<'a> {
   ptr: *mut ical::icalproperty,
-  parent: &'a Icalcomponent<'a>,
+  _parent: &'a Icalcomponent<'a>,
 }
 
 pub struct IcalCompIter<'a> {
@@ -40,7 +40,7 @@ impl<'a> Drop for IcalProperty<'a> {
 
 impl<'a> IcalProperty<'a> {
   fn from_ptr(ptr: *mut ical::icalproperty, parent: &'a Icalcomponent) -> Self {
-    IcalProperty { ptr, parent }
+    IcalProperty { ptr, _parent: parent }
   }
 
   pub fn get_name(&self) -> String {

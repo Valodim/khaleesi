@@ -39,12 +39,12 @@ impl <T: TimeZone> ExactSizeIterator for DateDaysIterator<T> {}
 // TODO: NaiveDateDaysIterator should implement FusedIterator, TrustedLen, and
 // Step once they becomes stable: https://github.com/chronotope/chrono/issues/208
 
-fn week_pred(week: IsoWeek) -> IsoWeek {
+fn _week_pred(week: IsoWeek) -> IsoWeek {
     let monday = NaiveDate::from_isoywd(week.year(), week.week(), Weekday::Mon);
     (monday - Duration::weeks(1)).iso_week()
 }
 
-fn week_succ(week: IsoWeek) -> IsoWeek {
+fn _week_succ(week: IsoWeek) -> IsoWeek {
     let monday = NaiveDate::from_isoywd(week.year(), week.week(), Weekday::Mon);
     (monday + Duration::weeks(1)).iso_week()
 }
