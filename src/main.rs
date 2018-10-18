@@ -4,8 +4,10 @@ pub mod utils;
 pub mod ical;
 pub mod cal;
 pub mod index;
+pub mod calutil;
 
 extern crate chrono;
+extern crate yansi;
 extern crate libc;
 extern crate itertools;
 
@@ -26,6 +28,7 @@ fn main() {
     "print" => action_prettyprint(&args[2..]),
     "short" => action_prettyprint_all(&args[2..]),
     "cal" => cal::printcal(),
+    "dbg" => cal::dbg(),
     _  => println!("Usage: {} index|action", args[0])
   }
 
