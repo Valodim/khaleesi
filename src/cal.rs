@@ -79,7 +79,7 @@ fn get_cells(date_begin: NaiveDate, date_end: NaiveDate) -> Vec<Cell> {
     let mut result = vec!();
     let mut date = date_begin;
     while date < date_end {
-        let cell = compute_cell(date);
+        let cell = cell_whatever(date);
         result.push(cell);
 
         date += Duration::days(1);
@@ -87,9 +87,15 @@ fn get_cells(date_begin: NaiveDate, date_end: NaiveDate) -> Vec<Cell> {
     result
 }
 
-fn compute_cell(date: NaiveDate) -> Cell {
+fn cell_whatever(date: NaiveDate) -> Cell {
     let fst = date.format("%d").to_string();
     let snd = String::from("");
+    Cell{date, content: (fst, snd)}
+}
+
+fn cell_empty(date: NaiveDate) -> Cell {
+    let fst = date.format("%d").to_string();
+    let snd = String::from("");
     Cell{date, content: (fst, snd)}
 }
 
@@ -98,7 +104,7 @@ fn expand_cells_to_week(cells: Vec<Cell>) -> Vec<Cell> {
 
     let mut day = NaiveDate::from_isoywd(cells[0].date.year(), cells[0].date.iso_week().week(), Weekday::Mon);
     while day < cells[0].date {
-        let cell = compute_cell(day);
+        let cell = cell_empty(day);
         result.push(cell);
 
         day += Duration::days(1);
@@ -113,7 +119,7 @@ fn expand_cells_to_week(cells: Vec<Cell>) -> Vec<Cell> {
     let last_date = NaiveDate::from_isoywd(day.year(), day.iso_week().week(), Weekday::Sun);
     day += Duration::days(1);
     while day <= last_date {
-        let cell = compute_cell(day);
+        let cell = cell_empty(day);
         result.push(cell);
 
         day += Duration::days(1);
