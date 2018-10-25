@@ -2,6 +2,8 @@ use chrono::prelude::*;
 use chrono::Duration;
 use yansi::Style;
 
+use utils;
+
 struct Cell {
     date: NaiveDate,
     content: (String,String)
@@ -13,8 +15,8 @@ pub fn printcal() {
     let b = cal_month(&now.with_month(now.month() + 1).unwrap());
     let c = cal_month(&now.with_month(now.month() + 2).unwrap());
 
-    let joined = joinlines(&a, &b);
-    let joined = joinlines(&joined, &c);
+    let joined = utils::joinlines(&a, &b);
+    let joined = utils::joinlines(&joined, &c);
     println!("{}", joined);
 }
 
@@ -154,17 +156,4 @@ pub fn cal_month(now: &Date<Local>) -> String {
     result.push_str("\n");
 
     result
-}
-
-pub fn joinlines(first: &str, second: &str) -> String {
-    use itertools::Itertools;
-
-    let first = first.split(|x| x == '\n');
-    let second = second.split(|x| x == '\n');
-    let maxlen = first.clone().map(|x| x.len()).max().unwrap();
-
-    first
-        .zip(second)
-        .map(|(fst, snd)| format!("{:width$} {}", fst, snd, width = maxlen))
-        .join("\n")
 }

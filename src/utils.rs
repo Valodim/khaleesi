@@ -4,6 +4,19 @@ use std::fs;
 use std::io;
 use std::iter;
 
+pub fn joinlines(first: &str, second: &str) -> String {
+    use itertools::Itertools;
+
+    let first = first.split(|x| x == '\n');
+    let second = second.split(|x| x == '\n');
+    let maxlen = first.clone().map(|x| x.len()).max().unwrap();
+
+    first
+        .zip(second)
+        .map(|(fst, snd)| format!("{:width$} {}", fst, snd, width = maxlen))
+        .join("\n")
+}
+
 pub fn file_iter(dir: &Path) -> Box<Iterator<Item = PathBuf>> {
   if let Ok(entries) = fs::read_dir(dir) {
       let valid_entries = entries.filter(|x| x.is_ok());
