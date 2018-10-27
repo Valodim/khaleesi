@@ -213,13 +213,21 @@ impl <'a> Iterator for IcalCompIter<'a> {
 
   fn next(&mut self) -> Option<Icalcomponent<'a>> {
     unsafe {
-      let ptr = ical::icalcompiter_next(&mut self.iter);
+      let ptr = ical::icalcompiter_deref(&mut self.iter);
       if ptr.is_null() {
         None
       } else {
+        ical::icalcompiter_next(&mut self.iter);
         let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent.parent);
         Some(comp)
       }
     }
   }
+}
+
+#[test]
+fn iterator_element_count() {
+  use testdata;
+  let comp = Icalcomponent::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+  assert_eq!(comp.into_iter().count(), 1)
 }

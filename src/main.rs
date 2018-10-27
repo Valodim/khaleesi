@@ -5,6 +5,7 @@ pub mod ical;
 pub mod cal;
 pub mod index;
 pub mod calutil;
+pub mod testdata;
 
 extern crate chrono;
 extern crate yansi;
