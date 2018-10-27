@@ -36,7 +36,7 @@ fn main() {
     "short" => action_prettyprint_all(&args[2..]),
     "cal" => cal::printcal(),
     "dbg" => cal::dbg(),
-    _  => println!("Usage: {} index|action", args[0])
+    _  => println!("Usage: {} index|print|short|cal|dbg", args[0])
   }
 
   // do_other_stuff(args)
