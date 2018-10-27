@@ -13,13 +13,14 @@ extern crate chrono;
 extern crate yansi;
 extern crate libc;
 extern crate itertools;
+extern crate simple_logger;
 
 #[macro_use]
 extern crate log;
+
 #[cfg(test)]
 #[macro_use]
 extern crate indoc;
-extern crate simple_logger;
 
 use std::env;
 use std::path::Path;
