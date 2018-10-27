@@ -5,6 +5,8 @@ pub mod ical;
 pub mod cal;
 pub mod index;
 pub mod calutil;
+
+#[cfg(test)]
 pub mod testdata;
 
 extern crate chrono;
@@ -14,7 +16,7 @@ extern crate itertools;
 
 #[macro_use]
 extern crate log;
-#[allow(unused_imports)]
+#[cfg(test)]
 #[macro_use]
 extern crate indoc;
 extern crate simple_logger;
