@@ -27,12 +27,6 @@ pub fn file_iter(dir: &Path) -> Box<Iterator<Item = PathBuf>> {
   }
 }
 
-pub fn vec_from_string(str: String) -> Vec<String> {
-  let mut vec: Vec<String> = Vec::new();
-  vec.push(str);
-  vec
-}
-
 pub fn write_file(filename: &String, contents: String) -> Result<(), io::Error> {
   let mut filepath: String = "Index/".to_owned();
   filepath.push_str(&filename);
