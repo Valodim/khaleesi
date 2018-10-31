@@ -22,7 +22,7 @@ fn show_lines(lines: &mut Iterator<Item = String>) {
   }
 }
 
-fn show_events(lines: &mut Iterator<Item = String>) {
+pub fn show_events(lines: &mut Iterator<Item = String>) {
   let style_heading = Style::new().bold();
   let comps = utils::read_comps_from_files(lines);
 
@@ -30,7 +30,7 @@ fn show_events(lines: &mut Iterator<Item = String>) {
   println!("{}", style_heading.paint(cur_day));
 
   for (i, comp) in comps.iter().enumerate() {
-    if (comp.get_dtstart().date() != cur_day) {
+    if comp.get_dtstart().date() != cur_day {
       cur_day = comp.get_dtstart().date();
       println!("{}", style_heading.paint(cur_day));
     }

@@ -25,7 +25,9 @@ extern crate log;
 extern crate indoc;
 
 use std::env;
+use std::fs::File;
 use std::path::Path;
+use std::io::{BufRead, BufReader};
 
 fn main() {
   simple_logger::init().unwrap();
@@ -54,9 +56,13 @@ fn action_sort(args: &[String]) {
 }
 
 fn action_agenda(args: &[String]) {
-  let file = &args[0];
-  let filepath = Path::new(file);
-  agenda::show_file(filepath)
+  if args.len() == 0 {
+    agenda::show_events(&mut read_filenames_from_stdin());
+  } else {
+    let file = &args[0];
+    let filepath = Path::new(file);
+    agenda::show_events(&mut read_filenames(filepath));
+  }
 }
 
 fn action_prettyprint(args: &[String]) {
@@ -75,4 +81,21 @@ fn action_index(args: &[String]) {
   let dir = &args[0];
   let dirpath = Path::new(dir);
   index::index_dir(dirpath)
+}
+
+fn read_filenames(filepath: &Path) -> impl Iterator<Item = String> {
+  let f = File::open(filepath).expect("Unable to open file");
+  let f = BufReader::new(f);
+  let lines = f.lines().map(|x| x.expect("Unable to read line"));
+  //show_lines(&mut lines);
+  lines
+}
+
+fn read_filenames_from_stdin() -> impl Iterator<Item = String> {
+  let stdin = std::io::stdin();
+  let handle = stdin.lock();
+
+  let lines = handle.lines().map(|x| x.expect("Unable to read line")).collect::<Vec<String>>().into_iter();
+  //let lines = handle.lines().map(|x| x.unwrap());
+  lines
 }
