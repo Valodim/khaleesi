@@ -188,6 +188,10 @@ impl<'a> Icalcomponent<'a> {
       foo.to_string_lossy().into_owned()
     }
   }
+
+  pub fn get_path_as_string(&self) -> String {
+    format!("{}", self.path.as_ref().unwrap().display())
+  }
 }
 
 impl<'a> IcalCompIter<'a> {
