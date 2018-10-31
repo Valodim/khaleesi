@@ -84,3 +84,11 @@ fn buckets_multi_day_allday() {
   let comp_buckets = get_buckets(&mut comp);
   assert_eq!(comp_buckets, ["2007-26", "2007-27"]);
 }
+
+#[test]
+fn buckets_single_event() {
+  use testdata;
+  let mut comp = Icalcomponent::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+  let comp_buckets = get_buckets(&mut comp);
+  assert_eq!(comp_buckets, ["1997-13"]);
+}
