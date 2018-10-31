@@ -50,9 +50,13 @@ fn main() {
 }
 
 fn action_sort(args: &[String]) {
-  let file = &args[0];
-  let filepath = Path::new(file);
-  sort::sort_file(filepath)
+  if args.len() == 0 {
+    sort::sort_filenames_by_dtstart(&mut read_filenames_from_stdin())
+  } else {
+    let file = &args[0];
+    let filepath = Path::new(file);
+    sort::sort_filenames_by_dtstart(&mut read_filenames(filepath));
+  }
 }
 
 fn action_agenda(args: &[String]) {
@@ -87,7 +91,6 @@ fn read_filenames(filepath: &Path) -> impl Iterator<Item = String> {
   let f = File::open(filepath).expect("Unable to open file");
   let f = BufReader::new(f);
   let lines = f.lines().map(|x| x.expect("Unable to read line"));
-  //show_lines(&mut lines);
   lines
 }
 
@@ -96,6 +99,5 @@ fn read_filenames_from_stdin() -> impl Iterator<Item = String> {
   let handle = stdin.lock();
 
   let lines = handle.lines().map(|x| x.expect("Unable to read line")).collect::<Vec<String>>().into_iter();
-  //let lines = handle.lines().map(|x| x.unwrap());
   lines
 }
