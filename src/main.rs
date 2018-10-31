@@ -6,6 +6,7 @@ pub mod ical;
 pub mod cal;
 pub mod index;
 pub mod calutil;
+pub mod sort;
 
 #[cfg(test)]
 pub mod testdata;
@@ -36,13 +37,20 @@ fn main() {
     "print" => action_prettyprint(&args[2..]),
     "short" => action_prettyprint_all(&args[2..]),
     "agenda" => action_agenda(&args[2..]),
+    "sort" => action_sort(&args[2..]),
     "cal" => cal::printcal(),
     "dbg" => cal::dbg(),
-    _  => println!("Usage: {} index|print|agenda|short|cal|dbg", args[0])
+    _  => println!("Usage: {} index|print|short|sort|agenda|cal|dbg", args[0])
   }
 
   // do_other_stuff(args)
   // do_stuff(args)
+}
+
+fn action_sort(args: &[String]) {
+  let file = &args[0];
+  let filepath = Path::new(file);
+  sort::sort_file(filepath)
 }
 
 fn action_agenda(args: &[String]) {

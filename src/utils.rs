@@ -3,6 +3,7 @@ use std::io::prelude::*;
 use std::fs;
 use std::io;
 use std::iter;
+use icalwrap::Icalcomponent;
 
 pub fn joinlines(first: &str, second: &str) -> String {
     use itertools::Itertools;
@@ -47,3 +48,12 @@ pub fn read_file_to_string(path: &Path) -> Result<String, String> {
   }
 }
 
+pub fn read_comp_from_file<'x>(filepath: &str) -> Icalcomponent<'x> {
+  let path = Path::new(filepath);
+  let content = fs::read_to_string(path).expect("Could not read file");
+  Icalcomponent::from_str(&content, Some(path.to_path_buf())).unwrap()
+}
+
+pub fn read_comps_from_files(files: &mut Iterator<Item = String>) -> Vec<Icalcomponent> {
+  files.map(|file| read_comp_from_file(&file)).collect()
+}
