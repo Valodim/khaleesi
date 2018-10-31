@@ -13,7 +13,7 @@ pub fn shortprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
       let comp = Icalcomponent::from_str(&content, None);
-      let inner = comp.unwrap().get_inner();
+      let inner = comp.unwrap();
       shortprint_comp(&inner);
     },
     Err(error) => print!("{}", error)

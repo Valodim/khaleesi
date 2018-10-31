@@ -1,5 +1,6 @@
 pub mod icalwrap;
 pub mod prettyprint;
+pub mod agenda;
 pub mod utils;
 pub mod ical;
 pub mod cal;
@@ -34,6 +35,7 @@ fn main() {
     "index" => action_index(&args[2..]),
     "print" => action_prettyprint(&args[2..]),
     "short" => action_prettyprint_all(&args[2..]),
+    "agenda" => action_agenda(&args[2..]),
     "cal" => cal::printcal(),
     "dbg" => cal::dbg(),
     _  => println!("Usage: {} index|print|short|cal|dbg", args[0])
@@ -41,6 +43,12 @@ fn main() {
 
   // do_other_stuff(args)
   // do_stuff(args)
+}
+
+fn action_agenda(args: &[String]) {
+  let file = &args[0];
+  let filepath = Path::new(file);
+  agenda::show_file(filepath)
 }
 
 fn action_prettyprint(args: &[String]) {
