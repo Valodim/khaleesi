@@ -34,19 +34,27 @@ fn main() {
 
   let args: Vec<String> = env::args().collect();
 
-  match args[1].as_str() {
-    "index" => action_index(&args[2..]),
-    "print" => action_prettyprint(&args[2..]),
-    "short" => action_prettyprint_all(&args[2..]),
-    "agenda" => action_agenda(&args[2..]),
-    "sort" => action_sort(&args[2..]),
-    "cal" => cal::printcal(),
-    "dbg" => cal::dbg(),
-    _  => println!("Usage: {} index|print|short|sort|agenda|cal|dbg", args[0])
+  if args.len() == 1 {
+    print_usage(&args[0])
+  } else {
+    match args[1].as_str() {
+      "index" => action_index(&args[2..]),
+      "print" => action_prettyprint(&args[2..]),
+      "short" => action_prettyprint_all(&args[2..]),
+      "agenda" => action_agenda(&args[2..]),
+      "sort" => action_sort(&args[2..]),
+      "cal" => cal::printcal(),
+      "dbg" => cal::dbg(),
+      _  => print_usage(&args[0])
+    }
   }
 
   // do_other_stuff(args)
   // do_stuff(args)
+}
+
+fn print_usage(name: &String) {
+  println!("Usage: {} index|print|short|sort|agenda|cal|dbg", name)
 }
 
 fn action_sort(args: &[String]) {
