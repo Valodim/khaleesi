@@ -5,16 +5,22 @@ pub mod ical;
 pub mod cal;
 pub mod index;
 pub mod calutil;
+
+#[cfg(test)]
 pub mod testdata;
 
 extern crate chrono;
 extern crate yansi;
 extern crate libc;
 extern crate itertools;
+extern crate simple_logger;
 
 #[macro_use]
 extern crate log;
-extern crate simple_logger;
+
+#[cfg(test)]
+#[macro_use]
+extern crate indoc;
 
 use std::env;
 use std::path::Path;
@@ -30,7 +36,7 @@ fn main() {
     "short" => action_prettyprint_all(&args[2..]),
     "cal" => cal::printcal(),
     "dbg" => cal::dbg(),
-    _  => println!("Usage: {} index|action", args[0])
+    _  => println!("Usage: {} index|print|short|cal|dbg", args[0])
   }
 
   // do_other_stuff(args)

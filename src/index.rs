@@ -45,8 +45,8 @@ fn add_buckets_for_component(buckets: &mut HashMap<String, Vec<String>>, comp: &
   for bucketid in comp_buckets {
     buckets
       .entry(bucketid)
-      .and_modify(|items| items.push(comp.get_uid()))
-      .or_insert(::utils::vec_from_string(comp.get_uid()));
+      .and_modify(|items| items.push(comp.get_path_as_string()))
+      .or_insert(::utils::vec_from_string(comp.get_path_as_string()));
   }
 }
 
@@ -79,18 +79,16 @@ pub fn index_dir(dir: &Path ) {
 
 #[test]
 fn buckets_multi_day_allday() {
-  let event_str = "BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-UID:20070423T123432Z-541111@example.com
-DTSTAMP:20070423T123432Z
-DTSTART;VALUE=DATE:20070628
-DTEND;VALUE=DATE:20070709
-SUMMARY:Festival International de Jazz de Montreal
-TRANSP:TRANSPARENT
-END:VEVENT
-END:VCALENDAR";
-  let mut comp = Icalcomponent::from_str(event_str, None).unwrap();
+  use testdata;
+  let mut comp = Icalcomponent::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
   let comp_buckets = get_buckets(&mut comp);
   assert_eq!(comp_buckets, ["2007-26", "2007-27"]);
+}
+
+#[test]
+fn buckets_single_event() {
+  use testdata;
+  let mut comp = Icalcomponent::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+  let comp_buckets = get_buckets(&mut comp);
+  assert_eq!(comp_buckets, ["1997-13"]);
 }
