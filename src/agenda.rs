@@ -1,26 +1,7 @@
-use prettyprint::*;
 use utils;
-use std::path::{Path};
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use ::icalwrap::*;
 use yansi::Style;
-
-pub fn show_file(filepath: &Path) {
-  let f = File::open(filepath).expect("Unable to open file");
-  let f = BufReader::new(f);
-  let mut lines = f.lines().map(|x| x.expect("Unable to read line"));
-  //show_lines(&mut lines);
-  show_events(&mut lines);
-}
-
-fn show_lines(lines: &mut Iterator<Item = String>) {
-  for (i, line) in lines.enumerate() {
-    //let i = i+1;
-    let path = Path::new(&line);
-    print!("{}  ", i);
-    shortprint_file(path)
-  }
-}
+use chrono::NaiveTime;
 
 pub fn show_events(lines: &mut Iterator<Item = String>) {
   let style_heading = Style::new().bold();
@@ -32,9 +13,29 @@ pub fn show_events(lines: &mut Iterator<Item = String>) {
   for (i, comp) in comps.iter().enumerate() {
     if comp.get_dtstart().date() != cur_day {
       cur_day = comp.get_dtstart().date();
-      println!("{}", style_heading.paint(cur_day));
+      println!("{}, {}", style_heading.paint(cur_day.format("%Y-%m-%d")), cur_day.format("%A"));
     }
-    print!("  {}  ", i);
-    shortprint_comp(comp)
+    println!("{:4}  {}", i, event_line(comp));
   }
+}
+
+pub fn event_line(comp: &Icalcomponent) -> String {
+  let mut time_sep = " ";
+  let start = if comp.get_dtstart().time() == NaiveTime::from_hms(0, 0, 0) {
+    " ".repeat(5)
+  } else {
+    time_sep = "-";
+    format!("{}", comp.get_dtstart().format("%H:%M"))
+  };
+
+  let end = if comp.get_dtend().time() == NaiveTime::from_hms(0, 0, 0) {
+    " ".repeat(5)
+  } else {
+    time_sep = "-";
+    format!("{}", comp.get_dtend().format("%H:%M"))
+  };
+
+  let summary = comp.get_summary().unwrap_or(String::from("?"));
+
+  format!("{:5}{}{:5}  {}", start, time_sep, end, summary)
 }
