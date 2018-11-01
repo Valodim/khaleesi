@@ -1,0 +1,2 @@
+# Explicitly allow .ics files in folder testdata
+!*.ics
