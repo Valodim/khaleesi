@@ -1,28 +1,10 @@
-pub mod icalwrap;
-pub mod prettyprint;
-pub mod agenda;
-pub mod utils;
-pub mod ical;
-pub mod cal;
-pub mod index;
-pub mod calutil;
-pub mod sort;
+extern crate khaleesi;
 
-#[cfg(test)]
-pub mod testdata;
-
-extern crate chrono;
-extern crate yansi;
-extern crate libc;
-extern crate itertools;
-extern crate simple_logger;
-
-#[macro_use]
-extern crate log;
-
-#[cfg(test)]
-#[macro_use]
-extern crate indoc;
+use khaleesi::prettyprint;
+use khaleesi::agenda;
+use khaleesi::cal;
+use khaleesi::index;
+use khaleesi::sort;
 
 use std::env;
 use std::fs::File;
