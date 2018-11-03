@@ -1293,7 +1293,7 @@ extern "C" {
     /// @sa icalduration_null_duration()
     ///
     /// ### Usage
-    /// ```
+    /// ```c
     /// // make null duration
     /// struct icaldurationtype duration;
     /// duration = icaldurationtype_null_duration();
@@ -1310,7 +1310,7 @@ extern "C" {
     /// @sa icalduration_bad_duration()
     ///
     /// ### Usage
-    /// ```
+    /// ```c
     /// // make bad duration
     /// struct icaldurationtype duration;
     /// duration = icaldurationtype_bad_duration();
@@ -9434,7 +9434,7 @@ extern "C" {
     /// @note Only works on systems that support it (HAVE_BACKTRACE enabled).
     ///
     /// ### Usage
-    /// ```
+    /// ```c
     /// if(icalerrno != ICAL_NO_ERROR) {
     ///     ical_bt();
     /// }
