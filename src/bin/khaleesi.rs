@@ -1,4 +1,5 @@
 extern crate khaleesi;
+extern crate simple_logger;
 
 use khaleesi::prettyprint;
 use khaleesi::agenda;
