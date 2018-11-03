@@ -46,7 +46,7 @@ fn add_buckets_for_component(buckets: &mut HashMap<String, Vec<String>>, comp: &
     buckets
       .entry(bucketid)
       .and_modify(|items| items.push(comp.get_path_as_string()))
-      .or_insert(::utils::vec_from_string(comp.get_path_as_string()));
+      .or_insert(vec!(comp.get_path_as_string()));
   }
 }
 

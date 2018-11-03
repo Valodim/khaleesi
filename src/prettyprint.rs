@@ -13,7 +13,7 @@ pub fn shortprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
       let comp = Icalcomponent::from_str(&content, None);
-      let inner = comp.unwrap().get_inner();
+      let inner = comp.unwrap();
       shortprint_comp(&inner);
     },
     Err(error) => print!("{}", error)
@@ -31,13 +31,13 @@ pub fn prettyprint_file(filepath: &Path) {
   }
 }
 
-fn shortprint_comp(comp: &Icalcomponent) {
+pub fn shortprint_comp(comp: &Icalcomponent) {
   let date = comp.get_dtstart().format("%Y-%m-%d");
   let description = comp.get_summary().unwrap_or(String::from("?"));
   println!("{} {}", date, description);
 }
 
-fn prettyprint_comp(comp: &Icalcomponent) {
+pub fn prettyprint_comp(comp: &Icalcomponent) {
   let properties = comp.get_properties_all();
   println!("num: {}", properties.len());
   for property in properties {

@@ -67,7 +67,7 @@ impl<'a> IcalProperty<'a> {
 }
 
 impl<'a> Icalcomponent<'a> {
-  fn from_ptr<'x>(ptr: *mut ical::icalcomponent) -> Self {
+  fn from_ptr(ptr: *mut ical::icalcomponent) -> Self {
     Icalcomponent {
       ptr: ptr,
       parent: &ptr::null(),
@@ -75,10 +75,10 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
-  fn from_ptr_with_parent(
+  fn from_ptr_with_parent<'b>(
     ptr: *mut ical::icalcomponent,
-    parent: &'a *const ical::icalcomponent,
-  ) -> Icalcomponent<'a> {
+    parent: &'b *const ical::icalcomponent,
+  ) -> Icalcomponent<'b> {
     Icalcomponent {
       ptr,
       parent,
