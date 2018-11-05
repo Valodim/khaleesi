@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 use chrono::Duration;
-use yansi::Style;
+use yansi::{Style,Color};
 
 use utils;
 
@@ -27,7 +27,7 @@ pub fn dbg() {
     let cells = expand_cells_to_week(cells);
 
     let render = render_cells(&cells);
-    println!("{}", render);
+    print!("{}", render);
 }
 
 fn render_cells(cells: &Vec<Cell>) -> String {
@@ -35,7 +35,7 @@ fn render_cells(cells: &Vec<Cell>) -> String {
 
     let now = cells[0].date.clone();
 
-    result.push_str(&format!("{:>17} {:<8}\n",
+    result.push_str(&format!("{:>28} {:<8}\n",
         now.format("%B").to_string(),
         now.format("%Y").to_string()
     ));
@@ -52,7 +52,7 @@ fn render_cells(cells: &Vec<Cell>) -> String {
 fn render_flow(cells_per_line: usize, cell_width: usize, cells: &Vec<Cell>) -> String {
     let mut result = String::with_capacity(50);
 
-    let style = Style::red();
+    let style = Style::new().bg(Color::Fixed(236));
 
     let it = cells.iter();
     let mut n = 0;
@@ -69,8 +69,9 @@ fn render_flow(cells_per_line: usize, cell_width: usize, cells: &Vec<Cell>) -> S
             let cellstr = &format!("{}", style.paint(cellstr));
             result.push_str(cellstr);
         }
+        let emptyline = &format!("{:width$}", "", width = cell_width * cells_per_line);
         result.push_str("\n");
-        result.push_str("\n");
+        result.push_str(&format!("{}\n", style.paint(emptyline)));
         n += 1;
     }
 
