@@ -4,6 +4,7 @@ use std::fs;
 use std::io;
 use std::iter;
 use icalwrap::Icalcomponent;
+use chrono::*;
 
 pub fn joinlines(first: &str, second: &str) -> String {
     use itertools::Itertools;
@@ -46,6 +47,10 @@ pub fn read_file_to_string(path: &Path) -> Result<String, String> {
   } else {
     Err(format!("Could not open {} for reading", path.display()))
   }
+}
+
+pub fn date_from_str(date: &str) -> NaiveDate {
+  NaiveDate::parse_from_str(date, "%Y-%m-%d").unwrap()
 }
 
 pub fn read_comp_from_file<'x>(filepath: &str) -> Icalcomponent<'x> {

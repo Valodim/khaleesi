@@ -129,6 +129,13 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
+  pub fn get_dtstart_date(&self) -> NaiveDate {
+    unsafe {
+      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
+      NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
+    }
+  }
+
   fn get_properties(&self, property_kind: ical::icalproperty_kind) -> Vec<IcalProperty> {
     let mut properties = Vec::new();
     unsafe {

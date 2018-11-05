@@ -6,6 +6,7 @@ use khaleesi::agenda;
 use khaleesi::cal;
 use khaleesi::index;
 use khaleesi::sort;
+use khaleesi::select;
 
 use std::env;
 use std::fs::File;
@@ -28,6 +29,7 @@ fn main() {
       "sort" => action_sort(&args[2..]),
       "cal" => cal::printcal(),
       "dbg" => cal::dbg(),
+      "select" => action_select(&args[2..]),
       _  => print_usage(&args[0])
     }
   }
@@ -37,7 +39,17 @@ fn main() {
 }
 
 fn print_usage(name: &String) {
-  println!("Usage: {} index|print|short|sort|agenda|cal|dbg", name)
+  println!("Usage: {} index|print|short|sort|agenda|cal|dbg|select", name)
+}
+
+fn action_select(args: &[String]) {
+  if args.len() == 1 {
+    select::select_by_args(&mut read_filenames_from_stdin(), &args[0], None)
+  } else if args.len() == 2 {
+    select::select_by_args(&mut read_filenames_from_stdin(), &args[0], Some(&args[1]))
+  } else {
+    println!("Usage: select from [to]");
+  }
 }
 
 fn action_sort(args: &[String]) {
