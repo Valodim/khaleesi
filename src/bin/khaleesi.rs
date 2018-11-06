@@ -43,13 +43,7 @@ fn print_usage(name: &String) {
 }
 
 fn action_select(args: &[String]) {
-  if args.len() == 1 {
-    select::select_by_args(&mut read_filenames_from_stdin(), &args[0], None)
-  } else if args.len() == 2 {
-    select::select_by_args(&mut read_filenames_from_stdin(), &args[0], Some(&args[1]))
-  } else {
-    println!("Usage: select from [to]");
-  }
+  select::select_by_args(&mut read_filenames_from_stdin(), &args);
 }
 
 fn action_sort(args: &[String]) {
