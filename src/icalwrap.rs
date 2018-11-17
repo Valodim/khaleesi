@@ -5,23 +5,43 @@ use std::path::PathBuf;
 
 use ical;
 
-pub struct Icalcomponent<'a> {
+trait IcalComponent {
+
+  fn get_ptr (&self) -> *mut ical::icalcomponent;
+  
+}
+
+pub struct IcalVCalendar {
   ptr: *mut ical::icalcomponent,
-  parent: &'a *const ical::icalcomponent,
   path: Option<PathBuf>,
+}
+
+pub struct IcalVEvent<'a> {
+  ptr: *mut ical::icalcomponent,
+  parent: &'a IcalVCalendar,
 }
 
 pub struct IcalProperty<'a> {
   ptr: *mut ical::icalproperty,
-  _parent: &'a Icalcomponent<'a>,
+  //_parent: &'a Icalcomponent<'a>,
+  _parent: &'a dyn IcalComponent,
 }
 
 pub struct IcalCompIter<'a> {
   iter: ical::icalcompiter,
-  parent: &'a Icalcomponent<'a>,
+  parent: &'a IcalVCalendar,
 }
 
-impl<'a> Drop for Icalcomponent<'a> {
+impl Drop for IcalVCalendar {
+  fn drop(&mut self) {
+    unsafe {
+      // println!("free");
+      ical::icalcomponent_free(self.ptr);
+    }
+  }
+}
+
+impl<'a> Drop for IcalVEvent<'a> {
   fn drop(&mut self) {
     unsafe {
       // println!("free");
@@ -39,7 +59,7 @@ impl<'a> Drop for IcalProperty<'a> {
 }
 
 impl<'a> IcalProperty<'a> {
-  fn from_ptr(ptr: *mut ical::icalproperty, parent: &'a Icalcomponent) -> Self {
+  fn from_ptr(ptr: *mut ical::icalproperty, parent: &'a IcalComponent) -> Self {
     IcalProperty { ptr, _parent: parent }
   }
 
@@ -66,22 +86,22 @@ impl<'a> IcalProperty<'a> {
   }
 }
 
-impl<'a> Icalcomponent<'a> {
-  fn from_ptr(ptr: *mut ical::icalcomponent) -> Self {
-    Icalcomponent {
-      ptr: ptr,
-      parent: &ptr::null(),
-      path: None,
-    }
-  }
+impl IcalComponent for IcalVCalendar {
+  fn get_ptr (&self) -> *mut ical::icalcomponent  {
+    self.ptr
+  } 
+}
 
-  fn from_ptr_with_parent<'b>(
-    ptr: *mut ical::icalcomponent,
-    parent: &'b *const ical::icalcomponent,
-  ) -> Icalcomponent<'b> {
-    Icalcomponent {
-      ptr,
-      parent,
+impl<'a> IcalComponent for IcalVEvent<'a> {
+  fn get_ptr (&self) -> *mut ical::icalcomponent {
+    self.ptr
+  } 
+}
+
+impl IcalVCalendar {
+  fn from_ptr(ptr: *mut ical::icalcomponent) -> Self {
+    IcalVCalendar {
+      ptr: ptr,
       path: None,
     }
   }
@@ -99,10 +119,35 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
-  pub fn get_inner(&self) -> Self {
+//this needs to create IcalVEvents
+  //pub fn get_inner(&self) -> Self {
+  //  unsafe {
+  //    let inner_comp = ical::icalcomponent_get_inner(self.ptr);
+  //    Icalcomponent::from_ptr_with_parent(inner_comp, self.parent)
+  //  }
+  //}
+
+//research
+  pub fn get_uid(&self) -> String {
     unsafe {
-      let inner_comp = ical::icalcomponent_get_inner(self.ptr);
-      Icalcomponent::from_ptr_with_parent(inner_comp, self.parent)
+      let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.ptr));
+      foo.to_string_lossy().into_owned()
+    }
+  }
+
+  pub fn get_path_as_string(&self) -> String {
+    format!("{}", self.path.as_ref().unwrap().display())
+  }
+}
+
+impl<'a> IcalVEvent<'a> {
+  fn from_ptr_with_parent<'b>(
+    ptr: *mut ical::icalcomponent,
+    parent: &'b IcalVCalendar ,
+  ) -> IcalVEvent<'b> {
+    IcalVEvent {
+      ptr,
+      parent,
     }
   }
 
@@ -136,34 +181,34 @@ impl<'a> Icalcomponent<'a> {
     }
   }
 
-  fn get_properties(&self, property_kind: ical::icalproperty_kind) -> Vec<IcalProperty> {
+  fn get_properties(self: &Self, property_kind: ical::icalproperty_kind) -> Vec<IcalProperty> {
     let mut properties = Vec::new();
     unsafe {
-      let mut property_ptr = ical::icalcomponent_get_first_property(self.ptr, property_kind);
+      let mut property_ptr = ical::icalcomponent_get_first_property(self.get_ptr(), property_kind);
       while !property_ptr.is_null() {
-        let property = IcalProperty::from_ptr(property_ptr, &self);
+        let property = IcalProperty::from_ptr(property_ptr, self);
         properties.push(property);
-        property_ptr = ical::icalcomponent_get_next_property(self.ptr, property_kind);
+        property_ptr = ical::icalcomponent_get_next_property(self.get_ptr(), property_kind);
       }
     }
     properties
   }
 
-  pub fn get_properties_all(&self) -> Vec<IcalProperty> {
+  fn get_properties_all(&self) -> Vec<IcalProperty> {
     self.get_properties(ical::icalproperty_kind_ICAL_ANY_PROPERTY)
   }
 
-  pub fn get_properties_by_name(&self, property_name: &str) -> Vec<IcalProperty> {
+  fn get_properties_by_name(&self, property_name: &str) -> Vec<IcalProperty> {
     let property_kind = unsafe {
       ical::icalproperty_string_to_kind(CString::new(property_name).unwrap().as_ptr())
     };
     self.get_properties(property_kind)
   }
 
-  pub fn get_property(&self) -> IcalProperty {
+  fn get_property(&self) -> IcalProperty {
     unsafe {
-      let property = ical::icalcomponent_get_first_property(self.ptr, ical::icalproperty_kind_ICAL_DESCRIPTION_PROPERTY);
-      IcalProperty::from_ptr(property, &self)
+      let property = ical::icalcomponent_get_first_property(self.get_ptr(), ical::icalproperty_kind_ICAL_DESCRIPTION_PROPERTY);
+      IcalProperty::from_ptr(property, self)
     }
   }
 
@@ -195,46 +240,42 @@ impl<'a> Icalcomponent<'a> {
       foo.to_string_lossy().into_owned()
     }
   }
-
-  pub fn get_path_as_string(&self) -> String {
-    format!("{}", self.path.as_ref().unwrap().display())
-  }
 }
 
 impl<'a> IcalCompIter<'a> {
-  fn from_comp(comp: &'a Icalcomponent, kind: ical::icalcomponent_kind) -> Self {
+  fn from_comp(comp: &'a IcalVCalendar, kind: ical::icalcomponent_kind) -> Self {
     let iter = unsafe {
-      ical::icalcomponent_begin_component(comp.ptr, kind)
+      ical::icalcomponent_begin_component(comp.get_ptr(), kind)
     };
     IcalCompIter{iter, parent: &comp}
   }
 }
 
-impl<'a> IntoIterator for &'a Icalcomponent<'a> {
-  type Item = Icalcomponent<'a>;
-  type IntoIter = IcalCompIter<'a>;
+//impl<'a> IntoIterator for &'a IcalComponent {
+//  type Item = IcalComponent;
+//  type IntoIter = IcalCompIter<'a>;
+//
+//  fn into_iter(self) -> Self::IntoIter {
+//    IcalCompIter::from_comp(&self, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
+//  }
+//}
 
-  fn into_iter(self) -> Self::IntoIter {
-    IcalCompIter::from_comp(&self, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
-  }
-}
-
-impl <'a> Iterator for IcalCompIter<'a> {
-  type Item = Icalcomponent<'a>;
-
-  fn next(&mut self) -> Option<Icalcomponent<'a>> {
-    unsafe {
-      let ptr = ical::icalcompiter_deref(&mut self.iter);
-      if ptr.is_null() {
-        None
-      } else {
-        ical::icalcompiter_next(&mut self.iter);
-        let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent.parent);
-        Some(comp)
-      }
-    }
-  }
-}
+//impl <'a> Iterator for IcalCompIter<'a> {
+//  type Item = &'a IcalComponent;
+//
+//  fn next(&mut self) -> Option<Item> {
+//    unsafe {
+//      let ptr = ical::icalcompiter_deref(&mut self.iter);
+//      if ptr.is_null() {
+//        None
+//      } else {
+//        ical::icalcompiter_next(&mut self.iter);
+//        let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent.parent);
+//        Some(comp)
+//      }
+//    }
+//  }
+//}
 
 #[test]
 fn iterator_element_count() {
