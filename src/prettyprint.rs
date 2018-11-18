@@ -32,9 +32,21 @@ pub fn prettyprint_file(filepath: &Path) {
 
 pub fn shortprint_comp(cal: &IcalVCalendar) {
   let event = cal.events_iter().next().expect("No event in VCalendar!");
-  let date = event.get_dtstart().format("%Y-%m-%d");
-  let description = event.get_summary().unwrap_or(String::from("?"));
-  println!("{} {}", date, description);
+  let mut output = String::new();
+  if let Some(date) = event.get_dtstart() {
+    output.push_str(&date.format("%Y-%m-%d").to_string());
+  } else {
+    warn!("Invalid DTSTART in {}", event.get_uid());
+    return;
+  };
+  if let Some(summary) = event.get_summary() {
+    output.push_str(&summary);
+  } else {
+    warn!("Invalid SUMMARY in {}", event.get_uid());
+    return;
+  };
+  println!("{}", output);
+
 }
 
 pub fn prettyprint_comp(cal: &IcalVCalendar) {
@@ -51,7 +63,7 @@ fn prettyprint_prop(property: &IcalProperty) {
   match name.as_str() {
     "DTSTART" => {
       let date = property.get_value_as_date();
-      println!("start: {}", date);
+      println!("start: {}", date.unwrap());
     },
     "DESCRIPTION" => println!("description: {}", value),
     _  => println!("{} - {}", name, value),

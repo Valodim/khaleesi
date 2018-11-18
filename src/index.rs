@@ -8,8 +8,8 @@ use utils;
 use std::path::Path;
 
 fn get_buckets_for_event(event: &IcalVEvent) -> Result<Vec<String>, String> {
-  let mut start_date = event.get_dtstart();
-  let mut end_date = event.get_dtend();
+  let mut start_date = event.get_dtstart().ok_or("Invalid DTSTART")?;
+  let mut end_date = event.get_dtend().ok_or("Invalid DTEND")?;
   //info!("start: {}", start_date);
   //info!("end: {}", end_date);
 

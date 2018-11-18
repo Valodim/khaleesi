@@ -105,11 +105,10 @@ impl<'a> IcalProperty<'a> {
     }
   }
 
-  pub fn get_value_as_date(&self) -> NaiveDate {
+  pub fn get_value_as_date(&self) -> Option<NaiveDate> {
     unsafe {
-      let foo = ical::icalproperty_get_value_as_string(self.ptr);
-      let time = ical::icaltime_from_string(foo);
-      NaiveDate::from_ymd(time.year, time.month as u32, time.day as u32)
+      let date = ical::icaltime_from_string(ical::icalproperty_get_value_as_string(self.ptr));
+      NaiveDate::from_ymd_opt(date.year, date.month as u32, date.day as u32)
     }
   }
 }
@@ -142,7 +141,7 @@ impl IcalVCalendar {
     }
   }
 
-  pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, String> {
+  pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, &str> {
     unsafe {
       let parsed_cal = ical::icalparser_parse_string(CString::new(str).unwrap().as_ptr());
       if !parsed_cal.is_null() {
@@ -150,7 +149,7 @@ impl IcalVCalendar {
         cal.path = path;
         Ok(cal)
       } else {
-        Err("could not read component".to_string())
+        Err("could not read component")
       }
     }
   }
@@ -187,7 +186,7 @@ impl IcalVCalendar {
       );
       if self.events_iter().count() > 1 {
         warn!("More than one event in file: {}", self.get_path_as_string())
-      } 
+      }
       IcalVEvent::from_ptr_with_parent(event, self.as_component())
     }
   }
@@ -211,19 +210,19 @@ impl<'a> IcalVEvent<'a> {
     }
   }
 
-  pub fn get_dtend(&self) -> NaiveDateTime {
+  pub fn get_dtend(&self) -> Option<NaiveDateTime> {
     unsafe {
       let dtend = ical::icalcomponent_get_dtend(self.ptr);
-      NaiveDate::from_ymd(dtend.year, dtend.month as u32, dtend.day as u32)
-        .and_hms(dtend.hour as u32, dtend.minute as u32, dtend.second as u32)
+      NaiveDate::from_ymd_opt(dtend.year, dtend.month as u32, dtend.day as u32)
+        .and_then(|date| date.and_hms_opt(dtend.hour as u32, dtend.minute as u32, dtend.second as u32))
     }
   }
 
-  pub fn get_dtstart(&self) -> NaiveDateTime {
+  pub fn get_dtstart(&self) -> Option<NaiveDateTime> {
     unsafe {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-      NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
-        .and_hms(dtstart.hour as u32, dtstart.minute as u32, dtstart.second as u32)
+      NaiveDate::from_ymd_opt(dtstart.year, dtstart.month as u32, dtstart.day as u32)
+        .and_then(|date| date.and_hms_opt(dtstart.hour as u32, dtstart.minute as u32, dtstart.second as u32))
     }
   }
 
