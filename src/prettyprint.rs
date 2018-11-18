@@ -1,7 +1,7 @@
 use std::path::{Path};
 
-use ::icalwrap::*;
-use ::utils;
+use icalwrap::{IcalComponent,IcalVCalendar,IcalProperty};
+use utils;
 
 pub fn shortprint_dir(dir: &Path) {
   for filepath in utils::file_iter(dir) {
@@ -12,7 +12,7 @@ pub fn shortprint_dir(dir: &Path) {
 pub fn shortprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
-      let comp = Icalcomponent::from_str(&content, None);
+      let comp = IcalVCalendar::from_str(&content, None);
       let inner = comp.unwrap();
       shortprint_comp(&inner);
     },
@@ -23,21 +23,21 @@ pub fn shortprint_file(filepath: &Path) {
 pub fn prettyprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
-      let comp = Icalcomponent::from_str(&content, Some(filepath.to_path_buf())).unwrap();
-      let inner = comp.get_inner();
-      prettyprint_comp(&inner);
+      let comp = IcalVCalendar::from_str(&content, Some(filepath.to_path_buf())).unwrap();
+      prettyprint_comp(&comp);
     },
     Err(error) => print!("{}", error)
   }
 }
 
-pub fn shortprint_comp(comp: &Icalcomponent) {
-  let date = comp.get_dtstart().format("%Y-%m-%d");
-  let description = comp.get_summary().unwrap_or(String::from("?"));
+pub fn shortprint_comp(comp: &IcalVCalendar) {
+  let event = comp.events_iter().next().expect("No event in VCalendar!");
+  let date = event.get_dtstart().format("%Y-%m-%d");
+  let description = event.get_summary().unwrap_or(String::from("?"));
   println!("{} {}", date, description);
 }
 
-pub fn prettyprint_comp(comp: &Icalcomponent) {
+pub fn prettyprint_comp(comp: &IcalVCalendar) {
   let properties = comp.get_properties_all();
   println!("num: {}", properties.len());
   for property in properties {

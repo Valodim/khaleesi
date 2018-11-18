@@ -4,8 +4,8 @@ use std::path::PathBuf;
 
 use ical;
 
-trait IcalComponent {
-  fn get_ptr (&self) -> *mut ical::icalcomponent;
+pub trait IcalComponent {
+  fn get_ptr(&self) -> *mut ical::icalcomponent;
   fn as_component(&self) -> &dyn IcalComponent;
 
   fn get_property(&self) -> IcalProperty {
@@ -117,7 +117,7 @@ impl<'a> IcalProperty<'a> {
 }
 
 impl IcalComponent for IcalVCalendar {
-  fn get_ptr (&self) -> *mut ical::icalcomponent  {
+  fn get_ptr(&self) -> *mut ical::icalcomponent  {
     self.ptr
   }
 
