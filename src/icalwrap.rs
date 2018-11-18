@@ -57,12 +57,11 @@ pub struct IcalVCalendar {
 
 pub struct IcalVEvent<'a> {
   ptr: *mut ical::icalcomponent,
-  parent: &'a dyn IcalComponent,
+  _parent: &'a dyn IcalComponent,
 }
 
 pub struct IcalProperty<'a> {
   ptr: *mut ical::icalproperty,
-  //_parent: &'a Icalcomponent<'a>,
   _parent: &'a dyn IcalComponent,
 }
 
@@ -198,7 +197,7 @@ impl<'a> IcalVEvent<'a> {
   ) -> IcalVEvent<'b> {
     IcalVEvent {
       ptr,
-      parent,
+      _parent: parent,
     }
   }
 
@@ -283,7 +282,7 @@ impl<'a> IcalEventIter<'a> {
 //}
 
 impl <'a> Iterator for IcalEventIter<'a> {
-  type Item = &'a IcalVEvent<'a>;
+  type Item = IcalVEvent<'a>;
 
   fn next(&mut self) -> Option<Self::Item> {
     unsafe {
@@ -294,7 +293,7 @@ impl <'a> Iterator for IcalEventIter<'a> {
         ical::icalcompiter_next(&mut self.iter);
         //let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent);
         let vevent = IcalVEvent::from_ptr_with_parent(ptr, self.parent);
-        Some(&vevent)
+        Some(vevent)
       }
     }
   }
@@ -303,6 +302,6 @@ impl <'a> Iterator for IcalEventIter<'a> {
 #[test]
 fn iterator_element_count() {
   use testdata;
-  let comp = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-  // assert_eq!(comp.into_iter().count(), 1)
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+  assert_eq!(cal.events_iter().count(), 1)
 }
