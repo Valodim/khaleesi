@@ -8,16 +8,6 @@ pub trait IcalComponent {
   fn get_ptr(&self) -> *mut ical::icalcomponent;
   fn as_component(&self) -> &dyn IcalComponent;
 
-  fn get_first_event(&self) -> IcalVEvent {
-    unsafe {
-      let property = ical::icalcomponent_get_first_component(
-        self.get_ptr(),
-        ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT,
-      );
-      IcalVEvent::from_ptr_with_parent(property, self.as_component())
-    }
-  }
-
   fn get_property(&self) -> IcalProperty {
     unsafe {
       let property = ical::icalcomponent_get_first_property(self.get_ptr(), ical::icalproperty_kind_ICAL_DESCRIPTION_PROPERTY);
@@ -154,11 +144,11 @@ impl IcalVCalendar {
 
   pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, String> {
     unsafe {
-      let parsed_comp = ical::icalparser_parse_string(CString::new(str).unwrap().as_ptr());
-      if !parsed_comp.is_null() {
-        let mut comp = IcalVCalendar::from_ptr(parsed_comp);
-        comp.path = path;
-        Ok(comp)
+      let parsed_cal = ical::icalparser_parse_string(CString::new(str).unwrap().as_ptr());
+      if !parsed_cal.is_null() {
+        let mut cal = IcalVCalendar::from_ptr(parsed_cal);
+        cal.path = path;
+        Ok(cal)
       } else {
         Err("could not read component".to_string())
       }
@@ -188,6 +178,19 @@ impl IcalVCalendar {
   pub fn events_iter(&self) -> IcalEventIter {
     IcalEventIter::from_vcalendar(self)
   } 
+
+  pub fn get_first_event(&self) -> IcalVEvent {
+    unsafe {
+      let event = ical::icalcomponent_get_first_component(
+        self.get_ptr(),
+        ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT,
+      );
+      if self.events_iter().count() > 1 {
+        warn!("More than one event in file: {}", self.get_path_as_string())
+      } 
+      IcalVEvent::from_ptr_with_parent(event, self.as_component())
+    }
+  }
 }
 
 impl<'a> IcalVEvent<'a> {
@@ -262,13 +265,12 @@ impl<'a> IcalVEvent<'a> {
 }
 
 impl<'a> IcalEventIter<'a> {
-  fn from_vcalendar(comp: &'a IcalVCalendar) -> Self {
-    use ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT;
-    let vevent_kind = icalcomponent_kind_ICAL_VEVENT_COMPONENT;
+  fn from_vcalendar(cal: &'a IcalVCalendar) -> Self {
+    let vevent_kind = ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT;
     let iter = unsafe {
-      ical::icalcomponent_begin_component(comp.get_ptr(), vevent_kind)
+      ical::icalcomponent_begin_component(cal.get_ptr(), vevent_kind)
     };
-    IcalEventIter{iter, parent: &comp}
+    IcalEventIter{iter, parent: &cal}
   }
 }
 
@@ -291,7 +293,6 @@ impl <'a> Iterator for IcalEventIter<'a> {
         None
       } else {
         ical::icalcompiter_next(&mut self.iter);
-        //let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent);
         let vevent = IcalVEvent::from_ptr_with_parent(ptr, self.parent);
         Some(vevent)
       }

@@ -1,5 +1,5 @@
 use chrono::*;
-use icalwrap::{IcalComponent,IcalVCalendar};
+use icalwrap::IcalVCalendar;
 use utils;
 
 pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {

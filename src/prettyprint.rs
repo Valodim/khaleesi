@@ -12,8 +12,8 @@ pub fn shortprint_dir(dir: &Path) {
 pub fn shortprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
-      let comp = IcalVCalendar::from_str(&content, None);
-      let inner = comp.unwrap();
+      let cal = IcalVCalendar::from_str(&content, None);
+      let inner = cal.unwrap();
       shortprint_comp(&inner);
     },
     Err(error) => print!("{}", error)
@@ -23,22 +23,22 @@ pub fn shortprint_file(filepath: &Path) {
 pub fn prettyprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
-      let comp = IcalVCalendar::from_str(&content, Some(filepath.to_path_buf())).unwrap();
-      prettyprint_comp(&comp);
+      let cal = IcalVCalendar::from_str(&content, Some(filepath.to_path_buf())).unwrap();
+      prettyprint_comp(&cal);
     },
     Err(error) => print!("{}", error)
   }
 }
 
-pub fn shortprint_comp(comp: &IcalVCalendar) {
-  let event = comp.events_iter().next().expect("No event in VCalendar!");
+pub fn shortprint_comp(cal: &IcalVCalendar) {
+  let event = cal.events_iter().next().expect("No event in VCalendar!");
   let date = event.get_dtstart().format("%Y-%m-%d");
   let description = event.get_summary().unwrap_or(String::from("?"));
   println!("{} {}", date, description);
 }
 
-pub fn prettyprint_comp(comp: &IcalVCalendar) {
-  let properties = comp.get_properties_all();
+pub fn prettyprint_comp(cal: &IcalVCalendar) {
+  let properties = cal.get_properties_all();
   println!("num: {}", properties.len());
   for property in properties {
     prettyprint_prop(&property);
