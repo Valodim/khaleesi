@@ -16,7 +16,7 @@ extern crate chrono;
 extern crate yansi;
 extern crate libc;
 extern crate itertools;
-extern crate simple_logger;
+extern crate stderrlog;
 
 #[macro_use]
 extern crate log;

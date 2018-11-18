@@ -1,5 +1,4 @@
 extern crate khaleesi;
-extern crate simple_logger;
 
 use khaleesi::prettyprint;
 use khaleesi::agenda;
@@ -14,7 +13,7 @@ use std::path::Path;
 use std::io::{BufRead, BufReader};
 
 fn main() {
-  simple_logger::init().unwrap();
+  stderrlog::new().timestamp(stderrlog::Timestamp::Second).verbosity(4).init().unwrap();
 
   let args: Vec<String> = env::args().collect();
 
