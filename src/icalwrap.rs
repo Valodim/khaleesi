@@ -274,7 +274,7 @@ impl<'a> IcalEventIter<'a> {
 //}
 
 impl <'a> Iterator for IcalEventIter<'a> {
-  type Item = &'a dyn IcalComponent;
+  type Item = &'a IcalVEvent<'a>;
 
   fn next(&mut self) -> Option<Self::Item> {
     unsafe {
