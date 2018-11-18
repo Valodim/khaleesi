@@ -90,15 +90,15 @@ pub fn index_dir(dir: &Path ) {
 #[test]
 fn buckets_multi_day_allday() {
   use testdata;
-  let mut comp = Icalcomponent::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-  let comp_buckets = get_buckets(&mut comp);
+  let mut cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+  let comp_buckets = get_buckets_for_calendar(&mut cal);
   assert_eq!(comp_buckets, ["2007-26", "2007-27"]);
 }
 
 #[test]
 fn buckets_single_event() {
   use testdata;
-  let mut comp = Icalcomponent::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-  let comp_buckets = get_buckets(&mut comp);
+  let mut cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+  let comp_buckets = get_buckets_for_calendar(&mut cal);
   assert_eq!(comp_buckets, ["1997-13"]);
 }
