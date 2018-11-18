@@ -55,7 +55,7 @@ pub fn date_from_str(date: &str) -> NaiveDate {
 
 pub fn read_calendar_from_file(filepath: &str) -> IcalVCalendar {
   let path = Path::new(filepath);
-  let content = fs::read_to_string(path).expect("Could not read file");
+  let content = fs::read_to_string(path).expect(&format!("Could not read file {}", path.display()));
   IcalVCalendar::from_str(&content, Some(path.to_path_buf())).unwrap()
 }
 
