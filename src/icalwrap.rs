@@ -8,6 +8,16 @@ pub trait IcalComponent {
   fn get_ptr(&self) -> *mut ical::icalcomponent;
   fn as_component(&self) -> &dyn IcalComponent;
 
+  fn get_first_event(&self) -> IcalVEvent {
+    unsafe {
+      let property = ical::icalcomponent_get_first_component(
+        self.get_ptr(),
+        ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT,
+      );
+      IcalVEvent::from_ptr_with_parent(property, self.as_component())
+    }
+  }
+
   fn get_property(&self) -> IcalProperty {
     unsafe {
       let property = ical::icalcomponent_get_first_property(self.get_ptr(), ical::icalproperty_kind_ICAL_DESCRIPTION_PROPERTY);
@@ -38,7 +48,6 @@ pub trait IcalComponent {
     };
     self.get_properties(property_kind)
   }
-
 }
 
 pub struct IcalVCalendar {
@@ -48,7 +57,7 @@ pub struct IcalVCalendar {
 
 pub struct IcalVEvent<'a> {
   ptr: *mut ical::icalcomponent,
-  parent: &'a IcalVCalendar,
+  parent: &'a dyn IcalComponent,
 }
 
 pub struct IcalProperty<'a> {
@@ -185,7 +194,7 @@ impl IcalVCalendar {
 impl<'a> IcalVEvent<'a> {
   fn from_ptr_with_parent<'b>(
     ptr: *mut ical::icalcomponent,
-    parent: &'b IcalVCalendar ,
+    parent: &'b dyn IcalComponent,
   ) -> IcalVEvent<'b> {
     IcalVEvent {
       ptr,
