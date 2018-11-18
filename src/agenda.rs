@@ -5,7 +5,7 @@ use chrono::NaiveTime;
 
 pub fn show_events(lines: &mut Iterator<Item = String>) {
   let style_heading = Style::new().bold();
-  let comps = utils::read_comps_from_files(lines);
+  let comps = utils::read_calendars_from_files(lines);
 
   let mut cur_day = comps[0].get_dtstart().date();
   println!("{}", style_heading.paint(cur_day));
