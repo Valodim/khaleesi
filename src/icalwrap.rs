@@ -57,7 +57,7 @@ pub struct IcalProperty<'a> {
   _parent: &'a dyn IcalComponent,
 }
 
-pub struct IcalCompIter<'a> {
+pub struct IcalEventIter<'a> {
   iter: ical::icalcompiter,
   parent: &'a IcalVCalendar,
 }
@@ -176,6 +176,10 @@ impl IcalVCalendar {
   pub fn get_path_as_string(&self) -> String {
     format!("{}", self.path.as_ref().unwrap().display())
   }
+
+  pub fn events_iter(&self) -> IcalEventIter {
+    IcalEventIter::from_vcalendar(self)
+  } 
 }
 
 impl<'a> IcalVEvent<'a> {
@@ -249,12 +253,14 @@ impl<'a> IcalVEvent<'a> {
   }
 }
 
-impl<'a> IcalCompIter<'a> {
-  fn from_comp(comp: &'a IcalVCalendar, kind: ical::icalcomponent_kind) -> Self {
+impl<'a> IcalEventIter<'a> {
+  fn from_vcalendar(comp: &'a IcalVCalendar) -> Self {
+    use ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT;
+    let vevent_kind = icalcomponent_kind_ICAL_VEVENT_COMPONENT;
     let iter = unsafe {
-      ical::icalcomponent_begin_component(comp.get_ptr(), kind)
+      ical::icalcomponent_begin_component(comp.get_ptr(), vevent_kind)
     };
-    IcalCompIter{iter, parent: &comp}
+    IcalEventIter{iter, parent: &comp}
   }
 }
 
@@ -267,22 +273,23 @@ impl<'a> IcalCompIter<'a> {
 //  }
 //}
 
-//impl <'a> Iterator for IcalCompIter<'a> {
-//  type Item = &'a IcalComponent;
-//
-//  fn next(&mut self) -> Option<Item> {
-//    unsafe {
-//      let ptr = ical::icalcompiter_deref(&mut self.iter);
-//      if ptr.is_null() {
-//        None
-//      } else {
-//        ical::icalcompiter_next(&mut self.iter);
-//        let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent.parent);
-//        Some(comp)
-//      }
-//    }
-//  }
-//}
+impl <'a> Iterator for IcalEventIter<'a> {
+  type Item = &'a dyn IcalComponent;
+
+  fn next(&mut self) -> Option<Self::Item> {
+    unsafe {
+      let ptr = ical::icalcompiter_deref(&mut self.iter);
+      if ptr.is_null() {
+        None
+      } else {
+        ical::icalcompiter_next(&mut self.iter);
+        //let comp = Icalcomponent::from_ptr_with_parent(ptr, self.parent);
+        let vevent = IcalVEvent::from_ptr_with_parent(ptr, self.parent);
+        Some(&vevent)
+      }
+    }
+  }
+}
 
 #[test]
 fn iterator_element_count() {
