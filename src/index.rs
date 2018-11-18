@@ -7,46 +7,56 @@ use std::collections::HashMap;
 use utils;
 use std::path::Path;
 
-fn get_buckets(comp: &mut Icalcomponent) -> Vec<String> {
-  let mut buckets: Vec<String> = comp.into_iter().map(|x| {
-      let mut start_date = x.get_dtstart();
-      let mut end_date = x.get_dtend();
-      //info!("start: {}", start_date);
-      //info!("end: {}", end_date);
+fn get_buckets_for_event(event: &IcalVEvent) -> Result<Vec<String>, String> {
+  let mut start_date = event.get_dtstart();
+  let mut end_date = event.get_dtend();
+  //info!("start: {}", start_date);
+  //info!("end: {}", end_date);
 
-      // end-dtimes are non-inclusive 
-      // so in case of date-only events, the last day of the event is dtend-1 
-      if end_date.time() == NaiveTime::from_hms(0, 0, 0) {
-        end_date = end_date.checked_sub_signed(Duration::days(1)).unwrap();
-      }
-      let mut buckets = Vec::new();
-      while start_date.iso_week() <= end_date.iso_week() {
-        let bucket = format!(
-          "{}-{:02}",
-          start_date.iso_week().year(),
-          start_date.iso_week().week()
+  // end-dtimes are non-inclusive
+  // so in case of date-only events, the last day of the event is dtend-1
+  if end_date.time() == NaiveTime::from_hms(0, 0, 0) {
+    end_date = end_date.checked_sub_signed(Duration::days(1)).unwrap();
+  }
+  let mut buckets = Vec::new();
+  while start_date.iso_week() <= end_date.iso_week() {
+    let bucket = format!(
+        "{}-{:02}",
+        start_date.iso_week().year(),
+        start_date.iso_week().week()
         );
-        buckets.push(bucket);
-        start_date = start_date.checked_add_signed(Duration::days(7)).unwrap();
+    buckets.push(bucket);
+    start_date = start_date.checked_add_signed(Duration::days(7)).unwrap();
+  }
+  //if buckets.len() > 1 {
+  //  info!("{}: {} buckets", x.get_uid(), buckets.len());
+  //}
+  Ok(buckets)
+}
+
+fn get_buckets_for_calendar(cal: &mut IcalVCalendar) -> Vec<String> {
+  let mut buckets: Vec<String> = cal.events_iter().map(|x| {
+      match get_buckets_for_event(&x) {
+        Ok(buckets) => buckets,
+        Err(error) => {
+          warn!("{}", error);
+          Vec::new()
+        }
       }
-      //if buckets.len() > 1 {
-      //  info!("{}: {} buckets", x.get_uid(), buckets.len());
-      //}
-      buckets
-    }).flatten()
+      }).flatten()
     .collect();
   buckets.sort();
   buckets.dedup();
   buckets
 }
 
-fn add_buckets_for_component(buckets: &mut HashMap<String, Vec<String>>, comp: &mut Icalcomponent) {
-  let comp_buckets = get_buckets(comp);
-  for bucketid in comp_buckets {
+fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &mut IcalVCalendar) {
+  let cal_buckets = get_buckets_for_calendar(cal);
+  for bucketid in cal_buckets {
     buckets
       .entry(bucketid)
-      .and_modify(|items| items.push(comp.get_path_as_string()))
-      .or_insert(vec!(comp.get_path_as_string()));
+      .and_modify(|items| items.push(cal.get_path_as_string()))
+      .or_insert(vec!(cal.get_path_as_string()));
   }
 }
 
@@ -60,8 +70,8 @@ pub fn index_dir(dir: &Path ) {
   for file in ics_files {
     match utils::read_file_to_string(&file) {
       Ok(content) => {
-        match Icalcomponent::from_str(&content, Some(file)) {
-          Ok(mut comp) => add_buckets_for_component(&mut buckets, &mut comp),
+        match IcalVCalendar::from_str(&content, Some(file)) {
+          Ok(mut cal) => add_buckets_for_calendar(&mut buckets, &mut cal),
           Err(error) => error!("{}", error)
         }
       }
