@@ -300,8 +300,16 @@ impl <'a> Iterator for IcalEventIter<'a> {
 }
 
 #[test]
-fn iterator_element_count() {
+fn event_iterator_element_count() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
   assert_eq!(cal.events_iter().count(), 1)
 }
+
+#[test]
+fn event_iterator_element_count_with_other() {
+  use testdata;
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_WITH_TIMEZONE_COMPONENT, None).unwrap();
+  assert_eq!(cal.events_iter().count(), 1)
+}
+
