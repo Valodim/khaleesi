@@ -3,7 +3,7 @@ use std::io::prelude::*;
 use std::fs;
 use std::io;
 use std::iter;
-use icalwrap::{IcalVCalendar, IcalVEvent};
+use icalwrap::IcalVCalendar;
 use chrono::*;
 
 pub fn joinlines(first: &str, second: &str) -> String {

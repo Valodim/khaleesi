@@ -1,9 +1,9 @@
 use chrono::*;
-use icalwrap::Icalcomponent;
+use icalwrap::{IcalComponent,IcalVCalendar};
 use utils;
 
 pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
-  let mut comps = utils::read_calendars_from_files(files);
+  let mut cals = utils::read_calendars_from_files(files);
 
   if args.len() < 2 {
     println!("select [from|to parameter]+");
@@ -13,8 +13,8 @@ pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
     if chunk.len() == 2 {
       let datearg = utils::date_from_str(&chunk[1]);
       match chunk[0].as_str() {
-        "from" => comps = filter_date_from(comps, datearg),
-        "to" => comps = filter_date_to(comps, datearg),
+        "from" => cals = filter_date_from(cals, datearg),
+        "to" => cals = filter_date_to(cals, datearg),
         _ => { println!("Incorrect!"); return }
       }
     } else {
@@ -22,15 +22,15 @@ pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
     }
   }
 
-  for comp in comps {
-    println!("{}", comp.get_path_as_string());
+  for cal in cals {
+    println!("{}", cal.get_path_as_string());
   }
 }
 
-fn filter_date_from(comps: Vec<Icalcomponent>, from: NaiveDate) -> Vec<Icalcomponent> {
-  comps.into_iter().filter(|comp| comp.get_dtstart_date() >= from).collect()
+fn filter_date_from(cals: Vec<IcalVCalendar>, from: NaiveDate) -> Vec<IcalVCalendar> {
+  cals.into_iter().filter(|cal| cal.get_first_event().get_dtstart_date() >= from).collect()
 }
 
-fn filter_date_to(comps: Vec<Icalcomponent>, to: NaiveDate) -> Vec<Icalcomponent> {
-  comps.into_iter().filter(|comp| comp.get_dtstart_date() <= to).collect()
+fn filter_date_to(cals: Vec<IcalVCalendar>, to: NaiveDate) -> Vec<IcalVCalendar> {
+  cals.into_iter().filter(|cal| cal.get_first_event().get_dtstart_date() <= to).collect()
 }
