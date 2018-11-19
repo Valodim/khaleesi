@@ -1,6 +1,7 @@
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::{NaiveDate, NaiveDateTime, DateTime, Utc, TimeZone};
 use std::ffi::{CStr,CString};
 use std::path::PathBuf;
+use std::fmt;
 
 use ical;
 
@@ -105,11 +106,24 @@ impl<'a> IcalProperty<'a> {
     }
   }
 
+  pub fn as_ical_string(&self) -> String {
+    unsafe {
+      let foo = CStr::from_ptr(ical::icalproperty_as_ical_string(self.ptr));
+      foo.to_string_lossy().trim().to_owned()
+    }
+  }
+
   pub fn get_value_as_date(&self) -> Option<NaiveDate> {
     unsafe {
       let date = ical::icaltime_from_string(ical::icalproperty_get_value_as_string(self.ptr));
       NaiveDate::from_ymd_opt(date.year, date.month as u32, date.day as u32)
     }
+  }
+}
+
+impl<'a> fmt::Debug for IcalProperty<'a> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", self.as_ical_string())
   }
 }
 
