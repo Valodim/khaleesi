@@ -1,4 +1,5 @@
 extern crate khaleesi;
+extern crate stderrlog;
 
 use khaleesi::prettyprint;
 use khaleesi::agenda;
