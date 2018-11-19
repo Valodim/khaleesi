@@ -184,7 +184,7 @@ impl IcalVCalendar {
         self.get_ptr(),
         ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT,
       );
-      if self.events_iter().count() > 1 {
+      if self.events_iter().unique_uid_count() > 1 {
         warn!("More than one event in file: {}", self.get_path_as_string())
       }
       IcalVEvent::from_ptr_with_parent(event, self.as_component())
@@ -270,6 +270,15 @@ impl<'a> IcalEventIter<'a> {
       ical::icalcomponent_begin_component(cal.get_ptr(), vevent_kind)
     };
     IcalEventIter{iter, parent: &cal}
+  }
+
+  fn unique_uid_count(self) -> usize {
+    let mut uids = self.map(|event| {
+      event.get_uid()
+    }).collect::<Vec<String>>();
+    uids.sort_unstable();
+    uids.dedup();
+    uids.len()
   }
 }
 
