@@ -45,7 +45,7 @@ fn get_buckets_for_calendar(cal: &mut IcalVCalendar) -> Vec<String> {
       }
       }).flatten()
     .collect();
-  buckets.sort();
+  buckets.sort_unstable();
   buckets.dedup();
   buckets
 }
