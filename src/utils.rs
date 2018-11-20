@@ -30,9 +30,12 @@ pub fn file_iter(dir: &Path) -> Box<Iterator<Item = PathBuf>> {
   }
 }
 
-pub fn write_file(filename: &String, contents: String) -> Result<(), io::Error> {
-  let mut filepath: String = "Index/".to_owned();
-  filepath.push_str(&filename);
+pub fn write_file(relative_path_to_file: &String, contents: String) -> Result<(), io::Error> {
+  use defaults;
+
+  let mut filepath: String = defaults::DATADIR.to_owned();
+  filepath.push_str("/");
+  filepath.push_str(&relative_path_to_file);
   let mut file = fs::File::create(filepath)?;
   file.write_all(contents.as_bytes())
 }

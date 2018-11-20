@@ -81,7 +81,11 @@ pub fn index_dir(dir: &Path ) {
 
   info!("{} buckets", buckets.len());
   for (key, val) in buckets.iter() {
-    if let Err(error) = utils::write_file(key, val.join("\n")) {
+    use defaults::INDEXDIR;
+    let mut bucketpath = INDEXDIR.to_owned();
+    bucketpath.push_str("/");
+    bucketpath.push_str(key);
+    if let Err(error) = utils::write_file(&bucketpath, val.join("\n")) {
       error!("{}", error);
     }
   }
