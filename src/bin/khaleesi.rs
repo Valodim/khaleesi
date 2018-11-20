@@ -6,6 +6,7 @@ use khaleesi::cal;
 use khaleesi::index;
 use khaleesi::sort;
 use khaleesi::select;
+use khaleesi::seq;
 use khaleesi::utils;
 
 use std::env;
@@ -28,6 +29,7 @@ fn main() {
       "cal" => cal::printcal(),
       "dbg" => cal::dbg(),
       "select" => action_select(&args[2..]),
+      "seq" => action_sequence(&args[2..]),
       _  => print_usage(&args[0])
     }
   }
@@ -38,6 +40,10 @@ fn main() {
 
 fn print_usage(name: &String) {
   println!("Usage: {} index|print|short|sort|agenda|cal|dbg|select", name)
+}
+
+fn action_sequence(args: &[String]) {
+  seq::do_seq(args); 
 }
 
 fn action_select(args: &[String]) {

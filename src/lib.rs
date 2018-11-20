@@ -8,6 +8,7 @@ pub mod index;
 pub mod calutil;
 pub mod sort;
 pub mod select;
+pub mod seq;
 pub mod defaults;
 
 #[cfg(test)]
