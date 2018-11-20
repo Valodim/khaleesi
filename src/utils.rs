@@ -5,6 +5,7 @@ use std::io;
 use std::iter;
 use icalwrap::IcalVCalendar;
 use chrono::*;
+use std::io::{BufRead, BufReader};
 
 pub fn joinlines(first: &str, second: &str) -> String {
     use itertools::Itertools;
@@ -34,6 +35,21 @@ pub fn write_file(filename: &String, contents: String) -> Result<(), io::Error> 
   filepath.push_str(&filename);
   let mut file = fs::File::create(filepath)?;
   file.write_all(contents.as_bytes())
+}
+
+pub fn read_filenames_from_file(filepath: &Path) -> impl Iterator<Item = String> {
+  let f = fs::File::open(filepath).expect("Unable to open file");
+  let f = BufReader::new(f);
+  let lines = f.lines().map(|x| x.expect("Unable to read line"));
+  lines
+}
+
+pub fn read_filenames_from_stdin() -> impl Iterator<Item = String> {
+  let stdin = std::io::stdin();
+  let handle = stdin.lock();
+
+  let lines = handle.lines().map(|x| x.expect("Unable to read line")).collect::<Vec<String>>().into_iter();
+  lines
 }
 
 pub fn read_file_to_string(path: &Path) -> Result<String, String> {

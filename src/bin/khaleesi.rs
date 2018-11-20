@@ -6,11 +6,10 @@ use khaleesi::cal;
 use khaleesi::index;
 use khaleesi::sort;
 use khaleesi::select;
+use khaleesi::utils;
 
 use std::env;
-use std::fs::File;
 use std::path::Path;
-use std::io::{BufRead, BufReader};
 
 fn main() {
   stderrlog::new().timestamp(stderrlog::Timestamp::Second).verbosity(4).init().unwrap();
@@ -42,26 +41,26 @@ fn print_usage(name: &String) {
 }
 
 fn action_select(args: &[String]) {
-  select::select_by_args(&mut read_filenames_from_stdin(), &args);
+  select::select_by_args(&mut utils::read_filenames_from_stdin(), &args);
 }
 
 fn action_sort(args: &[String]) {
   if args.len() == 0 {
-    sort::sort_filenames_by_dtstart(&mut read_filenames_from_stdin())
+    sort::sort_filenames_by_dtstart(&mut utils::read_filenames_from_stdin())
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
-    sort::sort_filenames_by_dtstart(&mut read_filenames(filepath));
+    sort::sort_filenames_by_dtstart(&mut utils::read_filenames_from_file(filepath));
   }
 }
 
 fn action_agenda(args: &[String]) {
   if args.len() == 0 {
-    agenda::show_events(&mut read_filenames_from_stdin());
+    agenda::show_events(&mut utils::read_filenames_from_stdin());
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
-    agenda::show_events(&mut read_filenames(filepath));
+    agenda::show_events(&mut utils::read_filenames_from_file(filepath));
   }
 }
 
@@ -81,19 +80,4 @@ fn action_index(args: &[String]) {
   let dir = &args[0];
   let dirpath = Path::new(dir);
   index::index_dir(dirpath)
-}
-
-fn read_filenames(filepath: &Path) -> impl Iterator<Item = String> {
-  let f = File::open(filepath).expect("Unable to open file");
-  let f = BufReader::new(f);
-  let lines = f.lines().map(|x| x.expect("Unable to read line"));
-  lines
-}
-
-fn read_filenames_from_stdin() -> impl Iterator<Item = String> {
-  let stdin = std::io::stdin();
-  let handle = stdin.lock();
-
-  let lines = handle.lines().map(|x| x.expect("Unable to read line")).collect::<Vec<String>>().into_iter();
-  lines
 }
