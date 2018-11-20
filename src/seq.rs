@@ -2,6 +2,7 @@ use utils;
 use itertools::Itertools;
 use defaults::*;
 use std::path::{Path};
+use std::fs::rename;
 
 pub fn do_seq(args: &[String]) {
   if atty::isnt(atty::Stream::Stdin) {
@@ -18,14 +19,27 @@ pub fn do_seq(args: &[String]) {
 }
 
 fn write_stdin_to_seqfile() {
-  if let Err(error) = utils::write_file(&SEQFILE.to_owned(), utils::read_filenames_from_stdin().join("\n")) {
+  let tmpfilename = "tmpseq";
+
+  let mut tmpfilepath: String = DATADIR.to_owned();
+  tmpfilepath.push_str("/");
+  tmpfilepath.push_str(tmpfilename);
+
+  if let Err(error) = utils::write_file(&tmpfilename.to_owned(), utils::read_filenames_from_stdin().join("\n")) {
     error!("Could not write seqfile: {}", error);
   } 
+
+  let mut seqfilepath: String = DATADIR.to_owned();
+  seqfilepath.push_str("/");
+  seqfilepath.push_str(&SEQFILE);
+  if let Err(error) = rename(Path::new(&tmpfilepath), Path::new(&seqfilepath)) {
+    error!("{}", error)
+  }
 }
 
 fn write_seqfile_to_stdout() {
-  let mut filepath: String = DATADIR.to_owned();
-  filepath.push_str("/");
-  filepath.push_str(SEQFILE);
-  print!("{}", utils::read_file_to_string(Path::new(&filepath)).unwrap());
+  let mut seqfilepath: String = DATADIR.to_owned();
+  seqfilepath.push_str("/");
+  seqfilepath.push_str(&SEQFILE);
+  print!("{}", utils::read_file_to_string(Path::new(&seqfilepath)).unwrap());
 }
