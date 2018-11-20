@@ -9,9 +9,9 @@ pub trait IcalComponent {
   fn get_ptr(&self) -> *mut ical::icalcomponent;
   fn as_component(&self) -> &dyn IcalComponent;
 
-  fn get_property(&self) -> IcalProperty {
+  fn get_property(&self, property_kind: ical::icalproperty_kind) -> IcalProperty {
     unsafe {
-      let property = ical::icalcomponent_get_first_property(self.get_ptr(), ical::icalproperty_kind_ICAL_DESCRIPTION_PROPERTY);
+      let property = ical::icalcomponent_get_first_property(self.get_ptr(), property_kind);
       IcalProperty::from_ptr(property, self.as_component())
     }
   }
@@ -192,7 +192,7 @@ impl IcalVCalendar {
     IcalEventIter::from_vcalendar(self)
   } 
 
-  pub fn get_first_event(&self) -> IcalVEvent {
+  pub fn get_first_event(&self) -> IcalVEvent<'_> {
     unsafe {
       let event = ical::icalcomponent_get_first_component(
         self.get_ptr(),
@@ -245,6 +245,33 @@ impl<'a> IcalVEvent<'a> {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
       NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
     }
+  }
+
+  pub fn get_dtend_date(&self) -> NaiveDate {
+    unsafe {
+      let dtend = ical::icalcomponent_get_dtend(self.ptr);
+      NaiveDate::from_ymd(dtend.year, dtend.month as u32, dtend.day as u32)
+    }
+  }
+
+  pub fn has_recur(&self) -> bool {
+    !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
+  }
+
+  pub fn get_recurs(&self) -> Vec<DateTime<Utc>> {
+    let mut result = vec!();
+    let result_ptr: *mut ::std::os::raw::c_void = &mut result as *mut _ as *mut ::std::os::raw::c_void;
+
+    unsafe {
+      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
+      let mut dtend = ical::icalcomponent_get_dtend(self.ptr);
+
+      dtend.year = dtend.year + 1;
+
+      ical::icalcomponent_foreach_recurrence(self.ptr, dtstart, dtend, Some(recur_callback), result_ptr);
+    }
+
+    result
   }
 
   pub fn get_summary(&self) -> Option<String> {
@@ -305,6 +332,23 @@ impl<'a> IcalEventIter<'a> {
 //  }
 //}
 
+extern "C" fn recur_callback(
+                         _comp: *mut ical::icalcomponent,
+                         span: *mut ical::icaltime_span,
+                         data: *mut ::std::os::raw::c_void) {
+  let data: &mut Vec<DateTime<Utc>> = unsafe { &mut *(data as *mut Vec<DateTime<Utc>>) };
+
+  let spanstart = unsafe {
+    println!("callback!, {:?}", *span);
+    let start = (*span).start;
+    Utc.timestamp(start, 0)
+  };
+
+  data.push(spanstart);
+
+  ()
+}
+
 impl <'a> Iterator for IcalEventIter<'a> {
   type Item = IcalVEvent<'a>;
 
@@ -336,3 +380,24 @@ fn event_iterator_element_count_with_other() {
   assert_eq!(cal.events_iter().count(), 1)
 }
 
+#[test]
+fn load_serialize() {
+  use testdata;
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+  let back = unsafe {
+    let ical_str = ical::icalcomponent_as_ical_string(cal.ptr);
+    CStr::from_ptr(ical_str).to_string_lossy().into_owned()
+  }.replace("\r\n", "\n");
+  assert_eq!(back, testdata::TEST_EVENT_MULTIDAY)
+}
+
+#[test]
+fn recur_iterator_test() {
+  use testdata;
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+  let event = cal.get_first_event();
+  assert_eq!(format!("{}", event.get_dtstart_date().format("%Y%m%d")), "20181011");
+  assert_eq!(format!("{}", event.get_dtend_date().format("%Y%m%d")), "20181013");
+  assert_eq!(event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string(), "RRULE:FREQ=WEEKLY;COUNT=10");
+  assert_eq!(event.get_recurs().len(), 10)
+}

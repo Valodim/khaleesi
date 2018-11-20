@@ -36,6 +36,21 @@ pub static TEST_EVENT_ONE_MEETING: &str = indoc!("
     ATTACH;FMTTYPE=application/postscript:ftp://example.com/pub/conf/bkgrnd.ps
     END:VEVENT
     END:VCALENDAR
+
+");
+
+pub static TEST_EVENT_RECUR: &str = indoc!("
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    BEGIN:VEVENT
+    UID:autocryptthursday
+    DTSTART:20181011T000000Z
+    DURATION:P2D
+    SUMMARY:Autocrypt Thursdays
+    RRULE:FREQ=WEEKLY;COUNT=10
+    END:VEVENT
+    END:VCALENDAR
+
 ");
 
 
