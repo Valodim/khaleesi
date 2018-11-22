@@ -13,4 +13,4 @@
 *.ics
 
 # Don't commit the Index folder
-/Index/
+.khaleesi/
