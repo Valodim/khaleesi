@@ -6,7 +6,7 @@ pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
   let mut cals = utils::read_calendars_from_files(files);
 
   if args.len() < 2 {
-    println!("select [from|to parameter]+");
+    info!("select [from|to parameter]+");
     return
   }
   for chunk in args.chunks(2) {
@@ -14,7 +14,7 @@ pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
       let mut datearg = match utils::date_from_str(&chunk[1]) {
         Ok(datearg) => datearg,
         Err(error) => {
-          println!("{}", error);
+          info!("{}", error);
           return
         }
       };
@@ -22,10 +22,10 @@ pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
       match chunk[0].as_str() {
         "from" => cals = filter_date_from(cals, datearg),
         "to" => cals = filter_date_to(cals, datearg),
-        _ => { println!("Incorrect!"); return }
+        _ => { info!("Incorrect!"); return }
       }
     } else {
-      println!("Syntax error!");
+      info!("Syntax error!");
     }
   }
 
