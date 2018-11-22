@@ -3,7 +3,7 @@ use icalwrap::IcalVCalendar;
 use utils;
 
 pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
-  let mut cals = utils::read_calendars_from_files(files);
+  let mut cals = utils::read_calendars_from_files(files).unwrap();
 
   if args.len() < 2 {
     info!("select [from|to parameter]+");

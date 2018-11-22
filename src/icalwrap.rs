@@ -141,7 +141,7 @@ impl IcalVCalendar {
     }
   }
 
-  pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, &str> {
+  pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, String> {
     unsafe {
       let parsed_cal = ical::icalparser_parse_string(CString::new(str).unwrap().as_ptr());
       if !parsed_cal.is_null() {
@@ -149,7 +149,7 @@ impl IcalVCalendar {
         cal.path = path;
         Ok(cal)
       } else {
-        Err("could not read component")
+        Err("could not read component".to_string())
       }
     }
   }
