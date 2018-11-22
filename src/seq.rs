@@ -24,9 +24,18 @@ fn write_stdin_to_seqfile() {
   let mut tmpfilepath: String = DATADIR.to_owned();
   tmpfilepath.push_str("/");
   tmpfilepath.push_str(tmpfilename);
+  let lines;
+  match utils::read_lines_from_stdin() {
+    Ok(mut input) => lines = input.join("\n"),
+    Err(error) => {
+      error!("Error reading from stdin: {}", error);
+      return
+    }
+  }
 
-  if let Err(error) = utils::write_file(&tmpfilename.to_owned(), utils::read_filenames_from_stdin().join("\n")) {
+  if let Err(error) = utils::write_file(&tmpfilename.to_owned(), lines) {
     error!("Could not write seqfile: {}", error);
+    return
   } 
 
   let mut seqfilepath: String = DATADIR.to_owned();

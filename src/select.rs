@@ -11,7 +11,14 @@ pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
   }
   for chunk in args.chunks(2) {
     if chunk.len() == 2 {
-      let datearg = utils::date_from_str(&chunk[1]);
+      let mut datearg = match utils::date_from_str(&chunk[1]) {
+        Ok(datearg) => datearg,
+        Err(error) => {
+          println!("{}", error);
+          return
+        }
+      };
+
       match chunk[0].as_str() {
         "from" => cals = filter_date_from(cals, datearg),
         "to" => cals = filter_date_to(cals, datearg),

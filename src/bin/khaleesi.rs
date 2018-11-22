@@ -47,26 +47,27 @@ fn action_sequence(args: &[String]) {
 }
 
 fn action_select(args: &[String]) {
-  select::select_by_args(&mut utils::read_filenames_from_stdin(), &args);
+  select::select_by_args(&mut utils::read_lines_from_stdin().unwrap(), &args);
 }
 
 fn action_sort(args: &[String]) {
   if args.len() == 0 {
-    sort::sort_filenames_by_dtstart(&mut utils::read_filenames_from_stdin())
+    sort::sort_filenames_by_dtstart(&mut utils::read_lines_from_stdin().unwrap())
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
-    sort::sort_filenames_by_dtstart(&mut utils::read_filenames_from_file(filepath));
+    let mut lines = utils::read_lines_from_file(filepath).unwrap();
+    sort::sort_filenames_by_dtstart(&mut lines);
   }
 }
 
 fn action_agenda(args: &[String]) {
   if args.len() == 0 {
-    agenda::show_events(&mut utils::read_filenames_from_stdin());
+    agenda::show_events(&mut utils::read_lines_from_stdin().unwrap());
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
-    agenda::show_events(&mut utils::read_filenames_from_file(filepath));
+    agenda::show_events(&mut utils::read_lines_from_file(filepath).unwrap());
   }
 }
 

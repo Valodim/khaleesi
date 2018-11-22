@@ -30,29 +30,33 @@ pub fn file_iter(dir: &Path) -> Box<Iterator<Item = PathBuf>> {
   }
 }
 
-pub fn write_file(relative_path_to_file: &String, contents: String) -> Result<(), io::Error> {
+pub fn write_file(relative_path_to_file: &String, contents: String) -> io::Result<()> {
   use defaults;
 
-  let mut filepath: String = defaults::DATADIR.to_owned();
-  filepath.push_str("/");
-  filepath.push_str(&relative_path_to_file);
+  let filepath: PathBuf = [defaults::DATADIR, &relative_path_to_file].iter().collect();
   let mut file = fs::File::create(filepath)?;
   file.write_all(contents.as_bytes())
 }
 
-pub fn read_filenames_from_file(filepath: &Path) -> impl Iterator<Item = String> {
-  let f = fs::File::open(filepath).expect("Unable to open file");
+pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = String>> {
+  let f = fs::File::open(filepath)?;
   let f = BufReader::new(f);
-  let lines = f.lines().map(|x| x.expect("Unable to read line"));
-  lines
+  let lines: Result<Vec<String>, io::Error> = f.lines().collect();
+  match lines {
+    Ok(result) => Ok(result.into_iter()),
+    Err(error) => Err(error)
+  }
 }
 
-pub fn read_filenames_from_stdin() -> impl Iterator<Item = String> {
+pub fn read_lines_from_stdin() -> io::Result<impl Iterator<Item = String>> {
   let stdin = std::io::stdin();
   let handle = stdin.lock();
 
-  let lines = handle.lines().map(|x| x.expect("Unable to read line")).collect::<Vec<String>>().into_iter();
-  lines
+  let lines: Result<Vec<String>, io::Error> = handle.lines().collect();
+  match lines {
+    Ok(result) => Ok(result.into_iter()),
+    Err(error) => Err(error)
+  }
 }
 
 pub fn read_file_to_string(path: &Path) -> Result<String, String> {
@@ -68,8 +72,8 @@ pub fn read_file_to_string(path: &Path) -> Result<String, String> {
   }
 }
 
-pub fn date_from_str(date: &str) -> NaiveDate {
-  NaiveDate::parse_from_str(date, "%Y-%m-%d").unwrap()
+pub fn date_from_str(date: &str) -> ParseResult<NaiveDate> {
+  NaiveDate::parse_from_str(date, "%Y-%m-%d")
 }
 
 pub fn read_calendar_from_file(filepath: &str) -> IcalVCalendar {
