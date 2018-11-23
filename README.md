@@ -1,3 +1,4 @@
 # khaleesi
 
-![build status](https://travis-ci.com/Valodim/khaleesi.svg?branch=master)
+[![Travis Build Status](https://travis-ci.org/Valodim/khaleesi.svg?branch=master)](https://travis-ci.org/Valodim/khaleesi)
+
