@@ -1,3 +1,5 @@
+extern crate atty;
+
 use utils;
 use itertools::Itertools;
 use defaults::*;

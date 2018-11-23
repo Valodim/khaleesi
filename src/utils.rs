@@ -49,7 +49,7 @@ pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = 
 }
 
 pub fn read_lines_from_stdin() -> io::Result<impl Iterator<Item = String>> {
-  let stdin = std::io::stdin();
+  let stdin = io::stdin();
   let handle = stdin.lock();
 
   let lines: Result<Vec<String>, io::Error> = handle.lines().collect();
