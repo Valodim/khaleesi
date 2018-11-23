@@ -388,7 +388,7 @@ fn load_serialize() {
     let ical_str = ical::icalcomponent_as_ical_string(cal.ptr);
     CStr::from_ptr(ical_str).to_string_lossy().into_owned()
   }.replace("\r\n", "\n");
-  assert_eq!(back, testdata::TEST_EVENT_MULTIDAY)
+  assert_eq!(back.trim(), testdata::TEST_EVENT_MULTIDAY)
 }
 
 #[test]
