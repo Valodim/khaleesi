@@ -4,3 +4,6 @@ dist: xenial
 
 before_install:
   - sudo apt-get install -y libical-dev
+
+script:
+  - cargo build --verbose
