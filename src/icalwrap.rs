@@ -339,7 +339,7 @@ extern "C" fn recur_callback(
   let data: &mut Vec<DateTime<Utc>> = unsafe { &mut *(data as *mut Vec<DateTime<Utc>>) };
 
   let spanstart = unsafe {
-    println!("callback!, {:?}", *span);
+    trace!("callback!, {:?}", *span);
     let start = (*span).start;
     Utc.timestamp(start, 0)
   };

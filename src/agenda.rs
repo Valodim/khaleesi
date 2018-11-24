@@ -1,5 +1,5 @@
 use utils;
-use ::icalwrap::*;
+use icalwrap::*;
 use yansi::Style;
 use chrono::{NaiveDateTime, NaiveTime};
 

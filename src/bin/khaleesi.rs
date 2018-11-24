@@ -13,12 +13,18 @@ use khaleesi::sort;
 use khaleesi::select;
 use khaleesi::seq;
 use khaleesi::utils;
+use khaleesi::unroll;
 
 use std::env;
 use std::path::Path;
 
 fn main() {
-  stderrlog::new().timestamp(stderrlog::Timestamp::Second).verbosity(4).init().unwrap();
+  stderrlog::new().timestamp(stderrlog::Timestamp::Second).verbosity(3).init().unwrap();
+  //            0 => LevelFilter::Error,
+  //            1 => LevelFilter::Warn,
+  //            2 => LevelFilter::Info,
+  //            3 => LevelFilter::Debug,
+  //            _ => LevelFilter::Trace,
 
   let args: Vec<String> = env::args().collect();
 
