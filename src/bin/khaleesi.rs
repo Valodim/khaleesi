@@ -1,6 +1,9 @@
 extern crate khaleesi;
 extern crate stderrlog;
 
+#[macro_use]
+extern crate log;
+
 use khaleesi::prettyprint;
 use khaleesi::agenda;
 use khaleesi::cal;
