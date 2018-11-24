@@ -1,3 +1,4 @@
+extern crate atty;
 extern crate khaleesi;
 extern crate stderrlog;
 
@@ -51,12 +52,12 @@ fn action_sequence(args: &[String]) {
 }
 
 fn action_select(args: &[String]) {
-  select::select_by_args(&mut utils::read_lines_from_stdin().unwrap(), &args);
+  select::select_by_args(&mut default_input(), &args);
 }
 
 fn action_sort(args: &[String]) {
   if args.len() == 0 {
-    sort::sort_filenames_by_dtstart(&mut utils::read_lines_from_stdin().unwrap())
+    sort::sort_filenames_by_dtstart(&mut default_input())
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
@@ -67,7 +68,7 @@ fn action_sort(args: &[String]) {
 
 fn action_agenda(args: &[String]) {
   if args.len() == 0 {
-    agenda::show_events(&mut utils::read_lines_from_stdin().unwrap());
+    agenda::show_events(&mut default_input());
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
@@ -91,4 +92,14 @@ fn action_index(args: &[String]) {
   let dir = &args[0];
   let dirpath = Path::new(dir);
   index::index_dir(dirpath)
+}
+
+fn default_input() -> Box<dyn Iterator<Item = String>> {
+  if atty::isnt(atty::Stream::Stdin) {
+    debug!("stdin");
+    Box::new(utils::read_lines_from_stdin().unwrap())
+  } else {
+    debug!("seqfile");
+    Box::new(seq::read_seqfile())
+  }
 }

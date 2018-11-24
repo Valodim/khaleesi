@@ -48,9 +48,16 @@ fn write_stdin_to_seqfile() {
   }
 }
 
-fn write_seqfile_to_stdout() {
+pub fn read_seqfile() -> impl Iterator<Item = String> {
   let mut seqfilepath: String = DATADIR.to_owned();
   seqfilepath.push_str("/");
   seqfilepath.push_str(&SEQFILE);
-  print!("{}", utils::read_file_to_string(Path::new(&seqfilepath)).unwrap());
+  utils::read_lines_from_file(Path::new(&seqfilepath)).unwrap()
+}
+
+fn write_seqfile_to_stdout() {
+  let seq = read_seqfile();
+  for line in seq {
+    println!("{}", line)
+  }
 }
