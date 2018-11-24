@@ -1,14 +1,23 @@
 use chrono::*;
 use icalwrap::IcalVCalendar;
 use utils;
+use seq;
 
 pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
-  let mut cals = utils::read_calendars_from_files(files).unwrap();
 
+  if args.len() == 1 {
+    if let Ok(num) = args[0].parse::<usize>() {
+      println!("{}", files.nth(num).expect("No such element in sequence"));
+      return
+    }
+  }
   if args.len() < 2 {
     info!("select [from|to parameter]+");
     return
   }
+
+  let mut cals = utils::read_calendars_from_files(files).unwrap();
+
   for chunk in args.chunks(2) {
     if chunk.len() == 2 {
       let mut datearg = match utils::date_from_str(&chunk[1]) {
