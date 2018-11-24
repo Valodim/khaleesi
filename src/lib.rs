@@ -1,24 +1,25 @@
-pub mod icalwrap;
-pub mod prettyprint;
 pub mod agenda;
-pub mod utils;
-pub mod ical;
 pub mod cal;
-pub mod index;
 pub mod calutil;
-pub mod sort;
+pub mod defaults;
+pub mod ical;
+pub mod icalwrap;
+pub mod index;
+pub mod prettyprint;
 pub mod select;
 pub mod seq;
-pub mod defaults;
+pub mod sort;
+pub mod unroll;
+pub mod utils;
 
 #[cfg(test)]
 pub mod testdata;
 
 extern crate chrono;
-extern crate yansi;
-extern crate libc;
 extern crate itertools;
+extern crate libc;
 extern crate stderrlog;
+extern crate yansi;
 
 #[macro_use]
 extern crate log;

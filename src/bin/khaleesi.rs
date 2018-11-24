@@ -41,6 +41,7 @@ fn main() {
       "dbg" => cal::dbg(),
       "select" => action_select(&args[2..]),
       "seq" => action_sequence(&args[2..]),
+      "unroll" => action_unroll(&args[2..]),
       _  => print_usage(&args[0])
     }
   }
@@ -80,6 +81,12 @@ fn action_agenda(args: &[String]) {
     let filepath = Path::new(file);
     agenda::show_events(&mut utils::read_lines_from_file(filepath).unwrap());
   }
+}
+
+fn action_unroll(args: &[String]) {
+  let file = &args[0];
+  let filepath = Path::new(file);
+  unroll::do_unroll(filepath)
 }
 
 fn action_prettyprint(args: &[String]) {

@@ -76,13 +76,17 @@ pub fn date_from_str(date: &str) -> ParseResult<NaiveDate> {
   NaiveDate::parse_from_str(date, "%Y-%m-%d")
 }
 
-pub fn read_calendar_from_file(filepath: &str) -> Result<IcalVCalendar, String> {
-  let path = Path::new(filepath);
+pub fn read_calendar_from_path(path: &Path) -> Result<IcalVCalendar, String> {
   let content = match fs::read_to_string(path) {
     Ok(content) => content,
     Err(error) => return Err(format!("{}", error))
   };
   IcalVCalendar::from_str(&content, Some(path.to_path_buf()))
+}
+
+pub fn read_calendar_from_file(filepath: &str) -> Result<IcalVCalendar, String> {
+  let path = Path::new(filepath);
+  read_calendar_from_path(path)
 }
 
 pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<Vec<IcalVCalendar>, String> {
