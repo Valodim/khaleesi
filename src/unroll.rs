@@ -1,5 +1,4 @@
 use utils;
-use icalwrap::*;
 use std::path::Path;
 
 pub fn do_unroll(filepath: &Path) {

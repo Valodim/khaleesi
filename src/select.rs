@@ -1,7 +1,6 @@
 use chrono::*;
 use icalwrap::IcalVCalendar;
 use utils;
-use seq;
 
 pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
 
