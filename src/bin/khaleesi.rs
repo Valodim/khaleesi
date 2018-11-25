@@ -59,12 +59,16 @@ fn action_sequence(args: &[String]) {
 }
 
 fn action_select(args: &[String]) {
-  select::select_by_args(&mut default_input(), &args);
+  if let Some(mut input) = default_input() {
+    select::select_by_args(&mut input, &args);
+  }
 }
 
 fn action_sort(args: &[String]) {
   if args.len() == 0 {
-    sort::sort_filenames_by_dtstart(&mut default_input())
+    if let Some(mut input) = default_input() {
+        sort::sort_filenames_by_dtstart(&mut input)
+    }
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
@@ -75,7 +79,9 @@ fn action_sort(args: &[String]) {
 
 fn action_agenda(args: &[String]) {
   if args.len() == 0 {
-    agenda::show_events(&mut default_input());
+    if let Some(mut input) = default_input() {
+      agenda::show_events(&mut input);
+    }
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
@@ -107,12 +113,18 @@ fn action_index(args: &[String]) {
   index::index_dir(dirpath)
 }
 
-fn default_input() -> Box<dyn Iterator<Item = String>> {
+fn default_input() -> Option<Box<dyn Iterator<Item = String>>> {
   if atty::isnt(atty::Stream::Stdin) {
     debug!("stdin");
-    Box::new(utils::read_lines_from_stdin().unwrap())
+    Some(Box::new(utils::read_lines_from_stdin().unwrap()))
   } else {
-    debug!("seqfile");
-    Box::new(seq::read_seqfile())
+    match seq::read_seqfile() {
+      Ok(sequence) => Some(Box::new(sequence)),
+      Err(err) => {
+        error!("{}", err);
+        None
+      }
+    }
+
   }
 }

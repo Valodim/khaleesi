@@ -1,6 +1,7 @@
 extern crate atty;
 
 use utils;
+use std::io;
 use itertools::Itertools;
 use defaults::*;
 use std::path::{Path,PathBuf};
@@ -39,9 +40,10 @@ fn write_stdin_to_seqfile() {
   }
 }
 
-pub fn read_seqfile() -> impl Iterator<Item = String> {
+pub fn read_seqfile() -> io::Result<impl Iterator<Item = String>> {
   let seqfile = get_seqfile();
-  utils::read_lines_from_file(&seqfile).unwrap()
+  debug!("Reading sequence file: {}", seqfile.to_string_lossy());
+  utils::read_lines_from_file(&seqfile)
 }
 
 fn get_seqfile() -> PathBuf {
@@ -49,8 +51,9 @@ fn get_seqfile() -> PathBuf {
 }
 
 fn write_seqfile_to_stdout() {
-  let seq = read_seqfile();
-  for line in seq {
-    println!("{}", line)
+  if let Ok(sequence) = read_seqfile() {
+    for line in sequence {
+      println!("{}", line);
+    }
   }
 }
