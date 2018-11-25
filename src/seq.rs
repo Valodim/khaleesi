@@ -3,10 +3,10 @@ extern crate atty;
 use utils;
 use itertools::Itertools;
 use defaults::*;
-use std::path::{Path};
+use std::path::{Path,PathBuf};
 use std::fs::rename;
 
-pub fn do_seq(args: &[String]) {
+pub fn do_seq(_args: &[String]) {
   if atty::isnt(atty::Stream::Stdin) {
     write_stdin_to_seqfile()
   } else {
@@ -19,9 +19,7 @@ pub fn do_seq(args: &[String]) {
 fn write_stdin_to_seqfile() {
   let tmpfilename = "tmpseq";
 
-  let mut tmpfilepath: String = DATADIR.to_owned();
-  tmpfilepath.push_str("/");
-  tmpfilepath.push_str(tmpfilename);
+  let seqfile = get_seqfile();
   let mut lines;
   match utils::read_lines_from_stdin() {
     Ok(mut input) => lines = input.join("\n"),
@@ -34,21 +32,20 @@ fn write_stdin_to_seqfile() {
   if let Err(error) = utils::write_file(&tmpfilename.to_owned(), lines) {
     error!("Could not write seqfile: {}", error);
     return
-  } 
+  }
 
-  let mut seqfilepath: String = DATADIR.to_owned();
-  seqfilepath.push_str("/");
-  seqfilepath.push_str(&SEQFILE);
-  if let Err(error) = rename(Path::new(&tmpfilepath), Path::new(&seqfilepath)) {
+  if let Err(error) = rename(Path::new(&tmpfilename), seqfile) {
     error!("{}", error)
   }
 }
 
 pub fn read_seqfile() -> impl Iterator<Item = String> {
-  let mut seqfilepath: String = DATADIR.to_owned();
-  seqfilepath.push_str("/");
-  seqfilepath.push_str(&SEQFILE);
-  utils::read_lines_from_file(Path::new(&seqfilepath)).unwrap()
+  let seqfile = get_seqfile();
+  utils::read_lines_from_file(&seqfile).unwrap()
+}
+
+fn get_seqfile() -> PathBuf {
+  [DATADIR, SEQFILE].iter().collect()
 }
 
 fn write_seqfile_to_stdout() {
