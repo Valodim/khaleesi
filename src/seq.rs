@@ -4,7 +4,6 @@ use utils;
 use std::io;
 use itertools::Itertools;
 use defaults::*;
-use std::path::{Path,PathBuf};
 use std::fs::rename;
 
 pub fn do_seq(_args: &[String]) {
@@ -18,7 +17,7 @@ pub fn do_seq(_args: &[String]) {
 }
 
 fn write_stdin_to_seqfile() {
-  let tmpfilename = "tmpseq";
+  let tmpfilename = get_datafile("tmpseq");
 
   let seqfile = get_seqfile();
   let mut lines;
@@ -30,12 +29,12 @@ fn write_stdin_to_seqfile() {
     }
   }
   lines.push_str("\n");
-  if let Err(error) = utils::write_file(&tmpfilename.to_owned(), lines) {
+  if let Err(error) = utils::write_file(&tmpfilename, lines) {
     error!("Could not write seqfile: {}", error);
     return
   }
 
-  if let Err(error) = rename(Path::new(&tmpfilename), seqfile) {
+  if let Err(error) = rename(tmpfilename, seqfile) {
     error!("{}", error)
   }
 }
@@ -44,10 +43,6 @@ pub fn read_seqfile() -> io::Result<impl Iterator<Item = String>> {
   let seqfile = get_seqfile();
   debug!("Reading sequence file: {}", seqfile.to_string_lossy());
   utils::read_lines_from_file(&seqfile)
-}
-
-fn get_seqfile() -> PathBuf {
-  [DATADIR, SEQFILE].iter().collect()
 }
 
 fn write_seqfile_to_stdout() {

@@ -1,11 +1,10 @@
+use std::{fs,io,iter,time};
 use std::path::{Path,PathBuf};
 use std::io::prelude::*;
-use std::fs;
-use std::io;
-use std::iter;
+use std::io::{BufRead, BufReader};
+use std::fmt::Display;
 use icalwrap::IcalVCalendar;
 use chrono::*;
-use std::io::{BufRead, BufReader};
 
 pub fn joinlines(first: &str, second: &str) -> String {
     use itertools::Itertools;
@@ -30,10 +29,7 @@ pub fn file_iter(dir: &Path) -> Box<Iterator<Item = PathBuf>> {
   }
 }
 
-pub fn write_file(relative_path_to_file: &String, contents: String) -> io::Result<()> {
-  use defaults;
-
-  let filepath: PathBuf = [defaults::DATADIR, &relative_path_to_file].iter().collect();
+pub fn write_file(filepath: &Path, contents: String) -> io::Result<()> {
   let mut file = fs::File::create(filepath)?;
   file.write_all(contents.as_bytes())
 }
@@ -92,4 +88,8 @@ pub fn read_calendar_from_file(filepath: &str) -> Result<IcalVCalendar, String> 
 pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<Vec<IcalVCalendar>, String> {
   let result: Result<Vec<IcalVCalendar>, String> = files.map(|file| read_calendar_from_file(&file)).collect();
   return result
+}
+
+pub fn format_duration(duration: &time::Duration) -> impl Display {
+  duration.as_secs() * 1000 + (duration.subsec_millis() as u64)
 }

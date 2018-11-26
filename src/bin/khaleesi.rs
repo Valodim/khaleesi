@@ -14,9 +14,10 @@ use khaleesi::select;
 use khaleesi::seq;
 use khaleesi::utils;
 use khaleesi::unroll;
+use khaleesi::defaults::*;
 
 use std::env;
-use std::path::Path;
+use std::path::{Path,PathBuf};
 
 fn main() {
   stderrlog::new().timestamp(stderrlog::Timestamp::Second).verbosity(3).init().unwrap();
@@ -108,9 +109,12 @@ fn action_prettyprint_all(args: &[String]) {
 }
 
 fn action_index(args: &[String]) {
-  let dir = &args[0];
-  let dirpath = Path::new(dir);
-  index::index_dir(dirpath)
+  let indexpath = if args.len() == 0 {
+    get_caldir()
+  } else {
+    PathBuf::from(&args[0])
+  };
+  index::index_dir(&indexpath)
 }
 
 fn default_input() -> Option<Box<dyn Iterator<Item = String>>> {
