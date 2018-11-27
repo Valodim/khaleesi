@@ -34,7 +34,7 @@ fn main() {
   } else {
     match args[1].as_str() {
       "index" => action_index(&args[2..]),
-      "print" => action_prettyprint(&args[2..]),
+      "show" => action_show(&args[2..]),
       "short" => action_prettyprint_all(&args[2..]),
       "agenda" => action_agenda(&args[2..]),
       "sort" => action_sort(&args[2..]),
@@ -96,7 +96,7 @@ fn action_unroll(args: &[String]) {
   unroll::do_unroll(filepath)
 }
 
-fn action_prettyprint(args: &[String]) {
+fn action_show(args: &[String]) {
   let file = &args[0];
   let filepath = Path::new(file);
   prettyprint::prettyprint_file(filepath)
