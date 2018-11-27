@@ -10,8 +10,8 @@ use std::fs;
 use defaults::*;
 
 fn get_buckets_for_event(event: &IcalVEvent) -> Result<Vec<String>, String> {
-  let mut start_date = event.get_dtstart().ok_or("Invalid DTSTART")?;
-  let mut end_date = event.get_dtend().ok_or("Invalid DTEND")?;
+  let mut start_date = event.get_dtstart().ok_or(format!("Invalid DTSTART in {}", event.get_uid()))?;
+  let mut end_date = event.get_dtend().ok_or(format!("Invalid DTEND in {}", event.get_uid()))?;
   //info!("start: {}", start_date);
   //info!("end: {}", end_date);
 
@@ -112,7 +112,7 @@ fn read_buckets(ics_files: impl Iterator<Item = PathBuf>) -> HashMap<String, Vec
 fn write_index(buckets: HashMap<String, Vec<String>>) {
   for (key, val) in buckets.iter() {
     let bucketfile = get_indexfile(key);
-    debug!("Writing bucket: {}", key);
+    trace!("Writing bucket: {}", key);
     if let Err(error) = utils::write_file(&bucketfile, val.join("\n")) {
       error!("{}", error);
       return;
