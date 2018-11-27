@@ -419,10 +419,10 @@ fn recur_iterator_test() {
 }
 
 #[test]
-fn index_line() {
+fn index_line_test() {
   use testdata;
-  let mut cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-  cal.path = Some(PathBuf::from("test/path"));
-  let event = cal.events_iter().nth(0).unwrap();
+  let path = Some(PathBuf::from("test/path"));
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
+  let event = cal.get_first_event();
   assert_eq!(event.index_line().unwrap(), String::from("1182988800 test/path"))
 }
