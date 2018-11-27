@@ -48,7 +48,7 @@ pub struct IcalVCalendar {
 
 pub struct IcalVEvent<'a> {
   ptr: *mut ical::icalcomponent,
-  _parent: &'a dyn IcalComponent,
+  _parent: Option<&'a IcalVCalendar>,
 }
 
 pub struct IcalProperty<'a> {
@@ -207,7 +207,7 @@ impl IcalVCalendar {
       if self.events_iter().unique_uid_count() > 1 {
         warn!("More than one event in file: {}", self.get_path_as_string())
       }
-      IcalVEvent::from_ptr_with_parent(event, self.as_component())
+      IcalVEvent::from_ptr_with_parent(event, self)
     }
   }
 }
@@ -215,11 +215,11 @@ impl IcalVCalendar {
 impl<'a> IcalVEvent<'a> {
   fn from_ptr_with_parent<'b>(
     ptr: *mut ical::icalcomponent,
-    parent: &'b dyn IcalComponent,
+    parent: &'b IcalVCalendar,
   ) -> IcalVEvent<'b> {
     IcalVEvent {
       ptr,
-      _parent: parent,
+      _parent: Some(parent),
     }
   }
 
@@ -278,6 +278,16 @@ impl<'a> IcalVEvent<'a> {
     }
 
     result
+  }
+
+  pub fn get_parent(&self) -> Option<&IcalVCalendar> {
+    self._parent
+  }
+
+  pub fn index_line(&self) -> Option<String> {
+    let dtstart_string = self.get_dtstart()?.timestamp().to_string();
+    let path_string = self._parent?.get_path_as_string();
+    Some([dtstart_string, path_string].join(" "))
   }
 
   pub fn get_summary(&self) -> Option<String> {
@@ -406,4 +416,13 @@ fn recur_iterator_test() {
   assert_eq!(format!("{}", event.get_dtend_date().format("%Y%m%d")), "20181013");
   assert_eq!(event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string(), "RRULE:FREQ=WEEKLY;COUNT=10");
   assert_eq!(event.get_recurs().len(), 10)
+}
+
+#[test]
+fn index_line() {
+  use testdata;
+  let mut cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+  cal.path = Some(PathBuf::from("test/path"));
+  let event = cal.events_iter().nth(0).unwrap();
+  assert_eq!(event.index_line().unwrap(), String::from("1182988800 test/path"))
 }
