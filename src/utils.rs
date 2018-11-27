@@ -1,4 +1,6 @@
-use std::{fs,io,iter,time};
+extern crate walkdir;
+
+use std::{fs, io, time};
 use std::path::{Path,PathBuf};
 use std::io::prelude::*;
 use std::io::{BufRead, BufReader};
@@ -19,14 +21,13 @@ pub fn joinlines(first: &str, second: &str) -> String {
         .join("\n")
 }
 
-pub fn file_iter(dir: &Path) -> Box<Iterator<Item = PathBuf>> {
-  if let Ok(entries) = fs::read_dir(dir) {
-      let valid_entries = entries.filter(|x| x.is_ok());
-      let extracted_paths = valid_entries.map(move |x| x.unwrap().path());
-      Box::new(extracted_paths)
-  } else {
-      Box::new(iter::empty())
-  }
+pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
+  use self::walkdir::WalkDir;
+
+  WalkDir::new(dir).into_iter()
+    .filter_map(|e| e.ok())
+    .filter(|e| e.file_type().is_file())
+    .map(|entry| entry.into_path())
 }
 
 pub fn write_file(filepath: &Path, contents: String) -> io::Result<()> {

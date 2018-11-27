@@ -85,9 +85,7 @@ pub fn index_dir(dir: &Path) {
 
 fn get_ics_files(dir: &Path) -> impl Iterator<Item = PathBuf> {
   utils::file_iter(dir)
-    .filter( |path| path.is_file() )
     .filter( |path| path.extension().map_or(false, |extension| extension == "ics"))
-
 }
 
 fn read_buckets(ics_files: impl Iterator<Item = PathBuf>) -> HashMap<String, Vec<String>> {
