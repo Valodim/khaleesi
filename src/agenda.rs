@@ -1,14 +1,14 @@
 use utils;
 use icalwrap::*;
 use yansi::Style;
-use chrono::{NaiveDateTime, NaiveTime};
+use chrono::{NaiveDateTime, NaiveTime, Utc, TimeZone, Local};
 
 pub fn show_events(lines: &mut Iterator<Item = String>) {
   let style_heading = Style::new().bold();
   let cals = utils::read_calendars_from_files(lines).unwrap();
 
   let mut cur_day = cals[0].get_first_event().get_dtstart()
-    .unwrap_or(NaiveDateTime::from_timestamp(0, 0))
+    .unwrap_or(Local.timestamp(0, 0))
     .date();
   println!("{}", style_heading.paint(cur_day));
 
@@ -32,7 +32,7 @@ pub fn show_events(lines: &mut Iterator<Item = String>) {
 
 pub fn event_line(event: &IcalVEvent) -> Result<String, String> {
   let mut time_sep = " ";
-  let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?;
+  let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?.with_timezone(&Local);
   let start_string = if dtstart.time() == NaiveTime::from_hms(0, 0, 0) {
     "".to_string()
   } else {
@@ -40,7 +40,7 @@ pub fn event_line(event: &IcalVEvent) -> Result<String, String> {
     format!("{}", dtstart.format("%H:%M"))
   };
 
-  let dtend = event.get_dtend().ok_or("Invalid DTEND")?;
+  let dtend = event.get_dtend().ok_or("Invalid DTEND")?.with_timezone(&Local);
   let end_string = if dtend.time() == NaiveTime::from_hms(0, 0, 0) {
     "".to_string()
   } else {

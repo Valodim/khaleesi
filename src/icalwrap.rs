@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime, DateTime, Utc, TimeZone};
+use chrono::{NaiveDate, NaiveDateTime, DateTime, Utc, TimeZone, Local};
 use std::ffi::{CStr,CString};
 use std::path::PathBuf;
 use std::fmt;
@@ -49,6 +49,7 @@ pub struct IcalVCalendar {
 pub struct IcalVEvent<'a> {
   ptr: *mut ical::icalcomponent,
   _parent: Option<&'a IcalVCalendar>,
+  instance_timestamp: Option<DateTime<Utc>>,
 }
 
 pub struct IcalProperty<'a> {
@@ -220,30 +221,41 @@ impl<'a> IcalVEvent<'a> {
     IcalVEvent {
       ptr,
       _parent: Some(parent),
+      instance_timestamp: None,
     }
   }
 
-  pub fn get_dtstart_unix(&self) -> i64 {
-    unsafe {
-      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-      ical::icaltime_as_timet(dtstart)
-    }
-  }
-
-  pub fn get_dtend(&self) -> Option<NaiveDateTime> {
+  pub fn get_dtend_unix(&self) -> Option<i64> {
     unsafe {
       let dtend = ical::icalcomponent_get_dtend(self.ptr);
-      NaiveDate::from_ymd_opt(dtend.year, dtend.month as u32, dtend.day as u32)
-        .and_then(|date| date.and_hms_opt(dtend.hour as u32, dtend.minute as u32, dtend.second as u32))
+      trace!("{:?}", dtend);
+      if ical::icaltime_is_null_time(dtend) == 1 {
+        None
+      } else {
+        Some(ical::icaltime_as_timet_with_zone(dtend, dtend.zone))
+      }
     }
   }
 
-  pub fn get_dtstart(&self) -> Option<NaiveDateTime> {
+  pub fn get_dtstart_unix(&self) -> Option<i64> {
     unsafe {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-      NaiveDate::from_ymd_opt(dtstart.year, dtstart.month as u32, dtstart.day as u32)
-        .and_then(|date| date.and_hms_opt(dtstart.hour as u32, dtstart.minute as u32, dtstart.second as u32))
+      if ical::icaltime_is_null_time(dtstart) == 1 {
+        None
+      } else {
+        Some(ical::icaltime_as_timet_with_zone(dtstart, dtstart.zone))
+      }
     }
+  }
+
+  pub fn get_dtend(&self) -> Option<DateTime<Local>> {
+    let dtend = self.get_dtend_unix()?;
+    Some(Utc.timestamp(dtend, 0).with_timezone(&Local))
+  }
+
+  pub fn get_dtstart(&self) -> Option<DateTime<Local>> {
+    let dtstart = self.get_dtstart_unix()?;
+    Some(Utc.timestamp(dtstart, 0).with_timezone(&Local))
   }
 
   pub fn get_dtstart_date(&self) -> NaiveDate {
