@@ -42,10 +42,10 @@ pub fn select_by_args(files: &mut Iterator<Item = String>, args: &[String]) {
   }
 }
 
-fn filter_date_from(cals: Vec<IcalVCalendar>, from: NaiveDate) -> Vec<IcalVCalendar> {
-  cals.into_iter().filter(|cal| cal.get_first_event().get_dtstart_date() >= from).collect()
+fn filter_date_from(cals: Vec<IcalVCalendar>, from: Date<Local>) -> Vec<IcalVCalendar> {
+  cals.into_iter().filter(|cal| cal.get_first_event().get_dtstart().unwrap().date() >= from).collect()
 }
 
-fn filter_date_to(cals: Vec<IcalVCalendar>, to: NaiveDate) -> Vec<IcalVCalendar> {
-  cals.into_iter().filter(|cal| cal.get_first_event().get_dtstart_date() <= to).collect()
+fn filter_date_to(cals: Vec<IcalVCalendar>, to: Date<Local>) -> Vec<IcalVCalendar> {
+  cals.into_iter().filter(|cal| cal.get_first_event().get_dtstart().unwrap().date() <= to).collect()
 }

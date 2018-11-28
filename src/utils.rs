@@ -69,8 +69,9 @@ pub fn read_file_to_string(path: &Path) -> Result<String, String> {
   }
 }
 
-pub fn date_from_str(date: &str) -> ParseResult<NaiveDate> {
-  NaiveDate::parse_from_str(date, "%Y-%m-%d")
+pub fn date_from_str(date: &str) -> ParseResult<Date<Local>> {
+  let naive_date = &NaiveDate::parse_from_str(date, "%Y-%m-%d")?;
+  Ok(Local.from_local_date(naive_date).unwrap())
 }
 
 pub fn read_calendar_from_path(path: &Path) -> Result<IcalVCalendar, String> {
