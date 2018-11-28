@@ -276,7 +276,7 @@ impl<'a> IcalVEvent<'a> {
     !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
   }
 
-  pub fn get_recurs(&self) -> Vec<DateTime<Utc>> {
+  pub fn get_recur_datetimes(&self) -> Vec<DateTime<Utc>> {
     let mut result = vec!();
     let result_ptr: *mut ::std::os::raw::c_void = &mut result as *mut _ as *mut ::std::os::raw::c_void;
 
@@ -290,6 +290,18 @@ impl<'a> IcalVEvent<'a> {
     }
 
     result
+  }
+
+  pub fn recur_events_iter(&self) -> impl Iterator<Item = IcalVEvent>{
+    self.get_recur_datetimes().into_iter().map(move |rec| self.with_internal_timestamp(rec))
+  }
+
+  fn with_internal_timestamp(&self, datetime: DateTime<Utc>) -> IcalVEvent {
+    IcalVEvent {
+      ptr: self.ptr,
+      parent: self.parent,
+      _instance_timestamp: Some(datetime),
+    }
   }
 
   pub fn get_parent(&self) -> Option<&IcalVCalendar> {
