@@ -1,7 +1,7 @@
 use utils;
 use icalwrap::*;
 use yansi::Style;
-use chrono::{NaiveDateTime, NaiveTime, Utc, TimeZone, Local};
+use chrono::{NaiveTime, TimeZone, Local};
 
 pub fn show_events(lines: &mut Iterator<Item = String>) {
   let style_heading = Style::new().bold();

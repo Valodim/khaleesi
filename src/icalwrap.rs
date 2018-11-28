@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime, DateTime, Utc, TimeZone, Local};
+use chrono::{NaiveDate, DateTime, Utc, TimeZone, Local};
 use std::ffi::{CStr,CString};
 use std::path::PathBuf;
 use std::fmt;
@@ -48,8 +48,8 @@ pub struct IcalVCalendar {
 
 pub struct IcalVEvent<'a> {
   ptr: *mut ical::icalcomponent,
-  _parent: Option<&'a IcalVCalendar>,
-  instance_timestamp: Option<DateTime<Utc>>,
+  parent: Option<&'a IcalVCalendar>,
+  _instance_timestamp: Option<DateTime<Utc>>,
 }
 
 pub struct IcalProperty<'a> {
@@ -220,8 +220,8 @@ impl<'a> IcalVEvent<'a> {
   ) -> IcalVEvent<'b> {
     IcalVEvent {
       ptr,
-      _parent: Some(parent),
-      instance_timestamp: None,
+      parent: Some(parent),
+      _instance_timestamp: None,
     }
   }
 
@@ -293,12 +293,12 @@ impl<'a> IcalVEvent<'a> {
   }
 
   pub fn get_parent(&self) -> Option<&IcalVCalendar> {
-    self._parent
+    self.parent
   }
 
   pub fn index_line(&self) -> Option<String> {
     let dtstart_string = self.get_dtstart()?.timestamp().to_string();
-    let path_string = self._parent?.get_path_as_string();
+    let path_string = self.parent?.get_path_as_string();
     Some([dtstart_string, path_string].join(" "))
   }
 
