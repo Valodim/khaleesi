@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, DateTime, Utc, TimeZone, Local};
+use chrono::{NaiveDate, DateTime, Date, Utc, TimeZone, Local};
 use std::ffi::{CStr,CString};
 use std::path::PathBuf;
 use std::fmt;
@@ -258,22 +258,17 @@ impl<'a> IcalVEvent<'a> {
     Some(Utc.timestamp(dtstart, 0).with_timezone(&Local))
   }
 
-  pub fn get_dtstart_date(&self) -> NaiveDate {
-    unsafe {
-      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-      NaiveDate::from_ymd(dtstart.year, dtstart.month as u32, dtstart.day as u32)
-    }
+  pub fn get_dtstart_date(&self) -> Option<Date<Local>> {
+    Some(self.get_dtstart()?.date())
   }
 
-  pub fn get_dtend_date(&self) -> NaiveDate {
-    unsafe {
-      let dtend = ical::icalcomponent_get_dtend(self.ptr);
-      NaiveDate::from_ymd(dtend.year, dtend.month as u32, dtend.day as u32)
-    }
+  pub fn get_dtend_date(&self) -> Option<Date<Local>> {
+    Some(self.get_dtend()?.date())
   }
 
   pub fn has_recur(&self) -> bool {
     !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
+    & self._instance_timestamp.is_none()
   }
 
   pub fn get_recur_datetimes(&self) -> Vec<DateTime<Utc>> {
@@ -292,7 +287,7 @@ impl<'a> IcalVEvent<'a> {
     result
   }
 
-  pub fn recur_events_iter(&self) -> impl Iterator<Item = IcalVEvent>{
+  pub fn get_recur_instances(&self) -> impl Iterator<Item = IcalVEvent>{
     self.get_recur_datetimes().into_iter().map(move |rec| self.with_internal_timestamp(rec))
   }
 
@@ -340,6 +335,14 @@ impl<'a> IcalVEvent<'a> {
     unsafe {
       let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.ptr));
       foo.to_string_lossy().into_owned()
+    }
+  }
+
+  pub fn is_allday(&self) -> bool {
+    unsafe {
+      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
+//      let dtend = ical::icalcomponent_get_dtend(self.ptr);
+      dtstart.is_date != 0
     }
   }
 }
@@ -436,10 +439,11 @@ fn recur_iterator_test() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
   let event = cal.get_first_event();
-  assert_eq!(format!("{}", event.get_dtstart_date().format("%Y%m%d")), "20181011");
-  assert_eq!(format!("{}", event.get_dtend_date().format("%Y%m%d")), "20181013");
+  assert_eq!(format!("{}", event.get_dtstart_date().unwrap().format("%Y%m%d")), "20181011");
+  assert_eq!(format!("{}", event.get_dtend_date().unwrap().format("%Y%m%d")), "20181013");
   assert_eq!(event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string(), "RRULE:FREQ=WEEKLY;COUNT=10");
-  assert_eq!(event.get_recurs().len(), 10)
+  assert_eq!(event.get_recur_datetimes().len(), 10);
+  assert_eq!(event.get_recur_instances().count(), 10);
 }
 
 #[test]
@@ -449,4 +453,11 @@ fn index_line_test() {
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
   let event = cal.get_first_event();
   assert_eq!(event.index_line().unwrap(), String::from("1182988800 test/path"))
+}
+
+#[test]
+fn has_recur_test() {
+  use testdata;
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+  assert!(cal.get_first_event().has_recur());
 }

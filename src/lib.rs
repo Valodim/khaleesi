@@ -11,6 +11,7 @@ pub mod seq;
 pub mod sort;
 pub mod unroll;
 pub mod utils;
+pub mod bucketable;
 
 #[cfg(test)]
 pub mod testdata;
