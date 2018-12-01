@@ -95,3 +95,12 @@ pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<
 pub fn format_duration(duration: &time::Duration) -> impl Display {
   duration.as_secs() * 1000 + (duration.subsec_millis() as u64)
 }
+
+pub fn get_bucket_for_date(date: &Date<Local>) -> String {
+  let bucket = format!(
+      "{}-{:02}",
+      date.iso_week().year(),
+      date.iso_week().week()
+      );
+  bucket
+}

@@ -1,24 +1,16 @@
 use icalwrap::{IcalVEvent, IcalVCalendar};
 use chrono::{Local, Date, Datelike, Duration};
 use std::collections::HashMap;
+use utils;
 
 pub trait Bucketable {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String>;
 
-  fn get_bucket_for_date(date: &Date<Local>) -> String {
-    let bucket = format!(
-        "{}-{:02}",
-        date.iso_week().year(),
-        date.iso_week().week()
-        );
-    bucket
-  }
-  
   fn buckets_for_interval(mut start: Date<Local>, end: Date<Local>) -> Vec<String> {
     let mut buckets = Vec::new();
 
     while start.iso_week() <= end.iso_week() {
-      let bucket = Self::get_bucket_for_date(&start);
+      let bucket = utils::get_bucket_for_date(&start);
       buckets.push(bucket);
       start = start.checked_add_signed(Duration::days(7)).unwrap();
     }
