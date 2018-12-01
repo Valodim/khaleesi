@@ -1,7 +1,5 @@
 use icalwrap::{IcalVEvent, IcalVCalendar};
-use chrono::{Datelike};
-use chrono::{Duration};
-use chrono::{Local, Date};
+use chrono::{Local, Date, Datelike, Duration};
 use std::collections::HashMap;
 
 pub trait Bucketable {
@@ -119,7 +117,7 @@ fn buckets_multi_day_allday() {
   assert_eq!(event_buckets.len(), 2);
 
   let mut bucket_names = event_buckets.keys().collect::<Vec<&String>>();
-  bucket_names.sort();
+  bucket_names.sort_unstable();
   assert_eq!(bucket_names, ["2007-26", "2007-27"]);
 
   let cal_buckets = cal.get_buckets().unwrap();
@@ -150,7 +148,8 @@ fn buckets_simple_recurring_event() {
   let event_buckets = event.get_buckets().unwrap();
   let cal_buckets = cal.get_buckets().unwrap();
   assert_eq!(event_buckets, cal_buckets);
-  assert_eq!(cal_buckets.len(), 10);
-  assert_eq!(cal_buckets.keys().collect::<Vec<&String>>(),
+  let mut cal_bucket_names = cal_buckets.keys().collect::<Vec<&String>>();
+  cal_bucket_names.sort_unstable();
+  assert_eq!(cal_bucket_names,
      ["2018-41", "2018-42", "2018-43", "2018-44", "2018-45", "2018-46", "2018-47", "2018-48", "2018-49", "2018-50"]);
 }

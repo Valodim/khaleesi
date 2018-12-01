@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, DateTime, Date, Utc, TimeZone, Local};
+use chrono::{NaiveDate, Duration, DateTime, Date, Utc, TimeZone, Local};
 use std::ffi::{CStr,CString};
 use std::path::PathBuf;
 use std::fmt;
@@ -49,7 +49,7 @@ pub struct IcalVCalendar {
 pub struct IcalVEvent<'a> {
   ptr: *mut ical::icalcomponent,
   parent: Option<&'a IcalVCalendar>,
-  _instance_timestamp: Option<DateTime<Utc>>,
+  instance_timestamp: Option<DateTime<Utc>>,
 }
 
 pub struct IcalProperty<'a> {
@@ -215,35 +215,46 @@ impl IcalVCalendar {
 
 impl<'a> IcalVEvent<'a> {
   fn from_ptr_with_parent<'b>(
-    ptr: *mut ical::icalcomponent,
-    parent: &'b IcalVCalendar,
-  ) -> IcalVEvent<'b> {
+      ptr: *mut ical::icalcomponent,
+      parent: &'b IcalVCalendar,
+      ) -> IcalVEvent<'b> {
     IcalVEvent {
       ptr,
       parent: Some(parent),
-      _instance_timestamp: None,
+      instance_timestamp: None,
     }
   }
 
   pub fn get_dtend_unix(&self) -> Option<i64> {
-    unsafe {
-      let dtend = ical::icalcomponent_get_dtend(self.ptr);
-      trace!("{:?}", dtend);
-      if ical::icaltime_is_null_time(dtend) == 1 {
-        None
-      } else {
-        Some(ical::icaltime_as_timet_with_zone(dtend, dtend.zone))
-      }
+    match self.instance_timestamp {
+      Some(timestamp) => unsafe {
+        let icalduration = ical::icalcomponent_get_duration(self.ptr);
+        let duration = Duration::seconds(ical::icaldurationtype_as_int(icalduration) as i64);
+        Some(timestamp.checked_add_signed(duration)?.timestamp())
+      },
+      None =>
+        unsafe {
+          let dtend = ical::icalcomponent_get_dtend(self.ptr);
+          trace!("{:?}", dtend);
+          if ical::icaltime_is_null_time(dtend) == 1 {
+            None
+          } else {
+            Some(ical::icaltime_as_timet_with_zone(dtend, dtend.zone))
+          }
+        }
     }
   }
 
   pub fn get_dtstart_unix(&self) -> Option<i64> {
-    unsafe {
-      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-      if ical::icaltime_is_null_time(dtstart) == 1 {
-        None
-      } else {
-        Some(ical::icaltime_as_timet_with_zone(dtstart, dtstart.zone))
+    match self.instance_timestamp {
+      Some(timestamp) => Some(timestamp.timestamp()),
+      None => unsafe {
+        let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
+        if ical::icaltime_is_null_time(dtstart) == 1 {
+          None
+        } else {
+          Some(ical::icaltime_as_timet_with_zone(dtstart, dtstart.zone))
+        }
       }
     }
   }
@@ -268,7 +279,7 @@ impl<'a> IcalVEvent<'a> {
 
   pub fn has_recur(&self) -> bool {
     !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
-    & self._instance_timestamp.is_none()
+    & self.instance_timestamp.is_none()
   }
 
   pub fn get_recur_datetimes(&self) -> Vec<DateTime<Utc>> {
@@ -279,6 +290,7 @@ impl<'a> IcalVEvent<'a> {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
       let mut dtend = ical::icalcomponent_get_dtend(self.ptr);
 
+      //unroll up to 1 year in the future
       dtend.year = dtend.year + 1;
 
       ical::icalcomponent_foreach_recurrence(self.ptr, dtstart, dtend, Some(recur_callback), result_ptr);
@@ -295,7 +307,7 @@ impl<'a> IcalVEvent<'a> {
     IcalVEvent {
       ptr: self.ptr,
       parent: self.parent,
-      _instance_timestamp: Some(datetime),
+      instance_timestamp: Some(datetime),
     }
   }
 
@@ -460,4 +472,16 @@ fn has_recur_test() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
   assert!(cal.get_first_event().has_recur());
+}
+
+#[test]
+fn recur_datetimes_test() {
+  use testdata;
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+
+  let event = cal.get_first_event();
+  let mut recur_instances = event.get_recur_instances();
+//TODO also check times
+  assert_eq!(format!("{}", recur_instances.next().unwrap().get_dtstart().unwrap().format("%Y%m%d")), "20181011");
+  assert_eq!(format!("{}", recur_instances.next().unwrap().get_dtstart().unwrap().format("%Y%m%d")), "20181018");
 }
