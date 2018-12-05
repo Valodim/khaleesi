@@ -2,7 +2,6 @@ pub mod agenda;
 pub mod cal;
 pub mod calutil;
 pub mod defaults;
-pub mod ical;
 pub mod icalwrap;
 pub mod index;
 pub mod prettyprint;
@@ -21,6 +20,7 @@ extern crate itertools;
 extern crate libc;
 extern crate stderrlog;
 extern crate yansi;
+extern crate libical_sys as ical;
 
 #[macro_use]
 extern crate log;
