@@ -1,6 +1,7 @@
 use icalwrap::{IcalVEvent, IcalVCalendar};
 use chrono::{Local, Date, Datelike, Duration};
 use std::collections::HashMap;
+use std::{hash,cmp};
 use utils;
 
 pub trait Bucketable {
@@ -65,13 +66,13 @@ impl Bucketable for IcalVCalendar {
 }
 
 pub trait Merge<K>
-where K: std::cmp::Eq + std::hash::Hash
+where K: cmp::Eq + hash::Hash
 {
   fn merge(&mut self, other: HashMap<K, Vec<String>>);
 }
 
 impl<K> Merge<K> for HashMap<K, Vec<String>>
-where K: std::cmp::Eq + std::hash::Hash
+where K: cmp::Eq + hash::Hash
 {
   fn merge(&mut self, other: HashMap<K, Vec<String>>) {
     for (key, mut lines) in other.into_iter() {
