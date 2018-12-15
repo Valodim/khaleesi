@@ -14,6 +14,7 @@ use khaleesi::list;
 use khaleesi::seq;
 use khaleesi::utils;
 use khaleesi::unroll;
+use khaleesi::grep;
 use khaleesi::defaults::*;
 
 use std::env;
@@ -41,6 +42,7 @@ fn main() {
       "cal" => cal::printcal(),
       "dbg" => cal::dbg(),
       "list" => action_list(&args[2..]),
+      "grep" => action_grep(&args[2..]),
       "seq" => action_sequence(&args[2..]),
       "unroll" => action_unroll(&args[2..]),
       _  => print_usage(&args[0])
@@ -62,6 +64,12 @@ fn action_sequence(args: &[String]) {
 fn action_list(args: &[String]) {
   if let Some(mut input) = default_input() {
     list::list_by_args(&mut input, &args);
+  }
+}
+
+fn action_grep(args: &[String]) {
+  if let Some(mut input) = default_input() {
+    grep::grep(&mut input, &args);
   }
 }
 
