@@ -92,6 +92,21 @@ pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<
   return result
 }
 
+pub fn read_khaleesi_line(kline: String) -> Result<IcalVCalendar, String> {
+  let mut parts = kline.splitn(2, ' ');
+  let timestamp_str = parts.next().ok_or("empty line")?;
+  let timestamp = datetime_from_timestamp(timestamp_str).ok_or("bad timestamp")?;
+  let path = Path::new(parts.next().ok_or("missing path")?);
+  let calendar = read_calendar_from_path(path);
+  Ok(calendar.unwrap().with_internal_timestamp(timestamp))
+}
+
+pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Utc>> {
+  let timestamp_i64 = timestamp.parse::<i64>().ok()?;
+  let naive_datetime = NaiveDateTime::from_timestamp_opt(timestamp_i64, 0)?;
+  Some(DateTime::from_utc(naive_datetime, Utc))
+}
+
 pub fn format_duration(duration: &time::Duration) -> impl Display {
   duration.as_secs() * 1000 + (duration.subsec_millis() as u64)
 }

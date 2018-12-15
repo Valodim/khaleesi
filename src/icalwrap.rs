@@ -44,6 +44,7 @@ pub trait IcalComponent {
 pub struct IcalVCalendar {
   ptr: *mut ical::icalcomponent,
   path: Option<PathBuf>,
+  instance_timestamp: Option<DateTime<Utc>>,
 }
 
 pub struct IcalVEvent<'a> {
@@ -153,7 +154,13 @@ impl IcalVCalendar {
     IcalVCalendar {
       ptr: ptr,
       path: None,
+      instance_timestamp: None,
     }
+  }
+
+  pub fn with_internal_timestamp(mut self, datetime: DateTime<Utc>) -> IcalVCalendar {
+    self.instance_timestamp = Some(datetime);
+    self
   }
 
   pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, String> {
