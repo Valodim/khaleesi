@@ -2,11 +2,6 @@ use chrono::*;
 use icalwrap::IcalVCalendar;
 use utils;
 
-struct Filters {
-  from: Option<Date<Local>>,
-  to: Option<Date<Local>>,
-}
-
 pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   let mut fromarg: Option<Date<Local>> = None;
   let mut toarg: Option<Date<Local>> = None;
