@@ -5,7 +5,7 @@ pub mod defaults;
 pub mod icalwrap;
 pub mod index;
 pub mod prettyprint;
-pub mod select;
+pub mod list;
 pub mod seq;
 pub mod sort;
 pub mod unroll;

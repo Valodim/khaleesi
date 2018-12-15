@@ -10,7 +10,7 @@ use khaleesi::agenda;
 use khaleesi::cal;
 use khaleesi::index;
 use khaleesi::sort;
-use khaleesi::select;
+use khaleesi::list;
 use khaleesi::seq;
 use khaleesi::utils;
 use khaleesi::unroll;
@@ -40,7 +40,7 @@ fn main() {
       "sort" => action_sort(&args[2..]),
       "cal" => cal::printcal(),
       "dbg" => cal::dbg(),
-      "select" => action_select(&args[2..]),
+      "list" => action_list(&args[2..]),
       "seq" => action_sequence(&args[2..]),
       "unroll" => action_unroll(&args[2..]),
       _  => print_usage(&args[0])
@@ -59,9 +59,9 @@ fn action_sequence(args: &[String]) {
   seq::do_seq(args); 
 }
 
-fn action_select(args: &[String]) {
+fn action_list(args: &[String]) {
   if let Some(mut input) = default_input() {
-    select::select_by_args(&mut input, &args);
+    list::list_by_args(&mut input, &args);
   }
 }
 
