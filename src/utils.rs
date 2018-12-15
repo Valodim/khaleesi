@@ -78,7 +78,7 @@ pub fn read_calendar_from_path(path: &Path) -> Result<IcalVCalendar, String> {
   debug!("Reading calendar from {}", path.to_string_lossy());
   let content = match fs::read_to_string(path) {
     Ok(content) => content,
-    Err(error) => return Err(format!("{}", error))
+    Err(error) => return Err(format!("{} {:?}", error, path))
   };
   IcalVCalendar::from_str(&content, Some(path.to_path_buf()))
 }
