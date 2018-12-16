@@ -48,7 +48,9 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   }
 
   for cal in cals {
-    println!("{}", cal.get_path_as_string());
+    if let Some(line) = cal.get_first_event().index_line() {
+      println!("{}", line);
+    }
   }
 }
 
