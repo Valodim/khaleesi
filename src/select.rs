@@ -76,6 +76,6 @@ pub fn select_by_args(args: &[String]) {
     .filter_map(|lines| lines.ok())
     .flatten();
   for line in lines {
-    println!("{:?}", line);
+    println!("{}", line);
   }
 }
