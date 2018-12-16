@@ -94,8 +94,7 @@ pub fn iterate_calendars_from_files(filenames: impl Iterator<Item = String>) -> 
 }
 
 pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<Vec<IcalVCalendar>, String> {
-  let result: Result<Vec<IcalVCalendar>, String> = files.map(|file| read_calendar_from_file(&file)).collect();
-  return result
+  files.map(|file| read_khaleesi_line(file)).collect()
 }
 
 pub fn read_khaleesi_line(kline: String) -> Result<IcalVCalendar, String> {
