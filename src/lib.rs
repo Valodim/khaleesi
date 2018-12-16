@@ -6,6 +6,7 @@ pub mod icalwrap;
 pub mod index;
 pub mod prettyprint;
 pub mod list;
+pub mod select;
 pub mod seq;
 pub mod sort;
 pub mod unroll;

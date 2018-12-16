@@ -11,6 +11,7 @@ use khaleesi::cal;
 use khaleesi::index;
 use khaleesi::sort;
 use khaleesi::list;
+use khaleesi::select;
 use khaleesi::seq;
 use khaleesi::utils;
 use khaleesi::unroll;
@@ -43,6 +44,7 @@ fn main() {
       "dbg" => cal::dbg(),
       "list" => action_list(&args[2..]),
       "grep" => action_grep(&args[2..]),
+      "select" => action_select(&args[2..]),
       "seq" => action_sequence(&args[2..]),
       "unroll" => action_unroll(&args[2..]),
       _  => print_usage(&args[0])
@@ -62,9 +64,15 @@ fn action_sequence(args: &[String]) {
 }
 
 fn action_list(args: &[String]) {
+  //lists from sequence file or stdin
   if let Some(mut input) = default_input() {
     list::list_by_args(&mut input, &args);
   }
+}
+
+fn action_select(args: &[String]) {
+  //selects from index
+  select::select_by_args(args);
 }
 
 fn action_grep(args: &[String]) {
