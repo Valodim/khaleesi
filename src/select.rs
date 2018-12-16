@@ -72,7 +72,10 @@ pub fn select_by_args(args: &[String]) {
   let buckets = buckets.into_iter().skip_while( filters.predicate_from() )
     .take_while( filters.predicate_to() );
 
-  for bucket in buckets {
-    println!("{:?}", bucket);
+  let lines = buckets.map(|bucket| utils::read_lines_from_file(&bucket))
+    .filter_map(|lines| lines.ok())
+    .flatten();
+  for line in lines {
+    println!("{:?}", line);
   }
 }
