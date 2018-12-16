@@ -13,7 +13,9 @@ pub fn do_seq(_args: &[String]) {
     //println!("stdin is tty")
   }
 
-  write_seqfile_to_stdout()
+  if atty::isnt(atty::Stream::Stdout) || atty::is(atty::Stream::Stdin) {
+    write_seqfile_to_stdout()
+  }
 }
 
 fn write_stdin_to_seqfile() {
