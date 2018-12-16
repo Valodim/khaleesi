@@ -98,12 +98,17 @@ pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<
 }
 
 pub fn read_khaleesi_line(kline: String) -> Result<IcalVCalendar, String> {
-  let mut parts = kline.splitn(2, ' ');
-  let timestamp_str = parts.next().ok_or("empty line")?;
-  let timestamp = datetime_from_timestamp(timestamp_str).ok_or("bad timestamp")?;
-  let path = Path::new(parts.next().ok_or("missing path")?);
-  let calendar = read_calendar_from_path(path);
-  Ok(calendar.unwrap().with_internal_timestamp(timestamp))
+  let parts: Vec<&str> = kline.splitn(2, ' ').collect();
+  if let Some(timestamp) = datetime_from_timestamp(parts[0]) {
+    let path = Path::new(parts[1]);
+    let calendar = read_calendar_from_path(path)?;
+    let calendar = calendar.with_internal_timestamp(timestamp);
+    Ok(calendar)
+  } else {
+    let path = Path::new(parts[0]);
+    let calendar = read_calendar_from_path(path)?;
+    Ok(calendar)
+  }
 }
 
 pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Utc>> {
