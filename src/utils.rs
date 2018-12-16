@@ -89,7 +89,7 @@ pub fn read_calendar_from_file(filepath: &str) -> Result<IcalVCalendar, String> 
 }
 
 pub fn iterate_calendars_from_files(filenames: impl Iterator<Item = String>) -> impl Iterator<Item = IcalVCalendar> {
-  let cals = filenames.map(|f| read_calendar_from_file(&f));
+  let cals = filenames.map(|f| read_khaleesi_line(f));
   cals.filter_map(|cal| cal.ok())
 }
 
