@@ -24,7 +24,7 @@ impl<'a> Bucketable for IcalVEvent<'a> {
     let mut result:  HashMap<String, Vec<String>> = HashMap::new();
 
     let start_date = self.get_dtstart_date().ok_or(format!("Invalid DTSTART in {}", self.get_uid()))?;
-    let mut end_date = self.get_dtend_date().ok_or(format!("Invalid DTEND in {}", self.get_uid()))?;
+    let mut end_date = self.get_dtend_date().unwrap_or(start_date);
 
     // end-dtimes are non-inclusive
     // so in case of date-only events, the last day of the event is dtend-1
