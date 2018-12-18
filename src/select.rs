@@ -57,6 +57,36 @@ impl SelectFilters {
       }
     }
   }
+
+  pub fn predicate_line_is_from(&self) -> impl Fn(&String) -> bool + '_ {
+    move |kline| {
+      let cal = utils::read_khaleesi_line(kline).unwrap();  //expect sth...
+      match &self.from {
+        Some(from) => {
+          let event = cal.get_principal_event();
+          let pred_dtstart = event.get_dtstart().map_or(false, |dtstart| from <= &dtstart.date() );
+          let pred_dtend = event.get_dtend().map_or(false, |dtend| from <= &dtend.date());
+          pred_dtstart || pred_dtend
+        }
+        None => true
+      }
+    }
+  }
+
+  pub fn predicate_line_is_to(&self) -> impl Fn(&String) -> bool + '_ {
+    move |kline| {
+      let cal = utils::read_khaleesi_line(kline).unwrap();  //expect sth...
+      match &self.to {
+        Some(to) => {
+          let event = cal.get_principal_event();
+          let pred_dtstart = event.get_dtstart().map_or(true, |dtstart| &dtstart.date() <= to);
+          let pred_dtend = event.get_dtend().map_or(true, |dtend| &dtend.date() <= to);
+          pred_dtstart || pred_dtend
+        }
+        None => true
+      }
+    }
+  }
 }
 
 pub fn select_by_args(args: &[String]) {
@@ -72,7 +102,9 @@ pub fn select_by_args(args: &[String]) {
 
   let lines = buckets.map(|bucket| utils::read_lines_from_file(&bucket))
     .filter_map(|lines| lines.ok())
-    .flatten();
+    .flatten()
+    .filter( filters.predicate_line_is_from() )
+    .filter( filters.predicate_line_is_to() );
   for line in lines {
     println!("{}", line);
   }
