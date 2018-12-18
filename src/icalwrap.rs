@@ -2,6 +2,8 @@ use chrono::{NaiveDate, Duration, DateTime, Date, Utc, TimeZone, Local};
 use std::ffi::{CStr,CString};
 use std::path::PathBuf;
 use std::fmt;
+use std::rc::Rc;
+use std::ops::Deref;
 
 use ical;
 
@@ -41,15 +43,28 @@ pub trait IcalComponent {
   }
 }
 
+struct IcalComponentOwner {
+  ptr: *mut ical::icalcomponent
+}
+
+impl Deref for IcalComponentOwner {
+  type Target = *mut ical::icalcomponent;
+
+  fn deref(&self) -> &Self::Target {
+    &self.ptr
+  }
+}
+
+#[derive(Clone)]
 pub struct IcalVCalendar {
-  ptr: *mut ical::icalcomponent,
+  comp: Rc<IcalComponentOwner>,
   path: Option<PathBuf>,
   instance_timestamp: Option<DateTime<Utc>>,
 }
 
-pub struct IcalVEvent<'a> {
+pub struct IcalVEvent {
   ptr: *mut ical::icalcomponent,
-  parent: Option<&'a IcalVCalendar>,
+  parent: Option<IcalVCalendar>,
   instance_timestamp: Option<DateTime<Utc>>,
 }
 
@@ -63,7 +78,7 @@ pub struct IcalEventIter<'a> {
   parent: &'a IcalVCalendar,
 }
 
-impl Drop for IcalVCalendar {
+impl Drop for IcalComponentOwner {
   fn drop(&mut self) {
     unsafe {
       // println!("free");
@@ -72,7 +87,7 @@ impl Drop for IcalVCalendar {
   }
 }
 
-impl<'a> Drop for IcalVEvent<'a> {
+impl Drop for IcalVEvent {
   fn drop(&mut self) {
     unsafe {
       // println!("free");
@@ -131,7 +146,7 @@ impl<'a> fmt::Debug for IcalProperty<'a> {
 
 impl IcalComponent for IcalVCalendar {
   fn get_ptr(&self) -> *mut ical::icalcomponent  {
-    self.ptr
+    self.comp.ptr
   }
 
   fn as_component(&self) -> &dyn IcalComponent {
@@ -139,7 +154,7 @@ impl IcalComponent for IcalVCalendar {
   }
 }
 
-impl<'a> IcalComponent for IcalVEvent<'a> {
+impl IcalComponent for IcalVEvent {
   fn get_ptr (&self) -> *mut ical::icalcomponent {
     self.ptr
   }
@@ -152,7 +167,7 @@ impl<'a> IcalComponent for IcalVEvent<'a> {
 impl IcalVCalendar {
   fn from_ptr(ptr: *mut ical::icalcomponent) -> Self {
     IcalVCalendar {
-      ptr: ptr,
+      comp: Rc::new(IcalComponentOwner { ptr }),
       path: None,
       instance_timestamp: None,
     }
@@ -193,7 +208,7 @@ impl IcalVCalendar {
 //research
   pub fn get_uid(&self) -> String {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.ptr));
+      let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.get_ptr()));
       foo.to_string_lossy().into_owned()
     }
   }
@@ -206,7 +221,7 @@ impl IcalVCalendar {
     IcalEventIter::from_vcalendar(self)
   } 
 
-  pub fn get_first_event(&self) -> IcalVEvent<'_> {
+  pub fn get_first_event(&self) -> IcalVEvent {
     unsafe {
       let event = ical::icalcomponent_get_first_component(
         self.get_ptr(),
@@ -219,7 +234,7 @@ impl IcalVCalendar {
     }
   }
 
-  pub fn get_principal_event(&self) -> IcalVEvent<'_> {
+  pub fn get_principal_event(&self) -> IcalVEvent {
     let mut event = self.get_first_event();
     if let Some(timestamp) = self.instance_timestamp {
       event = event.with_internal_timestamp(timestamp)
@@ -229,14 +244,14 @@ impl IcalVCalendar {
 
 }
 
-impl<'a> IcalVEvent<'a> {
-  fn from_ptr_with_parent<'b>(
+impl IcalVEvent {
+  fn from_ptr_with_parent(
       ptr: *mut ical::icalcomponent,
-      parent: &'b IcalVCalendar,
-      ) -> IcalVEvent<'b> {
+      parent: &IcalVCalendar,
+      ) -> IcalVEvent {
     IcalVEvent {
       ptr,
-      parent: Some(parent),
+      parent: Some(parent.clone()),
       instance_timestamp: None,
     }
   }
@@ -315,33 +330,25 @@ impl<'a> IcalVEvent<'a> {
     result
   }
 
-  pub fn get_recur_instances(&self) -> impl Iterator<Item = IcalVEvent>{
-    self.get_recur_datetimes().into_iter().map(move |rec| self.with_internal_timestamp_ref(rec))
-  }
-
-  fn with_internal_timestamp_ref(&self, datetime: DateTime<Utc>) -> IcalVEvent<'a> {
+  fn with_internal_timestamp(&self, datetime: DateTime<Utc>) -> IcalVEvent {
     IcalVEvent {
       ptr: self.ptr,
-      parent: self.parent,
+      parent: self.parent.clone(),
       instance_timestamp: Some(datetime),
     }
   }
 
-  fn with_internal_timestamp(self, datetime: DateTime<Utc>) -> IcalVEvent<'a> {
-    IcalVEvent {
-      ptr: self.ptr,
-      parent: self.parent,
-      instance_timestamp: Some(datetime),
-    }
+  pub fn get_recur_instances(&self) -> impl Iterator<Item = IcalVEvent> + '_ {
+    self.get_recur_datetimes().into_iter().map(move |rec| self.with_internal_timestamp(rec))
   }
 
   pub fn get_parent(&self) -> Option<&IcalVCalendar> {
-    self.parent
+    self.parent.as_ref()
   }
 
   pub fn index_line(&self) -> Option<String> {
     let dtstart_string = self.get_dtstart()?.timestamp().to_string();
-    let path_string = self.parent?.get_path_as_string();
+    let path_string = self.parent.as_ref()?.get_path_as_string();
     Some([dtstart_string, path_string].join(" "))
   }
 
@@ -429,7 +436,7 @@ extern "C" fn recur_callback(
 }
 
 impl <'a> Iterator for IcalEventIter<'a> {
-  type Item = IcalVEvent<'a>;
+  type Item = IcalVEvent;
 
   fn next(&mut self) -> Option<Self::Item> {
     unsafe {
@@ -464,7 +471,7 @@ fn load_serialize() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
   let back = unsafe {
-    let ical_str = ical::icalcomponent_as_ical_string(cal.ptr);
+    let ical_str = ical::icalcomponent_as_ical_string(cal.get_ptr());
     CStr::from_ptr(ical_str).to_string_lossy().into_owned()
   }.replace("\r\n", "\n");
   assert_eq!(back.trim(), testdata::TEST_EVENT_MULTIDAY)

@@ -19,7 +19,7 @@ pub trait Bucketable {
   }
 }
 
-impl<'a> Bucketable for IcalVEvent<'a> {
+impl Bucketable for IcalVEvent {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String> {
     let mut result:  HashMap<String, Vec<String>> = HashMap::new();
 
