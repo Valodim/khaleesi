@@ -38,7 +38,7 @@ impl SelectFilters {
     Ok(SelectFilters {from: fromarg, to: toarg})
   }
 
-  pub fn predicate_from(&self) -> impl Fn(&PathBuf) -> bool + '_ {
+  pub fn predicate_path_is_not_from(&self) -> impl Fn(&PathBuf) -> bool + '_ {
     move |path| {
       let filename = path.file_name().expect(&format!("{:?} not a file", path));
       match &self.from {
@@ -48,7 +48,7 @@ impl SelectFilters {
     }
   }
 
-  pub fn predicate_to<'a>(&'a self) -> impl Fn(&PathBuf) -> bool + 'a {
+  pub fn predicate_path_is_to<'a>(&'a self) -> impl Fn(&PathBuf) -> bool + 'a {
     move |path| {
       let filename = path.file_name().expect(&format!("{:?} not a file", path));
       match &self.to {
@@ -67,8 +67,8 @@ pub fn select_by_args(args: &[String]) {
   let mut buckets: Vec<PathBuf> = utils::file_iter(&indexdir)
     .collect();
   buckets.sort_unstable();
-  let buckets = buckets.into_iter().skip_while( filters.predicate_from() )
-    .take_while( filters.predicate_to() );
+  let buckets = buckets.into_iter().skip_while( filters.predicate_path_is_not_from() )
+    .take_while( filters.predicate_path_is_to() );
 
   let lines = buckets.map(|bucket| utils::read_lines_from_file(&bucket))
     .filter_map(|lines| lines.ok())
