@@ -1,7 +1,5 @@
 use chrono::*;
-use std::ffi::OsString;
 use std::path::PathBuf;
-use icalwrap::IcalVCalendar;
 use utils;
 use defaults;
 
