@@ -3,12 +3,12 @@ use std::path::PathBuf;
 use utils;
 use defaults;
 
-struct Filters {
+struct SelectFilters {
   from: Option<Date<Local>>,
   to: Option<Date<Local>>,
 }
 
-impl Filters {
+impl SelectFilters {
   pub fn parse_from_args(args: &[String]) -> Result<Self, String> {
     let mut fromarg: Option<Date<Local>> = None;
     let mut toarg: Option<Date<Local>> = None;
@@ -35,7 +35,7 @@ impl Filters {
         return Err("Syntax error!".to_string());
       }
     }
-    Ok(Filters {from: fromarg, to: toarg})
+    Ok(SelectFilters {from: fromarg, to: toarg})
   }
 
   pub fn predicate_from(&self) -> impl Fn(&PathBuf) -> bool + '_ {
@@ -61,7 +61,7 @@ impl Filters {
 
 pub fn select_by_args(args: &[String]) {
 
-  let filters = Filters::parse_from_args(args).unwrap();
+  let filters = SelectFilters::parse_from_args(args).unwrap();
   let indexdir = defaults::get_indexdir();
 
   let mut buckets: Vec<PathBuf> = utils::file_iter(&indexdir)
