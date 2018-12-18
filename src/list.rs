@@ -48,16 +48,16 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   }
 
   for cal in cals {
-    if let Some(line) = cal.get_first_event().index_line() {
+    if let Some(line) = cal.get_principal_event().index_line() {
       println!("{}", line);
     }
   }
 }
 
 fn filter_date_from(cals: Vec<IcalVCalendar>, from: Date<Local>) -> Vec<IcalVCalendar> {
-  cals.into_iter().filter(|cal| cal.get_first_event().get_dtstart().unwrap().date() >= from).collect()
+  cals.into_iter().filter(|cal| cal.get_principal_event().get_dtstart().unwrap().date() >= from).collect()
 }
 
 fn filter_date_to(cals: Vec<IcalVCalendar>, to: Date<Local>) -> Vec<IcalVCalendar> {
-  cals.into_iter().filter(|cal| cal.get_first_event().get_dtstart().unwrap().date() <= to).collect()
+  cals.into_iter().filter(|cal| cal.get_principal_event().get_dtstart().unwrap().date() <= to).collect()
 }

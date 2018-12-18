@@ -474,7 +474,7 @@ fn load_serialize() {
 fn recur_iterator_test() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-  let event = cal.get_first_event();
+  let event = cal.get_principal_event();
   assert_eq!(format!("{}", event.get_dtstart_date().unwrap().format("%Y%m%d")), "20181011");
   assert_eq!(format!("{}", event.get_dtend_date().unwrap().format("%Y%m%d")), "20181013");
   assert_eq!(event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string(), "RRULE:FREQ=WEEKLY;COUNT=10");
@@ -487,7 +487,7 @@ fn index_line_test() {
   use testdata;
   let path = Some(PathBuf::from("test/path"));
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
-  let event = cal.get_first_event();
+  let event = cal.get_principal_event();
   assert_eq!(event.index_line().unwrap(), String::from("1182988800 test/path"))
 }
 
@@ -495,7 +495,7 @@ fn index_line_test() {
 fn has_recur_test() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-  assert!(cal.get_first_event().has_recur());
+  assert!(cal.get_principal_event().has_recur());
 }
 
 #[test]
@@ -503,7 +503,7 @@ fn recur_datetimes_test() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
 
-  let event = cal.get_first_event();
+  let event = cal.get_principal_event();
   let mut recur_instances = event.get_recur_instances();
 //TODO also check times
   assert_eq!(format!("{}", recur_instances.next().unwrap().get_dtstart().unwrap().format("%Y%m%d")), "20181011");

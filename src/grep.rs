@@ -18,7 +18,7 @@ pub fn grep(filenames: &mut Iterator<Item = String>, args: &[String]) {
 fn predicate_contains_term(term: &str) -> impl Fn(&IcalVCalendar) -> bool {
   let term = term.to_lowercase();
   move |cal| {
-    let event = cal.get_first_event();
+    let event = cal.get_principal_event();
     if let Some(summary) = event.get_summary() {
       if summary.to_lowercase().contains(&term) {
         return true;

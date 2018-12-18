@@ -132,7 +132,7 @@ pub fn get_bucket_for_date(date: &Date<Local>) -> String {
 
 pub fn print_cals(cals: impl Iterator<Item = IcalVCalendar>) {
   for cal in cals {
-    if let Some(line) = cal.get_first_event().index_line() {
+    if let Some(line) = cal.get_principal_event().index_line() {
       println!("{}", line);
     }
   }

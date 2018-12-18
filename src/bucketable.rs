@@ -105,7 +105,7 @@ fn buckets_multi_day_allday() {
   let path = Some(PathBuf::from("test/path"));
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
 
-  let event_buckets = cal.get_first_event().get_buckets().unwrap();
+  let event_buckets = cal.get_principal_event().get_buckets().unwrap();
 
   assert_eq!(event_buckets.len(), 2);
 
@@ -137,7 +137,7 @@ fn buckets_simple_recurring_event() {
   let path = Some(PathBuf::from("test/path"));
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, path).unwrap();
 
-  let event = cal.get_first_event();
+  let event = cal.get_principal_event();
   let event_buckets = event.get_buckets().unwrap();
   let cal_buckets = cal.get_buckets().unwrap();
   assert_eq!(event_buckets, cal_buckets);
