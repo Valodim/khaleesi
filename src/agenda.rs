@@ -7,24 +7,24 @@ pub fn show_events(lines: &mut Iterator<Item = String>) {
   let style_heading = Style::new().bold();
   let cals = utils::read_calendars_from_files(lines).unwrap();
 
-  let mut cur_day = cals[0].get_first_event().get_dtstart()
+  let mut cur_day = cals[0].get_principal_event().get_dtstart()
     .unwrap_or(Local.timestamp(0, 0))
     .date();
   println!("{}", style_heading.paint(cur_day));
 
   for (i, cal) in cals.iter().enumerate() {
 
-    if let Some(start) = cal.get_first_event().get_dtstart() {
+    if let Some(start) = cal.get_principal_event().get_dtstart() {
       if start.date() != cur_day {
         cur_day = start.date();
         println!("{}, {}", style_heading.paint(cur_day.format("%Y-%m-%d")), cur_day.format("%A"));
       }
-      match event_line(&cal.get_first_event()) {
+      match event_line(&cal.get_principal_event()) {
         Ok(line) => println!("{:4}  {}", i, line),
-        Err(error) => warn!("{} in {}", error, cal.get_first_event().get_uid())
+        Err(error) => warn!("{} in {}", error, cal.get_principal_event().get_uid())
       }
     } else {
-      warn!("Invalid DTSTART in {}", cal.get_first_event().get_uid());
+      warn!("Invalid DTSTART in {}", cal.get_principal_event().get_uid());
     };
 
   }

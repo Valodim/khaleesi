@@ -218,6 +218,15 @@ impl IcalVCalendar {
       IcalVEvent::from_ptr_with_parent(event, self)
     }
   }
+
+  pub fn get_principal_event(&self) -> IcalVEvent<'_> {
+    let mut event = self.get_first_event();
+    if let Some(timestamp) = self.instance_timestamp {
+      event = event.with_internal_timestamp(timestamp)
+    }
+    event
+  }
+
 }
 
 impl<'a> IcalVEvent<'a> {
@@ -307,10 +316,18 @@ impl<'a> IcalVEvent<'a> {
   }
 
   pub fn get_recur_instances(&self) -> impl Iterator<Item = IcalVEvent>{
-    self.get_recur_datetimes().into_iter().map(move |rec| self.with_internal_timestamp(rec))
+    self.get_recur_datetimes().into_iter().map(move |rec| self.with_internal_timestamp_ref(rec))
   }
 
-  fn with_internal_timestamp(&self, datetime: DateTime<Utc>) -> IcalVEvent {
+  fn with_internal_timestamp_ref(&self, datetime: DateTime<Utc>) -> IcalVEvent<'a> {
+    IcalVEvent {
+      ptr: self.ptr,
+      parent: self.parent,
+      instance_timestamp: Some(datetime),
+    }
+  }
+
+  fn with_internal_timestamp(self, datetime: DateTime<Utc>) -> IcalVEvent<'a> {
     IcalVEvent {
       ptr: self.ptr,
       parent: self.parent,
