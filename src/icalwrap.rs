@@ -268,7 +268,7 @@ impl IcalVEvent {
           let dtend = ical::icalcomponent_get_dtend(self.ptr);
           trace!("{:?}", dtend);
           if ical::icaltime_is_null_time(dtend) == 1 {
-            None
+            self.get_dtstart_unix()
           } else {
             Some(ical::icaltime_as_timet_with_zone(dtend, dtend.zone))
           }
