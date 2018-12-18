@@ -10,7 +10,7 @@ pub fn show_events(lines: &mut Iterator<Item = String>) {
   let mut cur_day = cals[0].get_principal_event().get_dtstart()
     .unwrap_or(Local.timestamp(0, 0))
     .date();
-  println!("{}", style_heading.paint(cur_day));
+  println!("{}, {}", style_heading.paint(cur_day.format("%Y-%m-%d")), cur_day.format("%A"));
 
   for (i, cal) in cals.iter().enumerate() {
 
