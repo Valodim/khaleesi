@@ -6,12 +6,14 @@ struct ListFilters {
   from: Option<Date<Local>>,
   to: Option<Date<Local>>,
   num: Option<usize>,
+  calendar: Option<String>,
 }
 
 impl ListFilters {
   pub fn parse_from_args(args: &[String]) -> Result<Self, String> {
     let mut from: Option<Date<Local>> = None;
     let mut to: Option<Date<Local>> = None;
+    let mut calendar: Option<String> = None;
 
     if args.len() < 1 {
       return Err("select [from|to parameter]+".to_string())
@@ -19,7 +21,7 @@ impl ListFilters {
 
     if args.len() == 1 {
       if let Ok(num) = args[0].parse::<usize>() {
-        return Ok(ListFilters {from, to, num: Some(num)} );
+        return Ok(ListFilters {from, to, num: Some(num), calendar} );
       } else {
         return Err("select [from|to parameter]+".to_string())
       }
@@ -30,6 +32,7 @@ impl ListFilters {
         match chunk[0].as_str() {
           "from" => from = Some(ListFilters::parse_datearg(chunk[1].as_str())?),
           "to"   => to = Some(ListFilters::parse_datearg(chunk[1].as_str())?),
+          "cal"  => calendar = Some(chunk[1].clone()) ,
           _      => return Err("Incorrect!".to_string())
         }
 
@@ -37,7 +40,7 @@ impl ListFilters {
         return Err("Syntax error!".to_string());
       }
     }
-    Ok(ListFilters {from, to, num: None})
+    Ok(ListFilters {from, to, num: None, calendar})
   }
 
   pub fn predicate_is_from(&self) -> impl Fn(&IcalVCalendar) -> bool + '_ {
@@ -67,6 +70,22 @@ impl ListFilters {
       }
     }
   }
+
+  pub fn predicate_is_in_calendar(&self) -> impl Fn(&IcalVCalendar) -> bool + '_ {
+    move |cal| {
+      match &self.calendar {
+        Some(calendar) => {
+          cal.get_path_clone()
+            .map_or(false,  |path| path.parent().map_or(false, |path| path.ends_with(calendar)))
+        }
+        None => true
+      }
+    }
+  }
+
+  fn parse_datearg(datearg: &str) -> Result<Date<Local>, String> {
+    utils::date_from_str(datearg).map_err( |err| format!("{}", err))
+  }
 }
 
 pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
@@ -83,6 +102,7 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   cals = cals.into_iter()
     .filter( filters.predicate_is_from() )
     .filter( filters.predicate_is_to() )
+    .filter( filters.predicate_is_in_calendar() )
     .collect();
 
   for cal in cals {
