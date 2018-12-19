@@ -100,11 +100,16 @@ pub fn select_by_args(args: &[String]) {
   let buckets = buckets.into_iter().skip_while( filters.predicate_path_is_not_from() )
     .take_while( filters.predicate_path_is_to() );
 
-  let lines = buckets.map(|bucket| utils::read_lines_from_file(&bucket))
+  let mut lines: Vec<String> = buckets.map(|bucket| utils::read_lines_from_file(&bucket))
     .filter_map(|lines| lines.ok())
     .flatten()
     .filter( filters.predicate_line_is_from() )
-    .filter( filters.predicate_line_is_to() );
+    .filter( filters.predicate_line_is_to() )
+    .collect();
+
+  lines.sort_unstable();
+  lines.dedup();
+
   for line in lines {
     println!("{}", line);
   }
