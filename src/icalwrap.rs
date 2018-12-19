@@ -217,6 +217,10 @@ impl IcalVCalendar {
     format!("{}", self.path.as_ref().unwrap().display())
   }
 
+  pub fn get_path_clone(&self) -> Option<PathBuf> {
+    self.path.clone()
+  }
+
   pub fn events_iter(&self) -> IcalEventIter {
     IcalEventIter::from_vcalendar(self)
   } 
