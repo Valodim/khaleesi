@@ -13,10 +13,6 @@ impl SelectFilters {
     let mut fromarg: Option<Date<Local>> = None;
     let mut toarg: Option<Date<Local>> = None;
 
-    if args.len() < 2 {
-      return Err("select [from|to parameter]+".to_string())
-    }
-
     for chunk in args.chunks(2) {
       if chunk.len() == 2 {
         let mut datearg = match utils::date_from_str(&chunk[1]) {
@@ -29,10 +25,10 @@ impl SelectFilters {
         match chunk[0].as_str() {
           "from" => fromarg = Some(datearg),
           "to"   => toarg = Some(datearg),
-          _      => return Err("Incorrect!".to_string())
+          _      => return Err("select [from|to parameter]+".to_string())
         }
       } else {
-        return Err("Syntax error!".to_string());
+        return Err("select [from|to parameter]+".to_string());
       }
     }
     Ok(SelectFilters {from: fromarg, to: toarg})
@@ -90,8 +86,16 @@ impl SelectFilters {
 }
 
 pub fn select_by_args(args: &[String]) {
+  let mut filters: SelectFilters;
 
-  let filters = SelectFilters::parse_from_args(args).unwrap();
+  match SelectFilters::parse_from_args(args) {
+    Err(error) => {
+      println!("{}", error);
+      return
+    },
+    Ok(parsed_filters) => filters = parsed_filters,
+  }
+
   let indexdir = defaults::get_indexdir();
 
   let mut buckets: Vec<PathBuf> = utils::file_iter(&indexdir)
