@@ -31,24 +31,29 @@ pub fn show_events(lines: &mut Iterator<Item = String>) {
 }
 
 pub fn event_line(event: &IcalVEvent) -> Result<String, String> {
-  let mut time_sep = " ";
-  let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?.with_timezone(&Local);
-  let start_string = if dtstart.time() == NaiveTime::from_hms(0, 0, 0) {
-    "".to_string()
+  if event.is_allday() {
+    let summary = event.get_summary().ok_or("Invalid SUMMARY")?;
+    Ok(format!("             {}", summary))
   } else {
-    time_sep = "-";
-    format!("{}", dtstart.format("%H:%M"))
-  };
+    let mut time_sep = " ";
+    let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?.with_timezone(&Local);
+    let start_string = if dtstart.time() == NaiveTime::from_hms(0, 0, 0) {
+      "".to_string()
+    } else {
+      time_sep = "-";
+      format!("{}", dtstart.format("%H:%M"))
+    };
 
-  let dtend = event.get_dtend().ok_or("Invalid DTEND")?.with_timezone(&Local);
-  let end_string = if dtend.time() == NaiveTime::from_hms(0, 0, 0) {
-    "".to_string()
-  } else {
-    time_sep = "-";
-    format!("{}", dtend.format("%H:%M"))
-  };
+    let dtend = event.get_dtend().ok_or("Invalid DTEND")?.with_timezone(&Local);
+    let end_string = if dtend.time() == NaiveTime::from_hms(0, 0, 0) {
+      "".to_string()
+    } else {
+      time_sep = "-";
+      format!("{}", dtend.format("%H:%M"))
+    };
 
-  let summary = event.get_summary().ok_or("Invalid SUMMARY")?;
+    let summary = event.get_summary().ok_or("Invalid SUMMARY")?;
 
-  Ok(format!("{:5}{}{:5}  {}", start_string, time_sep, end_string, summary))
+    Ok(format!("{:5}{}{:5}  {}", start_string, time_sep, end_string, summary))
+  }
 }
