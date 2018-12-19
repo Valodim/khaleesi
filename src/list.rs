@@ -16,14 +16,14 @@ impl ListFilters {
     let mut calendar: Option<String> = None;
 
     if args.len() < 1 {
-      return Err("select [from|to parameter]+".to_string())
+      return Err("list [num] | [from|to|cal parameter]+".to_string())
     }
 
     if args.len() == 1 {
       if let Ok(num) = args[0].parse::<usize>() {
         return Ok(ListFilters {from, to, num: Some(num), calendar} );
       } else {
-        return Err("select [from|to parameter]+".to_string())
+        return Err("list [num] | [from|to|cal parameter]+".to_string())
       }
     }
 
