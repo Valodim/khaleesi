@@ -389,7 +389,7 @@ impl IcalVEvent {
     unsafe {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
 //      let dtend = ical::icalcomponent_get_dtend(self.ptr);
-      dtstart.is_date != 0
+      dtstart.is_date == 1
     }
   }
 }
