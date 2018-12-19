@@ -64,8 +64,8 @@ impl SelectFilters {
       match &self.from {
         Some(from) => {
           let event = cal.get_principal_event();
-          let pred_dtstart = event.get_dtstart().map_or(false, |dtstart| from <= &dtstart.date() );
-          let pred_dtend = event.get_dtend().map_or(false, |dtend| from <= &dtend.date());
+          let pred_dtstart = event.get_dtstart().map_or(true, |dtstart| from <= &dtstart.date() );
+          let pred_dtend = event.get_dtend().map_or(true, |dtend| from <= &dtend.date());
           pred_dtstart || pred_dtend
         }
         None => true
