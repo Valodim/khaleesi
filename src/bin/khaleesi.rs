@@ -16,6 +16,7 @@ use khaleesi::seq;
 use khaleesi::utils;
 use khaleesi::unroll;
 use khaleesi::grep;
+use khaleesi::config::{self,Config};
 use khaleesi::defaults::*;
 
 use std::env;
@@ -30,6 +31,7 @@ fn main() {
   //            _ => LevelFilter::Trace,
 
   let args: Vec<String> = env::args().collect();
+  let config = config::read_config();
 
   if args.len() == 1 {
     print_usage(&args[0])

@@ -13,6 +13,10 @@ pub fn get_seqfile() -> PathBuf {
   [DATADIR, SEQFILE].iter().collect()
 }
 
+pub fn get_configfile() -> PathBuf {
+  [DATADIR, "config.toml"].iter().collect()
+}
+
 pub fn get_indexdir() -> PathBuf {
   [DATADIR, INDEXDIR].iter().collect()
 }

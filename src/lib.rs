@@ -13,6 +13,7 @@ pub mod unroll;
 pub mod utils;
 pub mod bucketable;
 pub mod grep;
+pub mod config;
 
 #[cfg(test)]
 pub mod testdata;
