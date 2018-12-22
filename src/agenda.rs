@@ -41,27 +41,30 @@ pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
       let i = cur_cal.0;
 
       match event.get_dtstart() {
-        None => warn!("Invalid DTSTART in {}", event.get_uid()),
+        None => {
+          warn!("Invalid DTSTART in {}", event.get_uid());
+          continue
+        },
         Some(start) => {
           if start.date() != cur_day {
             break;
-          } else {
-            print_event_line(cal_config, &i, &event, &cur_day);
-            if event.continues_after(&cur_day) {
-              not_over_yet.push(cur_cal);
-            }
-
-            match cals_iter.next() {
-              Some(foo) => cur_cal = foo,
-              None => {
-                events_remaining=false;
-                break
-              }
-            }
           }
         }
       }
+
+      print_event_line(cal_config, &i, &event, &cur_day);
+      if event.continues_after(&cur_day) {
+        not_over_yet.push(cur_cal);
+      }
+      match cals_iter.next() {
+        Some(foo) => cur_cal = foo,
+        None => {
+          events_remaining=false;
+          break
+        }
+      }
     }
+
     cur_day = cur_day.succ();
     if not_over_yet.len() == 0 && !events_remaining { break };
   }
