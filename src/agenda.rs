@@ -84,7 +84,11 @@ fn print_event_line(config: Option<&CalendarConfig>, index: &usize, event: &Ical
 
 pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: &Date<Local>) -> Result<String, String> {
   if event.is_allday() {
-    let summary = event.get_summary().ok_or("Invalid SUMMARY")?;
+    let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
+    if let Some(config) = config {
+      let calendar_style = config::get_style_for_calendar(config);
+      summary = calendar_style.paint(summary).to_string();
+    }
     Ok(format!("             {}", summary))
   } else {
     let mut time_sep = " ";
