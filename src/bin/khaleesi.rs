@@ -40,7 +40,7 @@ fn main() {
       "index" => action_index(&args[2..]),
       "show" => action_show(&args[2..]),
       "short" => action_prettyprint_all(&args[2..]),
-      "agenda" => action_agenda(&args[2..]),
+      "agenda" => action_agenda(config, &args[2..]),
       "sort" => action_sort(&args[2..]),
       "cal" => cal::printcal(),
       "dbg" => cal::dbg(),
@@ -96,15 +96,15 @@ fn action_sort(args: &[String]) {
   }
 }
 
-fn action_agenda(args: &[String]) {
+fn action_agenda(config: Config, args: &[String]) {
   if args.len() == 0 {
     if let Some(mut input) = default_input() {
-      agenda::show_events(&mut input);
+      agenda::show_events(config, &mut input);
     }
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
-    agenda::show_events(&mut utils::read_lines_from_file(filepath).unwrap());
+    agenda::show_events(config, &mut utils::read_lines_from_file(filepath).unwrap());
   }
 }
 

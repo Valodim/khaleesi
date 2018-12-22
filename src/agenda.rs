@@ -1,9 +1,10 @@
 use utils;
 use icalwrap::*;
-use yansi::Style;
+use yansi::{Style,Color};
 use chrono::{NaiveTime, TimeZone, Local};
+use config::{self,Config,CalendarConfig};
 
-pub fn show_events(lines: &mut Iterator<Item = String>) {
+pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
   let style_heading = Style::new().bold();
   let cals = utils::read_calendars_from_files(lines).unwrap();
 
@@ -13,13 +14,14 @@ pub fn show_events(lines: &mut Iterator<Item = String>) {
   println!("{}, {}", style_heading.paint(cur_day.format("%Y-%m-%d")), cur_day.format("%A"));
 
   for (i, cal) in cals.iter().enumerate() {
+    let cal_config = config::get_config_for_calendar(&config, &cal);
 
     if let Some(start) = cal.get_principal_event().get_dtstart() {
       if start.date() != cur_day {
         cur_day = start.date();
         println!("{}, {}", style_heading.paint(cur_day.format("%Y-%m-%d")), cur_day.format("%A"));
       }
-      match event_line(&cal.get_principal_event()) {
+      match event_line(cal_config, &cal.get_principal_event()) {
         Ok(line) => println!("{:4}  {}", i, line),
         Err(error) => warn!("{} in {}", error, cal.get_principal_event().get_uid())
       }
@@ -30,7 +32,7 @@ pub fn show_events(lines: &mut Iterator<Item = String>) {
   }
 }
 
-pub fn event_line(event: &IcalVEvent) -> Result<String, String> {
+pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent) -> Result<String, String> {
   if event.is_allday() {
     let summary = event.get_summary().ok_or("Invalid SUMMARY")?;
     Ok(format!("             {}", summary))
@@ -52,7 +54,12 @@ pub fn event_line(event: &IcalVEvent) -> Result<String, String> {
       format!("{}", dtend.format("%H:%M"))
     };
 
-    let summary = event.get_summary().ok_or("Invalid SUMMARY")?;
+    let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
+
+    if let Some(config) = config {
+      let calendar_style = config::get_style_for_calendar(config);
+      summary = calendar_style.paint(summary).to_string();
+    }
 
     Ok(format!("{:5}{}{:5}  {}", start_string, time_sep, end_string, summary))
   }

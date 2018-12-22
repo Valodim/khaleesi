@@ -221,9 +221,14 @@ impl IcalVCalendar {
     self.path.clone()
   }
 
+  pub fn get_calendar_name(&self) -> Option<String> {
+      let calendar_name = self.path.as_ref()?.parent()?.file_name()?;
+      Some(calendar_name.to_string_lossy().into_owned())
+  }
+
   pub fn events_iter(&self) -> IcalEventIter {
     IcalEventIter::from_vcalendar(self)
-  } 
+  }
 
   pub fn get_first_event(&self) -> IcalVEvent {
     unsafe {
