@@ -86,7 +86,7 @@ impl SelectFilters {
 }
 
 pub fn select_by_args(args: &[String]) {
-  let mut filters: SelectFilters;
+  let filters: SelectFilters;
 
   match SelectFilters::parse_from_args(args) {
     Err(error) => {
