@@ -25,6 +25,10 @@ extern crate yansi;
 extern crate libical_sys as ical;
 
 #[macro_use]
+extern crate serde_derive;
+extern crate toml;
+
+#[macro_use]
 extern crate log;
 
 #[cfg(test)]
