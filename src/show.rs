@@ -15,19 +15,4 @@ pub fn do_show(filenames: &mut Iterator<Item = String>, args: &[String]) {
     let output = utils::read_file_to_string(path).unwrap();
     println!("{}", output);
   }
-  
 }
-  //let mut cals = utils::read_calendars_from_files(filenames).unwrap();
-
-  //cals = cals.into_iter()
-    //.filter( filters.predicate_is_from() )
-    //.filter( filters.predicate_is_to() )
-    //.filter( filters.predicate_is_in_calendar() )
-    //.collect();
-
-  //for cal in cals {
-    //if let Some(line) = cal.get_principal_event().index_line() {
-      //println!("{}", line);
-    //}
-  //}
-
