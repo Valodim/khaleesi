@@ -1,9 +1,7 @@
-use chrono::*;
-use icalwrap::IcalVCalendar;
-use std::path::{Path,PathBuf};
+use std::path::Path;
 use utils;
 
-pub fn do_show(filenames: &mut Iterator<Item = String>, args: &[String]) {
+pub fn do_show(filenames: &mut Iterator<Item = String>, _args: &[String]) {
   info!("do_show");
 
   for line in filenames {
