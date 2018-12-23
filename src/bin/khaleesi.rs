@@ -16,6 +16,7 @@ use khaleesi::seq;
 use khaleesi::utils;
 use khaleesi::unroll;
 use khaleesi::grep;
+use khaleesi::show;
 use khaleesi::config::{self,Config};
 use khaleesi::defaults::*;
 
@@ -72,6 +73,13 @@ fn action_list(args: &[String]) {
   }
 }
 
+fn action_show(args: &[String]) {
+  //lists from sequence file or stdin
+  if let Some(mut input) = default_input() {
+    show::do_show(&mut input, &args);
+  }
+}
+
 fn action_select(args: &[String]) {
   //selects from index
   select::select_by_args(args);
@@ -114,11 +122,11 @@ fn action_unroll(args: &[String]) {
   unroll::do_unroll(filepath)
 }
 
-fn action_show(args: &[String]) {
-  let file = &args[0];
-  let filepath = Path::new(file);
-  prettyprint::prettyprint_file(filepath)
-}
+//fn action_show(args: &[String]) {
+  //let file = &args[0];
+  //let filepath = Path::new(file);
+  //prettyprint::prettyprint_file(filepath)
+//}
 
 fn action_prettyprint_all(args: &[String]) {
   let file = &args[0];

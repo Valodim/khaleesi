@@ -14,6 +14,7 @@ pub mod utils;
 pub mod bucketable;
 pub mod grep;
 pub mod config;
+pub mod show;
 
 #[cfg(test)]
 pub mod testdata;
