@@ -2,7 +2,8 @@ use utils;
 use icalwrap::*;
 use yansi::{Style};
 use config::{self,Config,CalendarConfig};
-use chrono::{Datelike, TimeZone, Local, Date, Weekday};
+use chrono::{Datelike, TimeZone, Local, Date};
+use itertools::Itertools;
 
 pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
   let cals = utils::read_calendars_from_files(lines).unwrap();
@@ -23,60 +24,51 @@ pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
     None => return,
   };
 
-  let mut cur_day = start_day;
+  let mut cur_day = start_day.pred();
   let mut last_printed_day = start_day.pred();
   while !cals_iter.peek().is_none() || !not_over_yet.is_empty() {
-    maybe_print_week_separator(&config, &start_day, &cur_day);
-    maybe_print_date_line_header(&config, &cur_day, &mut last_printed_day);
+    cur_day = cur_day.succ();
+
+    maybe_print_date_line_header(&config, &cur_day, &start_day, &mut last_printed_day);
 
     not_over_yet.retain( |(index, _, event, cal_config)| {
-      maybe_print_date_line(&cur_day, &mut last_printed_day);
+      maybe_print_date_line(&config, &cur_day, &start_day, &mut last_printed_day);
       print_event_line(*cal_config, &index, &event, &cur_day);
       event.continues_after(&cur_day)
     });
 
-    while element_relevant_on(cals_iter.peek(), &cur_day) {
-      let (i, cal, event, cal_config) = cals_iter.next().unwrap();
-
-      maybe_print_date_line(&cur_day, &mut last_printed_day);
+    let relevant_events = cals_iter.peeking_take_while(|(_,_,event,_)| event.relevant_on(&cur_day));
+    for (i, cal, event, cal_config) in relevant_events {
+      maybe_print_date_line(&config, &cur_day, &start_day, &mut last_printed_day);
       print_event_line(cal_config, &i, &event, &cur_day);
       if event.continues_after(&cur_day) {
         not_over_yet.push((i, cal, event, cal_config));
       }
     }
-
-    cur_day = cur_day.succ();
   }
 }
 
-fn element_relevant_on<Q,R,S>(event: Option<&(Q, R, IcalVEvent, S)>, date: &Date<Local>) -> bool {
-  match event {
-    Some((_, _, event, _)) => event.relevant_on(date),
-    None => false
-  }
-}
-
-fn maybe_print_week_separator(config: &Config, start_day: &Date<Local>, date: &Date<Local>) {
+fn maybe_print_week_separator(config: &Config, date: &Date<Local>, start_date: &Date<Local>, last_printed_date: &Date<Local>) {
   if !config.agenda.print_week_separator {
     return;
   }
-  if start_day != date && date.weekday() == Weekday::Mon {
+  if date != start_date && last_printed_date.iso_week() < date.iso_week() {
     println!();
   }
 }
 
-
-fn maybe_print_date_line_header(config: &Config, date: &Date<Local>, last_printed_date: &mut Date<Local>) {
+fn maybe_print_date_line_header(config: &Config, date: &Date<Local>, start_date: &Date<Local>, last_printed_date: &mut Date<Local>) {
   if !config.agenda.print_empty_days {
     return;
   }
-  maybe_print_date_line(date, last_printed_date);
+  maybe_print_date_line(config, date, start_date, last_printed_date);
 }
 
-fn maybe_print_date_line(date: &Date<Local>, last_printed_date: &mut Date<Local>) {
+fn maybe_print_date_line(config: &Config, date: &Date<Local>, start_date: &Date<Local>, last_printed_date: &mut Date<Local>) {
   if date <= last_printed_date {
     return;
   }
+  maybe_print_week_separator(config, date, start_date, last_printed_date);
   print_date_line(date);
   *last_printed_date = *date;
 }
