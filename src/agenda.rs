@@ -7,66 +7,47 @@ use chrono::{TimeZone, Local, Date};
 pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
   let cals = utils::read_calendars_from_files(lines).unwrap();
 
-  let mut not_over_yet: Vec<(usize, &IcalVCalendar)> = Vec::new();
-  let mut cals_iter = cals.iter().enumerate();
-  let mut cur_cal: (usize, &IcalVCalendar);
+  let mut not_over_yet: Vec<(usize, &IcalVCalendar, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
+  let mut cals_iter = cals.iter()
+    .enumerate()
+    .map(|(i, cal)| (i, cal, cal.get_principal_event(), cal.get_config(&config)))
+    .peekable();
 
-  match cals_iter.next() {
-    Some(foo) => cur_cal = foo,
+  let mut cur_day = match cals_iter.peek() {
+    Some((_, _, event, _)) => {
+      event
+        .get_dtstart()
+        .unwrap_or(Local.timestamp(0, 0))
+        .date()
+    }
     None => return,
-  }
-  let mut cur_day = cur_cal.1
-    .get_principal_event()
-    .get_dtstart()
-    .unwrap_or(Local.timestamp(0, 0))
-    .date();
+  };
 
-  let mut events_remaining = true;
-  loop {
+  while !cals_iter.peek().is_none() || !not_over_yet.is_empty() {
     print_date_line(&cur_day);
 
-    for (index, cal) in not_over_yet.clone() {
-      let cal_config = config::get_config_for_calendar(&config, &cal);
-      let event = cal.get_principal_event();
-      print_event_line(cal_config, &index, &event, &cur_day); 
-    }
-    not_over_yet.retain( |(_, cal)| {
-      let event = cal.get_principal_event();
-      event.continues_after(&cur_day) 
+    not_over_yet.retain( |(index, _, event, cal_config)| {
+      print_event_line(*cal_config, &index, &event, &cur_day);
+      event.continues_after(&cur_day)
     });
 
-    loop {
-      let cal_config = config::get_config_for_calendar(&config, &cur_cal.1);
-      let event = cur_cal.1.get_principal_event();
-      let i = cur_cal.0;
-
-      match event.get_dtstart() {
-        None => {
-          warn!("Invalid DTSTART in {}", event.get_uid());
-          continue
-        },
-        Some(start) => {
-          if start.date() != cur_day {
-            break;
-          }
-        }
-      }
+    while element_relevant_on(cals_iter.peek(), &cur_day) {
+      let (i, cal, event, cal_config) = cals_iter.next().unwrap();
 
       print_event_line(cal_config, &i, &event, &cur_day);
       if event.continues_after(&cur_day) {
-        not_over_yet.push(cur_cal);
-      }
-      match cals_iter.next() {
-        Some(foo) => cur_cal = foo,
-        None => {
-          events_remaining=false;
-          break
-        }
+        not_over_yet.push((i, cal, event, cal_config));
       }
     }
 
     cur_day = cur_day.succ();
-    if not_over_yet.len() == 0 && !events_remaining { break };
+  }
+}
+
+fn element_relevant_on<Q,R,S>(event: Option<&(Q, R, IcalVEvent, S)>, date: &Date<Local>) -> bool {
+  match event {
+    Some((_, _, event, _)) => event.relevant_on(date),
+    None => false
   }
 }
 
@@ -119,7 +100,22 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
   }
 }
 
+impl IcalVCalendar {
+  fn get_config<'a>(&self, config: &'a Config) -> Option<&'a CalendarConfig> {
+    config::get_config_for_calendar(config, self)
+  }
+}
+
 impl IcalVEvent {
+  fn relevant_on(&self, date: &Date<Local>) -> bool {
+    if let Some(start) = self.get_dtstart() {
+      start.date() == *date
+    } else {
+        warn!("Invalid DTSTART in {}", self.get_uid());
+        false
+    }
+  }
+
   fn continues_after(&self, date: &Date<Local>) -> bool {
     match self.is_allday() {
       true => self.get_dtend().map( |dtend| dtend.date().pred() > *date),
