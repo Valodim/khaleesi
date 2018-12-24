@@ -24,11 +24,13 @@ pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
   };
 
   let mut cur_day = start_day;
+  let mut last_printed_day = start_day.pred();
   while !cals_iter.peek().is_none() || !not_over_yet.is_empty() {
     maybe_print_week_separator(&config, &start_day, &cur_day);
-    print_date_line(&cur_day);
+    maybe_print_date_line_header(&config, &cur_day, &mut last_printed_day);
 
     not_over_yet.retain( |(index, _, event, cal_config)| {
+      maybe_print_date_line(&cur_day, &mut last_printed_day);
       print_event_line(*cal_config, &index, &event, &cur_day);
       event.continues_after(&cur_day)
     });
@@ -36,6 +38,7 @@ pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
     while element_relevant_on(cals_iter.peek(), &cur_day) {
       let (i, cal, event, cal_config) = cals_iter.next().unwrap();
 
+      maybe_print_date_line(&cur_day, &mut last_printed_day);
       print_event_line(cal_config, &i, &event, &cur_day);
       if event.continues_after(&cur_day) {
         not_over_yet.push((i, cal, event, cal_config));
@@ -60,6 +63,22 @@ fn maybe_print_week_separator(config: &Config, start_day: &Date<Local>, date: &D
   if start_day != date && date.weekday() == Weekday::Mon {
     println!();
   }
+}
+
+
+fn maybe_print_date_line_header(config: &Config, date: &Date<Local>, last_printed_date: &mut Date<Local>) {
+  if !config.agenda.print_empty_days {
+    return;
+  }
+  maybe_print_date_line(date, last_printed_date);
+}
+
+fn maybe_print_date_line(date: &Date<Local>, last_printed_date: &mut Date<Local>) {
+  if date <= last_printed_date {
+    return;
+  }
+  print_date_line(date);
+  *last_printed_date = *date;
 }
 
 fn print_date_line(date: &Date<Local>) {

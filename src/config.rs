@@ -16,6 +16,7 @@ pub struct Config {
 #[serde(default)]
 pub struct AgendaConfig {
   pub print_week_separator: bool,
+  pub print_empty_days: bool,
 }
 
 #[derive(Deserialize)]
@@ -47,7 +48,8 @@ pub fn read_config() -> Config {
 impl Default for AgendaConfig {
   fn default() -> Self {
     AgendaConfig {
-      print_week_separator: false
+      print_week_separator: false,
+      print_empty_days: true,
     }
   }
 }
