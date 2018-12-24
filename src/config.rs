@@ -6,13 +6,21 @@ use icalwrap::IcalVCalendar;
 use yansi::{self,Style,Color};
 
 #[derive(Deserialize)]
+#[serde(default)]
 pub struct Config {
-  calendars: HashMap<String,CalendarConfig>
+  pub calendars: HashMap<String,CalendarConfig>,
+  pub agenda: AgendaConfig
+}
+
+#[derive(Deserialize)]
+#[serde(default)]
+pub struct AgendaConfig {
+  pub print_week_separator: bool,
 }
 
 #[derive(Deserialize)]
 pub struct CalendarConfig {
-  color: Option<u8>
+  pub color: Option<u8>
 }
 
 pub fn get_config_for_calendar<'a>(config: &'a Config, event: &IcalVCalendar) -> Option<&'a CalendarConfig> {
@@ -32,12 +40,23 @@ pub fn read_config() -> Config {
   let config = utils::read_file_to_string(&defaults::get_configfile());
   match config {
     Ok(config) => toml::from_str(&config).unwrap(),
-    Err(_) => default_config()
+    Err(_) => Config::default()
   }
 }
 
-fn default_config() -> Config {
-  Config {
-    calendars: HashMap::new()
+impl Default for AgendaConfig {
+  fn default() -> Self {
+    AgendaConfig {
+      print_week_separator: false
+    }
+  }
+}
+
+impl Default for Config {
+  fn default() -> Self {
+    Config {
+      calendars: HashMap::new(),
+      agenda: AgendaConfig::default(),
+    }
   }
 }

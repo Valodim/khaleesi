@@ -2,7 +2,7 @@ use utils;
 use icalwrap::*;
 use yansi::{Style};
 use config::{self,Config,CalendarConfig};
-use chrono::{TimeZone, Local, Date};
+use chrono::{Datelike, TimeZone, Local, Date, Weekday};
 
 pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
   let cals = utils::read_calendars_from_files(lines).unwrap();
@@ -13,7 +13,7 @@ pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
     .map(|(i, cal)| (i, cal, cal.get_principal_event(), cal.get_config(&config)))
     .peekable();
 
-  let mut cur_day = match cals_iter.peek() {
+  let start_day = match cals_iter.peek() {
     Some((_, _, event, _)) => {
       event
         .get_dtstart()
@@ -23,7 +23,9 @@ pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
     None => return,
   };
 
+  let mut cur_day = start_day;
   while !cals_iter.peek().is_none() || !not_over_yet.is_empty() {
+    maybe_print_week_separator(&config, &start_day, &cur_day);
     print_date_line(&cur_day);
 
     not_over_yet.retain( |(index, _, event, cal_config)| {
@@ -48,6 +50,15 @@ fn element_relevant_on<Q,R,S>(event: Option<&(Q, R, IcalVEvent, S)>, date: &Date
   match event {
     Some((_, _, event, _)) => event.relevant_on(date),
     None => false
+  }
+}
+
+fn maybe_print_week_separator(config: &Config, start_day: &Date<Local>, date: &Date<Local>) {
+  if !config.agenda.print_week_separator {
+    return;
+  }
+  if start_day != date && date.weekday() == Weekday::Mon {
+    println!();
   }
 }
 
