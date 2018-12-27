@@ -90,7 +90,13 @@ impl ListFilters {
 
 pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
 
-  let filters = ListFilters::parse_from_args(args).unwrap();
+  let filters = match ListFilters::parse_from_args(args) {
+    Ok(filters) => filters,
+    Err(err) => {
+      error!("{}", err);
+      return;
+    }
+  };
 
   if let Some(num) = filters.num {
     println!("{}", filenames.nth(num).expect("No such element in sequence"));
