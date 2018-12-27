@@ -75,7 +75,7 @@ impl ListFilters {
     move |cal| {
       match &self.calendar {
         Some(calendar) => {
-          cal.get_path_clone()
+          cal.get_path()
             .map_or(false,  |path| path.parent().map_or(false, |path| path.ends_with(calendar)))
         }
         None => true

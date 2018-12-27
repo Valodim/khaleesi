@@ -217,8 +217,8 @@ impl IcalVCalendar {
     format!("{}", self.path.as_ref().unwrap().display())
   }
 
-  pub fn get_path_clone(&self) -> Option<PathBuf> {
-    self.path.clone()
+  pub fn get_path(&self) -> Option<&PathBuf> {
+    self.path.as_ref()
   }
 
   pub fn get_calendar_name(&self) -> Option<String> {
