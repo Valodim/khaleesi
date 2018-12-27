@@ -99,7 +99,10 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   };
 
   if let Some(num) = filters.num {
-    println!("{}", filenames.nth(num).expect("No such element in sequence"));
+    match filenames.nth(num) {
+      Some(line) => println!("{}", line),
+      None => error!("Element {} out of range!", num),
+    }
     return;
   }
 
