@@ -106,13 +106,12 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
     return;
   }
 
-  let mut cals = utils::read_calendars_from_files(filenames).unwrap();
+  let cals = utils::read_calendars_from_files(filenames).unwrap();
 
-  cals = cals.into_iter()
+  let cals = cals.into_iter()
     .filter( filters.predicate_is_from() )
     .filter( filters.predicate_is_to() )
-    .filter( filters.predicate_is_in_calendar() )
-    .collect();
+    .filter( filters.predicate_is_in_calendar() );
 
   for cal in cals {
     if let Some(line) = cal.get_principal_event().get_khaleesi_line() {
