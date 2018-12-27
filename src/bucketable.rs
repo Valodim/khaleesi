@@ -36,8 +36,8 @@ impl Bucketable for IcalVEvent {
     for bucketid in buckets {
       result
         .entry(bucketid)
-        .and_modify(|items| items.push(self.index_line().unwrap()))
-        .or_insert(vec!(self.index_line().unwrap()));
+        .and_modify(|items| items.push(self.get_khaleesi_line().unwrap()))
+        .or_insert(vec!(self.get_khaleesi_line().unwrap()));
     }
 
     if self.has_recur() {

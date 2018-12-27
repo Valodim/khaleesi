@@ -106,7 +106,7 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
     .collect();
 
   for cal in cals {
-    if let Some(line) = cal.get_principal_event().index_line() {
+    if let Some(line) = cal.get_principal_event().get_khaleesi_line() {
       println!("{}", line);
     }
   }

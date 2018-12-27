@@ -355,8 +355,9 @@ impl IcalVEvent {
     self.parent.as_ref()
   }
 
-  pub fn index_line(&self) -> Option<String> {
-    let dtstart_string = self.get_dtstart()?.timestamp().to_string();
+  pub fn get_khaleesi_line(&self) -> Option<String> {
+    let dtstart = self.get_dtstart()?.timestamp();
+    let dtstart_string = format!("{:010}", dtstart);
     let path_string = self.parent.as_ref()?.get_path_as_string();
     Some([dtstart_string, path_string].join(" "))
   }
@@ -499,12 +500,12 @@ fn recur_iterator_test() {
 }
 
 #[test]
-fn index_line_test() {
+fn get_khaleesi_line_test() {
   use testdata;
   let path = Some(PathBuf::from("test/path"));
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
   let event = cal.get_principal_event();
-  assert_eq!(event.index_line().unwrap(), String::from("1182988800 test/path"))
+  assert_eq!(event.get_khaleesi_line().unwrap(), String::from("1182988800 test/path"))
 }
 
 #[test]
