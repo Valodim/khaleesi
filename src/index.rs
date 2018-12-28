@@ -34,11 +34,14 @@ pub fn index_dir(dir: &Path) {
   let ics_files = get_ics_files(dir);
   let buckets = read_buckets(ics_files);
 
-  if check_index_dir() {
-    write_index(buckets);
+  match prepare_index_dir() {
+    Ok(_) => {
+      write_index(buckets);
+      info!("Index written in {}ms", utils::format_duration(&now.elapsed()));
+    },
+    Err(error) => error!("{}", error),
   }
 
-  info!("Index written in {}ms", utils::format_duration(&now.elapsed()));
 }
 
 fn get_ics_files(dir: &Path) -> impl Iterator<Item = PathBuf> {
@@ -78,16 +81,15 @@ fn write_index(buckets: HashMap<String, Vec<String>>) {
   }
 }
 
-fn check_index_dir() -> bool {
+fn prepare_index_dir() -> Result<(), std::io::Error> {
   let indexdir = get_indexdir();
-  if !indexdir.exists() {
-    info!("Creating index directory: {}", indexdir.to_string_lossy());
-    if let Err(error) = fs::create_dir(&indexdir) {
-      error!("{}", error);
-      return false;
-    }
+  if indexdir.exists() {
+    info!("Deleting index directory: {}", indexdir.to_string_lossy());
+    fs::remove_dir_all(&indexdir)?
   }
-  info!("Using index directory: {}", indexdir.to_string_lossy());
-  true
+
+  info!("Creating index directory: {}", indexdir.to_string_lossy());
+  fs::create_dir(&indexdir)?;
+  Ok(())
 }
 
