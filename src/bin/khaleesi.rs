@@ -17,6 +17,7 @@ use khaleesi::utils;
 use khaleesi::unroll;
 use khaleesi::grep;
 use khaleesi::show;
+use khaleesi::edit;
 use khaleesi::config::{self,Config};
 use khaleesi::defaults::*;
 
@@ -49,6 +50,7 @@ fn main() {
       "grep" => action_grep(&args[2..]),
       "select" => action_select(&args[2..]),
       "seq" => action_sequence(&args[2..]),
+      "edit" => action_edit(&args[2..]),
       "unroll" => action_unroll(&args[2..]),
       _  => print_usage(&args[0])
     }
@@ -77,6 +79,13 @@ fn action_show(args: &[String]) {
   //lists from sequence file or stdin
   if let Some(mut input) = default_input() {
     show::do_show(&mut input, &args);
+  }
+}
+
+fn action_edit(args: &[String]) {
+  //lists from sequence file or stdin
+  if let Some(mut input) = default_input() {
+    edit::do_edit(&mut input, &args);
   }
 }
 

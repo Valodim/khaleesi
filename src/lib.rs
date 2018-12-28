@@ -15,6 +15,7 @@ pub mod bucketable;
 pub mod grep;
 pub mod config;
 pub mod show;
+pub mod edit;
 
 #[cfg(test)]
 pub mod testdata;
