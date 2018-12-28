@@ -21,16 +21,26 @@ impl ListFilters {
 
     if args.len() == 1 {
       let rangeargs: Vec<&str> = args[0].splitn(2, '-').collect();
-      if let Ok(lower) = rangeargs[0].parse::<usize>() {
-        if rangeargs.len() > 1 {
-          if let Ok(upper) = rangeargs[1].parse::<usize>() {
-            return Ok(ListFilters {from, to, range: Some((lower, upper)), calendar} );
-          } 
-        } else {
-          return Ok(ListFilters {from, to, range: Some((lower, lower)), calendar} );
+      match rangeargs.len() {
+        1 => {
+          if let Ok(num) = rangeargs[0].parse::<usize>() {
+            return Ok(ListFilters {from, to, range: Some((num, num)), calendar} );
+          } else {
+            return Err("list [num] | [from|to|cal parameter]+".to_string())
+          }
+        },
+        2 => {
+          let lower = rangeargs[0].parse::<usize>();
+          let upper = rangeargs[1].parse::<usize>();
+          if lower.is_ok() && upper.is_ok() {
+            return Ok(ListFilters {from, to, range: Some((lower.unwrap(), upper.unwrap())), calendar} );
+          } else {
+            return Err("list [num] | [from|to|cal parameter]+".to_string())
+          }
         }
-      } else {
-        return Err("list [num] | [from|to|cal parameter]+".to_string())
+        _ => {
+            return Err("list [num] | [from|to|cal parameter]+".to_string())
+        }
       }
     }
 
