@@ -11,14 +11,14 @@ pub trait IcalComponent {
   fn get_ptr(&self) -> *mut ical::icalcomponent;
   fn as_component(&self) -> &dyn IcalComponent;
 
-  fn get_property(&self, property_kind: ical::icalproperty_kind) -> IcalProperty {
+  fn get_property(&self, property_kind: ical::icalproperty_kind) -> IcalProperty<'_> {
     unsafe {
       let property = ical::icalcomponent_get_first_property(self.get_ptr(), property_kind);
       IcalProperty::from_ptr(property, self.as_component())
     }
   }
 
-  fn get_properties(self: &Self, property_kind: ical::icalproperty_kind) -> Vec<IcalProperty> {
+  fn get_properties(self: &Self, property_kind: ical::icalproperty_kind) -> Vec<IcalProperty<'_>> {
     let mut properties = Vec::new();
     unsafe {
       let mut property_ptr = ical::icalcomponent_get_first_property(self.get_ptr(), property_kind);
@@ -31,7 +31,7 @@ pub trait IcalComponent {
     properties
   }
 
-  fn get_properties_all(&self) -> Vec<IcalProperty> {
+  fn get_properties_all(&self) -> Vec<IcalProperty<'_>> {
     self.get_properties(ical::icalproperty_kind_ICAL_ANY_PROPERTY)
   }
 
