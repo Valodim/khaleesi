@@ -5,7 +5,7 @@ use utils;
 struct ListFilters {
   from: Option<Date<Local>>,
   to: Option<Date<Local>>,
-  num: Option<usize>,
+  range: Option<(usize, usize)>,
   calendar: Option<String>,
 }
 
@@ -20,8 +20,15 @@ impl ListFilters {
     }
 
     if args.len() == 1 {
-      if let Ok(num) = args[0].parse::<usize>() {
-        return Ok(ListFilters {from, to, num: Some(num), calendar} );
+      let rangeargs: Vec<&str> = args[0].splitn(2, '-').collect();
+      if let Ok(lower) = rangeargs[0].parse::<usize>() {
+        if rangeargs.len() > 1 {
+          if let Ok(upper) = rangeargs[1].parse::<usize>() {
+            return Ok(ListFilters {from, to, range: Some((lower, upper)), calendar} );
+          } 
+        } else {
+          return Ok(ListFilters {from, to, range: Some((lower, lower)), calendar} );
+        }
       } else {
         return Err("list [num] | [from|to|cal parameter]+".to_string())
       }
@@ -40,7 +47,7 @@ impl ListFilters {
         return Err("Syntax error!".to_string());
       }
     }
-    Ok(ListFilters {from, to, num: None, calendar})
+    Ok(ListFilters {from, to, range: None, calendar})
   }
 
   pub fn predicate_is_from(&self) -> impl Fn(&IcalVCalendar) -> bool + '_ {
@@ -98,11 +105,11 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
     }
   };
 
-  if let Some(num) = filters.num {
-    match filenames.nth(num) {
-      Some(line) => println!("{}", line),
-      None => error!("Element {} out of range!", num),
-    }
+  if let Some(range) = filters.range {
+    filenames
+      .take(range.1 + 1)
+      .skip(range.0)
+      .for_each( |line| println!("{}", line));
     return;
   }
 
