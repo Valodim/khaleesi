@@ -122,12 +122,7 @@ pub fn format_duration(duration: &time::Duration) -> impl Display {
 }
 
 pub fn get_bucket_for_date(date: &Date<Local>) -> String {
-  let bucket = format!(
-      "{}-{:02}",
-      date.iso_week().year(),
-      date.iso_week().week()
-      );
-  bucket
+  date.format("%G-W%V").to_string()
 }
 
 pub fn print_cals(cals: impl Iterator<Item = IcalVCalendar>) {
