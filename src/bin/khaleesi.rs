@@ -39,18 +39,18 @@ fn main() {
     print_usage(&args[0])
   } else {
     match args[1].as_str() {
-      "index" => action_index(&args[2..]),
-      "show" => action_show(&args[2..]),
-      "short" => action_prettyprint_all(&args[2..]),
       "agenda" => action_agenda(config, &args[2..]),
-      "sort" => action_sort(&args[2..]),
       "cal" => cal::printcal(),
       "dbg" => cal::dbg(),
-      "list" => action_list(&args[2..]),
+      "edit" => action_edit(&args[2..]),
       "grep" => action_grep(&args[2..]),
+      "index" => action_index(&args[2..]),
+      "list" => action_list(&args[2..]),
       "select" => action_select(&args[2..]),
       "seq" => action_sequence(&args[2..]),
-      "edit" => action_edit(&args[2..]),
+      "short" => action_prettyprint_all(&args[2..]),
+      "show" => action_show(&args[2..]),
+      "sort" => action_sort(&args[2..]),
       "unroll" => action_unroll(&args[2..]),
       _  => print_usage(&args[0])
     }
