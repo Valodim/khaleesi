@@ -1,84 +1,167 @@
 use chrono::*;
+use std::cmp;
 use std::path::PathBuf;
+use std::str::FromStr;
 
+use dateutil;
 use defaults;
 use icalwrap::IcalVEvent;
 use utils;
 
 struct SelectFilters {
-  from: Option<Date<Local>>,
-  to: Option<Date<Local>>,
+  from: SelectFilterFrom,
+  to: SelectFilterTo,
+}
+
+#[derive(Debug)]
+struct SelectFilterFrom {
+  date: Option<Date<Local>>,
+  bucket: Option<String>,
+}
+
+#[derive(Debug)]
+struct SelectFilterTo {
+  date: Option<Date<Local>>,
+  bucket: Option<String>,
+}
+
+impl SelectFilterFrom {
+  fn is_bucket_before(&self, bucketname: &str) -> bool {
+    self.bucket.as_ref().map_or(false, |bucket| bucketname < &bucket)
+  }
+
+  fn includes_date(&self, cmp_date: DateTime<Local>) -> bool {
+    self.date.map_or(true, |date| date <= cmp_date.date())
+  }
+
+  fn from_date(date: Option<Date<Local>>) -> Self {
+    Self { date, bucket: date.map(|date| utils::get_bucket_for_date(&date))  }
+  }
+
+  fn combine_with(self, other: Self) -> Self {
+    let date = if self.date.is_some() {
+      cmp::max(self.date, other.date)
+    } else {
+      other.date
+    };
+    Self::from_date(date)
+  }
+}
+
+impl SelectFilterTo {
+  fn is_bucket_while(&self, bucketname: &str) -> bool {
+    self.bucket.as_ref().map_or(true, |bucket| bucketname <= &bucket)
+  }
+
+  fn includes_date(&self, cmp_date: DateTime<Local>) -> bool {
+    self.date.map_or(true, |date| cmp_date.date() <= date)
+  }
+
+  fn from_date(date: Option<Date<Local>>) -> Self {
+    Self { date, bucket: date.map(|date| utils::get_bucket_for_date(&date))  }
+  }
+
+  fn combine_with(self, other: Self) -> Self {
+    let date = if self.date.is_some() {
+      cmp::min(self.date, other.date)
+    } else {
+      other.date
+    };
+    Self::from_date(date)
+  }
+}
+
+impl FromStr for SelectFilterFrom {
+  type Err = String;
+
+  fn from_str(s: &str) -> Result<SelectFilterFrom, Self::Err> {
+    if let Ok(date) = dateutil::date_from_str(s) {
+      return Ok(SelectFilterFrom::from_date(Some(date)));
+    }
+    if let Ok(weekdate) = dateutil::week_from_str_begin(s) {
+      return Ok(SelectFilterFrom::from_date(Some(weekdate)));
+    }
+    Err(format!("Could not parse date '{}'", s).to_string())
+  }
+}
+
+impl FromStr for SelectFilterTo {
+  type Err = String;
+
+  fn from_str(s: &str) -> Result<SelectFilterTo, Self::Err> {
+    if let Ok(date) = dateutil::date_from_str(s) {
+      return Ok(SelectFilterTo::from_date(Some(date)));
+    }
+    if let Ok(weekdate) = dateutil::week_from_str_end(s) {
+      return Ok(SelectFilterTo::from_date(Some(weekdate)));
+    }
+    Err(format!("Could not parse date '{}'", s).to_string())
+  }
+}
+
+impl Default for SelectFilterTo {
+  fn default() -> SelectFilterTo {
+    SelectFilterTo::from_date(None)
+  }
+}
+
+impl Default for SelectFilterFrom {
+  fn default() -> SelectFilterFrom {
+    SelectFilterFrom::from_date(None)
+  }
 }
 
 impl SelectFilters {
-  pub fn parse_from_args(args: &[String]) -> Result<Self, String> {
-    let mut fromarg: Option<Date<Local>> = None;
-    let mut toarg: Option<Date<Local>> = None;
+  pub fn parse_from_args(mut args: &[String]) -> Result<Self, String> {
+    let mut from: SelectFilterFrom = Default::default();
+    let mut to: SelectFilterTo = Default::default();
 
-    for chunk in args.chunks(2) {
-      if chunk.len() == 2 {
-        let mut datearg = match utils::date_from_str(&chunk[1]) {
-          Ok(datearg) => datearg,
-            Err(error) => {
-              return Err(format!("{}", error))
-            }
-        };
-
-        match chunk[0].as_str() {
-          "from" => fromarg = Some(datearg),
-          "to"   => toarg = Some(datearg),
-          _      => return Err("select [from|to parameter]+".to_string())
+    while !args.is_empty() {
+      match args[0].as_str() {
+        "from" => {
+          from = from.combine_with(args[1].parse()?);
+          args = &args[2..];
         }
-      } else {
-        return Err("select [from|to parameter]+".to_string());
+        "to" => {
+          to = to.combine_with(args[1].parse()?);
+          args = &args[2..];
+        }
+        "in" | "on" => {
+          from = from.combine_with(args[1].parse()?);
+          to = to.combine_with(args[1].parse()?);
+          args = &args[2..];
+        }
+        _ => return Err("select [from|to parameter]+".to_string())
       }
     }
-    Ok(SelectFilters {from: fromarg, to: toarg})
+
+    // debug!("from: {:?}, to: {:?}", from, to);
+    Ok(SelectFilters { from, to })
   }
 
-  pub fn predicate_path_is_not_from(&self) -> impl Fn(&PathBuf) -> bool + '_ {
+  pub fn predicate_path_skip_while(&self) -> impl Fn(&PathBuf) -> bool + '_ {
     move |path| {
-      let filename = path.file_name().expect(&format!("{:?} not a file", path));
-      match &self.from {
-        Some(from) => filename < utils::get_bucket_for_date(from).as_str(),
-        None => false
-      }
+      let bucketname = path.file_name().expect(&format!("{:?} not a file", path)).to_string_lossy();
+      self.from.is_bucket_before(&bucketname)
     }
   }
 
-  pub fn predicate_path_is_to<'a>(&'a self) -> impl Fn(&PathBuf) -> bool + 'a {
+  pub fn predicate_path_take_while<'a>(&'a self) -> impl Fn(&PathBuf) -> bool + 'a {
     move |path| {
-      let filename = path.file_name().expect(&format!("{:?} not a file", path));
-      match &self.to {
-        Some(to) => filename <= utils::get_bucket_for_date(to).as_str(),
-        None => true
-      }
+      let bucketname = path.file_name().expect(&format!("{:?} not a file", path)).to_string_lossy();
+      self.to.is_bucket_while(&bucketname)
     }
   }
 
   pub fn predicate_line_is_from(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
     move |event| {
-      match &self.from {
-        Some(from) => {
-          let pred_dtstart = event.get_dtstart().map_or(true, |dtstart| from <= &dtstart.date() );
-          let pred_dtend = event.get_dtend().map_or(true, |dtend| from <= &dtend.date());
-          pred_dtstart || pred_dtend
-        }
-        None => true
-      }
+      self.from.includes_date(event.get_dtstart().unwrap())
     }
   }
 
   pub fn predicate_line_is_to(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
     move |event| {
-      match &self.to {
-        Some(to) => {
-          let pred_dtstart = event.get_dtstart().map_or(true, |dtstart| &dtstart.date() <= to);
-          let pred_dtend = event.get_dtend().map_or(true, |dtend| &dtend.date() <= to);
-          pred_dtstart || pred_dtend
-        }
-        None => true
-      }
+      self.to.includes_date(event.get_dtend().unwrap())
     }
   }
 }
@@ -99,8 +182,9 @@ pub fn select_by_args(args: &[String]) {
   let mut buckets: Vec<PathBuf> = utils::file_iter(&indexdir)
     .collect();
   buckets.sort_unstable();
-  let buckets = buckets.into_iter().skip_while( filters.predicate_path_is_not_from() )
-    .take_while( filters.predicate_path_is_to() );
+  let buckets = buckets.into_iter()
+    .skip_while(filters.predicate_path_skip_while())
+    .take_while(filters.predicate_path_take_while());
 
   let cals = buckets.map(|bucket| utils::read_lines_from_file(&bucket))
     .filter_map(|lines| lines.ok())

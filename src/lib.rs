@@ -3,6 +3,7 @@ pub mod bucketable;
 pub mod cal;
 pub mod calutil;
 pub mod config;
+pub mod dateutil;
 pub mod defaults;
 pub mod edit;
 pub mod grep;

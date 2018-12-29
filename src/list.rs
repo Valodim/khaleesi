@@ -1,6 +1,8 @@
 use chrono::*;
+
 use icalwrap::IcalVCalendar;
 use utils;
+use dateutil;
 
 struct ListFilters {
   from: Option<Date<Local>>,
@@ -101,7 +103,7 @@ impl ListFilters {
   }
 
   fn parse_datearg(datearg: &str) -> Result<Date<Local>, String> {
-    utils::date_from_str(datearg).map_err( |err| format!("{}", err))
+    dateutil::date_from_str(datearg).map_err( |err| format!("{}", err))
   }
 }
 
