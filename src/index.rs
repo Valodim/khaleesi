@@ -1,6 +1,3 @@
-extern crate chrono;
-extern crate libc;
-
 use icalwrap::*;
 use std::collections::HashMap;
 use std::fs;
