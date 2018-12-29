@@ -112,7 +112,7 @@ fn buckets_multi_day_allday() {
 
   let mut bucket_names = event_buckets.keys().collect::<Vec<&String>>();
   bucket_names.sort_unstable();
-  assert_eq!(bucket_names, ["2007-26", "2007-27"]);
+  assert_eq!(bucket_names, ["2007-W26", "2007-W27"]);
 
   let cal_buckets = cal.get_buckets().unwrap();
   assert_eq!(event_buckets, cal_buckets);
@@ -127,7 +127,7 @@ fn buckets_single_event() {
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, path).unwrap();
 
   let comp_buckets = cal.get_buckets().unwrap();
-  assert_eq!(comp_buckets.keys().collect::<Vec<&String>>(), ["1997-13"]);
+  assert_eq!(comp_buckets.keys().collect::<Vec<&String>>(), ["1997-W13"]);
 }
 
 #[test]
@@ -145,5 +145,5 @@ fn buckets_simple_recurring_event() {
   let mut cal_bucket_names = cal_buckets.keys().collect::<Vec<&String>>();
   cal_bucket_names.sort_unstable();
   assert_eq!(cal_bucket_names,
-     ["2018-41", "2018-42", "2018-43", "2018-44", "2018-45", "2018-46", "2018-47", "2018-48", "2018-49", "2018-50"]);
+     ["2018-W41", "2018-W42", "2018-W43", "2018-W44", "2018-W45", "2018-W46", "2018-W47", "2018-W48", "2018-W49", "2018-W50"]);
 }
