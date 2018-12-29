@@ -1,9 +1,10 @@
-use utils;
-use icalwrap::*;
-use yansi::{Style};
-use config::{self,Config,CalendarConfig};
 use chrono::{Datelike, TimeZone, Local, Date};
 use itertools::Itertools;
+use yansi::{Style};
+
+use icalwrap::*;
+use utils;
+use config::{self,Config,CalendarConfig};
 
 pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
   let cals = utils::read_calendars_from_files(lines).unwrap();

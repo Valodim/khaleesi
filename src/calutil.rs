@@ -1,8 +1,7 @@
-use chrono::prelude::*;
-use chrono::MAX_DATE;
-use chrono::IsoWeek;
 use chrono::Duration;
-
+use chrono::IsoWeek;
+use chrono::MAX_DATE;
+use chrono::prelude::*;
 
 // from https://github.com/chronotope/chrono/pull/209/files
 

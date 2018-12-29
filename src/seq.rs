@@ -1,10 +1,11 @@
 extern crate atty;
 
-use utils;
-use std::io;
 use itertools::Itertools;
-use defaults::*;
 use std::fs::rename;
+use std::io;
+
+use defaults::*;
+use utils;
 
 pub fn do_seq(_args: &[String]) {
   if atty::isnt(atty::Stream::Stdin) {

@@ -1,5 +1,5 @@
-use chrono::prelude::*;
 use chrono::Duration;
+use chrono::prelude::*;
 use yansi::{Style,Color};
 
 use utils;

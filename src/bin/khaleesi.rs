@@ -5,21 +5,21 @@ extern crate stderrlog;
 #[macro_use]
 extern crate log;
 
-use khaleesi::prettyprint;
 use khaleesi::agenda;
 use khaleesi::cal;
-use khaleesi::index;
-use khaleesi::sort;
-use khaleesi::list;
-use khaleesi::select;
-use khaleesi::seq;
-use khaleesi::utils;
-use khaleesi::unroll;
-use khaleesi::grep;
-use khaleesi::show;
-use khaleesi::edit;
 use khaleesi::config::{self,Config};
 use khaleesi::defaults::*;
+use khaleesi::edit;
+use khaleesi::grep;
+use khaleesi::index;
+use khaleesi::list;
+use khaleesi::prettyprint;
+use khaleesi::select;
+use khaleesi::seq;
+use khaleesi::show;
+use khaleesi::sort;
+use khaleesi::unroll;
+use khaleesi::utils;
 
 use std::env;
 use std::path::{Path,PathBuf};

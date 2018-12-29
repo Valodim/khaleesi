@@ -1,8 +1,9 @@
 use chrono::*;
 use std::path::PathBuf;
-use utils;
+
 use defaults;
 use icalwrap::IcalVEvent;
+use utils;
 
 struct SelectFilters {
   from: Option<Date<Local>>,

@@ -1,7 +1,8 @@
-use icalwrap::{IcalVEvent, IcalVCalendar};
 use chrono::{Local, Date, Datelike, Duration};
 use std::collections::HashMap;
-use std::{hash,cmp};
+use std::{hash, cmp};
+
+use icalwrap::{IcalVEvent, IcalVCalendar};
 use utils;
 
 pub trait Bucketable {

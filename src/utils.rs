@@ -1,12 +1,13 @@
 extern crate walkdir;
 
-use std::{fs, io, time};
-use std::path::{Path,PathBuf};
+use chrono::*;
+use std::fmt::Display;
 use std::io::prelude::*;
 use std::io::{BufRead, BufReader};
-use std::fmt::Display;
+use std::path::{Path,PathBuf};
+use std::{fs, io, time};
+
 use icalwrap::IcalVCalendar;
-use chrono::*;
 
 pub fn joinlines(first: &str, second: &str) -> String {
     use itertools::Itertools;

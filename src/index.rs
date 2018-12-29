@@ -3,10 +3,11 @@ extern crate libc;
 
 use icalwrap::*;
 use std::collections::HashMap;
-use utils;
-use std::path::{Path,PathBuf};
 use std::fs;
+use std::path::{Path,PathBuf};
+
 use defaults::*;
+use utils;
 
 fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &IcalVCalendar) {
   use bucketable::Bucketable;

@@ -1,5 +1,5 @@
-use utils;
 use icalwrap::IcalVCalendar;
+use utils;
 
 pub fn grep(filenames: &mut Iterator<Item = String>, args: &[String]) {
   if args.len() == 0 {

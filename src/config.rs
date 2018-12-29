@@ -1,9 +1,10 @@
 use std::collections::HashMap;
-use utils;
-use defaults;
 use toml;
-use icalwrap::IcalVCalendar;
 use yansi::{self,Style,Color};
+
+use defaults;
+use icalwrap::IcalVCalendar;
+use utils;
 
 #[derive(Deserialize)]
 #[serde(default)]

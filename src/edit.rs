@@ -1,7 +1,8 @@
-use utils;
+use std::env;
 use std::fs;
 use std::process::Command;
-use std::env;
+
+use utils;
 
 pub fn do_edit(filenames: &mut Iterator<Item = String>, _args: &[String]) {
 

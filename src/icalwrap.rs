@@ -1,9 +1,9 @@
 use chrono::{NaiveDate, Duration, DateTime, Date, Utc, TimeZone, Local};
 use std::ffi::{CStr,CString};
-use std::path::PathBuf;
 use std::fmt;
-use std::rc::Rc;
 use std::ops::Deref;
+use std::path::PathBuf;
+use std::rc::Rc;
 
 use ical;
 
