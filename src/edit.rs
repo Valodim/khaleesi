@@ -1,6 +1,7 @@
 use utils;
 use std::fs;
 use std::process::Command;
+use std::env;
 
 pub fn do_edit(filenames: &mut Iterator<Item = String>, _args: &[String]) {
 
@@ -14,9 +15,11 @@ pub fn do_edit(filenames: &mut Iterator<Item = String>, _args: &[String]) {
   paths.sort_unstable();
   paths.dedup();
 
-  Command::new("vim")
+  let editor = env::var("EDITOR").unwrap_or("vim".to_string());
+
+  Command::new(&editor)
     .args(paths)
     .stdin(fs::File::open("/dev/tty").unwrap())
     .status()
-    .expect("vim command failed to start");
+    .expect(&format!("{} command failed to start", editor));
 }
