@@ -1,21 +1,21 @@
 pub mod agenda;
+pub mod bucketable;
 pub mod cal;
 pub mod calutil;
+pub mod config;
 pub mod defaults;
+pub mod edit;
+pub mod grep;
 pub mod icalwrap;
 pub mod index;
-pub mod prettyprint;
 pub mod list;
+pub mod prettyprint;
 pub mod select;
 pub mod seq;
+pub mod show;
 pub mod sort;
 pub mod unroll;
 pub mod utils;
-pub mod bucketable;
-pub mod grep;
-pub mod config;
-pub mod show;
-pub mod edit;
 
 #[cfg(test)]
 pub mod testdata;
@@ -23,9 +23,9 @@ pub mod testdata;
 extern crate chrono;
 extern crate itertools;
 extern crate libc;
+extern crate libical_sys as ical;
 extern crate stderrlog;
 extern crate yansi;
-extern crate libical_sys as ical;
 
 #[macro_use]
 extern crate serde_derive;
