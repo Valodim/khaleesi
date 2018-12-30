@@ -1,6 +1,7 @@
 pub mod agenda;
 pub mod bucketable;
 pub mod cal;
+pub mod copy;
 pub mod calutil;
 pub mod config;
 pub mod dateutil;

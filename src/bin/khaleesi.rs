@@ -7,6 +7,7 @@ extern crate log;
 
 use khaleesi::agenda;
 use khaleesi::cal;
+use khaleesi::copy;
 use khaleesi::config::{self,Config};
 use khaleesi::defaults::*;
 use khaleesi::edit;
@@ -41,6 +42,7 @@ fn main() {
     match args[1].as_str() {
       "agenda" => action_agenda(config, &args[2..]),
       "cal" => cal::printcal(),
+      "copy" => action_copy(&args[2..]),
       "dbg" => cal::dbg(),
       "edit" => action_edit(&args[2..]),
       "grep" => action_grep(&args[2..]),
@@ -150,6 +152,12 @@ fn action_index(args: &[String]) {
     PathBuf::from(&args[0])
   };
   index::index_dir(&indexpath)
+}
+
+fn action_copy(args: &[String]) {
+  if let Some(mut input) = default_input() {
+    copy::do_copy(&mut input, &args);
+  }
 }
 
 fn default_input() -> Option<Box<dyn Iterator<Item = String>>> {
