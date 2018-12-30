@@ -197,15 +197,13 @@ impl IcalVCalendar {
     }
   }
 
-//this needs to create IcalVEvents
-  //pub fn get_inner(&self) -> Self {
-  //  unsafe {
-  //    let inner_comp = ical::icalcomponent_get_inner(self.ptr);
-  //    Icalcomponent::from_ptr_with_parent(inner_comp, self.parent)
-  //  }
-  //}
+  pub fn to_string(&self) -> String {
+    unsafe {
+      let foo = CStr::from_ptr(ical::icalcomponent_as_ical_string(self.get_ptr()));
+      foo.to_string_lossy().into_owned()
+    }
+  }
 
-//research
   pub fn get_uid(&self) -> String {
     unsafe {
       let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.get_ptr()));
