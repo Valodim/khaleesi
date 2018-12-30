@@ -128,3 +128,16 @@ pub fn print_cals(cals: impl Iterator<Item = IcalVCalendar>) {
     }
   }
 }
+
+pub fn make_new_uid() -> String {
+  use std::collections::hash_map::DefaultHasher;
+  use std::hash::{Hash, Hasher};
+
+  let suffix = "@khaleesi";
+  let mut hasher = DefaultHasher::new();
+  Local::now().hash(&mut hasher);
+  let mut hash_string = hasher.finish().to_string();
+
+  hash_string.push_str(suffix);
+  hash_string
+}
