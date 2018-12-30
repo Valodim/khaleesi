@@ -13,6 +13,7 @@ pub mod index;
 pub mod list;
 pub mod prettyprint;
 pub mod select;
+pub mod selectors;
 pub mod seq;
 pub mod show;
 pub mod sort;
