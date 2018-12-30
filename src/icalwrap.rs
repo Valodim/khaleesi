@@ -389,6 +389,12 @@ impl IcalVEvent {
     }
   }
 
+  pub fn set_uid(&self, uid: &str) {
+    unsafe {
+      ical::icalcomponent_set_uid(self.get_ptr(), CString::new(uid).unwrap().as_ptr());
+    }
+  }
+
   pub fn is_allday(&self) -> bool {
     unsafe {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
