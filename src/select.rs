@@ -58,6 +58,7 @@ pub fn select_by_args(args: &[String]) {
   let mut lines: Vec<String> = cals
     .filter( filters.predicate_line_is_from() )
     .filter( filters.predicate_line_is_to() )
+    .filter( filters.predicate_others() )
     .map(|event| event.get_khaleesi_line())
     .flatten()
     .collect();

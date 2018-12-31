@@ -9,6 +9,25 @@ use utils;
 pub struct SelectFilters {
   pub from: SelectFilterFrom,
   pub to: SelectFilterTo,
+  pub others: Vec<Box<dyn SelectFilter>>,
+}
+
+trait SelectFilter {
+  fn includes(&self, event: &IcalVEvent) -> bool;
+}
+
+struct CalendarFilter {
+  cal_name: String
+}
+
+impl SelectFilter for CalendarFilter {
+  fn includes(&self, event: &IcalVEvent) -> bool {
+    event.get_parent()
+      .and_then(|cal| cal.get_path())
+      .and_then(|path| path.parent())
+      .map(|path| path.ends_with(&self.cal_name))
+      .unwrap_or(false)
+  }
 }
 
 #[derive(Debug)]
@@ -105,6 +124,7 @@ impl SelectFilters {
   pub fn parse_from_args(mut args: &[String]) -> Result<Self, String> {
     let mut from: SelectFilterFrom = Default::default();
     let mut to: SelectFilterTo = Default::default();
+    let mut others: Vec<Box<dyn SelectFilter>> = vec!();
 
     while !args.is_empty() {
       match args[0].as_str() {
@@ -121,12 +141,17 @@ impl SelectFilters {
           to = to.combine_with(args[1].parse()?);
           args = &args[2..];
         }
+        "cal" => {
+          let cal_filter = CalendarFilter { cal_name: args[1].to_owned() };
+          others.push(Box::new(cal_filter));
+          args = &args[2..];
+        }
         _ => return Err("select [from|to parameter]+".to_string())
       }
     }
 
     // debug!("from: {:?}, to: {:?}", from, to);
-    Ok(SelectFilters { from, to })
+    Ok(SelectFilters { from, to, others })
   }
   pub fn predicate_line_is_from(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
     move |event| {
@@ -139,6 +164,17 @@ impl SelectFilters {
   pub fn predicate_line_is_to(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
     move |event| {
       self.to.includes_date(event.get_dtstart().unwrap())
+    }
+  }
+
+  pub fn predicate_others(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
+    move |event| {
+      for filter in &self.others {
+        if ! filter.includes(event) {
+          return false;
+        }
+      }
+      return true;
     }
   }
 }
