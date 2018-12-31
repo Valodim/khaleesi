@@ -551,5 +551,5 @@ fn with_uid_test() {
   for event in new_cal.events_iter() {
     assert_eq!(uid, event.get_uid());
   }
-  assert_eq!(Some(path.unwrap().with_file_name(uid)), new_cal.path);
+  assert_eq!(Some(path.unwrap().with_file_name(uid.to_owned() + ".ics")), new_cal.path);
 }
