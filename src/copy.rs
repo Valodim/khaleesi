@@ -10,12 +10,6 @@ pub fn do_copy(lines: &mut Iterator<Item = String>, _args: &[String]) {
 
   let cal = utils::read_khaleesi_line(&lines[0]).unwrap();  //TODO do not stupidly unwrap
   let mut event = cal.get_principal_event();
-    //Ok(event) => event,
-    //Err(error) => { 
-      //error!("{}", error);
-      //return;
-    //}
-  //};
 
   debug!("uid: {}", event.get_uid());
   let uid = &utils::make_new_uid();
