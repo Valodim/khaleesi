@@ -206,7 +206,7 @@ impl IcalVCalendar {
 
   pub fn get_uid(&self) -> String {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.get_ptr()));
+      let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.get_principal_event().get_ptr()));
       foo.to_string_lossy().into_owned()
     }
   }
