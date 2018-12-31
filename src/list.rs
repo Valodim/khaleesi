@@ -50,9 +50,7 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
 
   let events = cals.into_iter()
     .map(|cal| cal.get_principal_event())
-    .filter(filters.predicate_line_is_from())
-    .filter(filters.predicate_line_is_to())
-    .filter(filters.predicate_others());
+    .filter(filters.predicate());
 
   for event in events {
     if let Some(line) = event.get_khaleesi_line() {

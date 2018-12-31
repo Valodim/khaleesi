@@ -153,28 +153,28 @@ impl SelectFilters {
     // debug!("from: {:?}, to: {:?}", from, to);
     Ok(SelectFilters { from, to, others })
   }
-  pub fn predicate_line_is_from(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
-    move |event| {
-      let starts_after = self.from.includes_date(event.get_dtstart().unwrap());
-      let ends_after = self.from.includes_date(event.get_dtend().unwrap());
-      starts_after || ends_after
-    }
+  fn line_is_from(&self, event: &IcalVEvent) -> bool {
+    let starts_after = self.from.includes_date(event.get_dtstart().unwrap());
+    let ends_after = self.from.includes_date(event.get_dtend().unwrap());
+    starts_after || ends_after
   }
 
-  pub fn predicate_line_is_to(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
-    move |event| {
-      self.to.includes_date(event.get_dtstart().unwrap())
-    }
+  fn line_is_to(&self, event: &IcalVEvent) -> bool {
+    self.to.includes_date(event.get_dtstart().unwrap())
   }
 
-  pub fn predicate_others(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
-    move |event| {
-      for filter in &self.others {
-        if ! filter.includes(event) {
-          return false;
-        }
+  fn others(&self, event: &IcalVEvent) -> bool {
+    for filter in &self.others {
+      if ! filter.includes(event) {
+        return false;
       }
-      return true;
+    }
+    return true;
+  }
+
+  pub fn predicate(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
+    move |event| {
+      self.line_is_from(event) && self.line_is_to(event) && self.others(event)
     }
   }
 }
