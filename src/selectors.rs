@@ -130,13 +130,62 @@ impl SelectFilters {
   }
   pub fn predicate_line_is_from(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
     move |event| {
-      self.from.includes_date(event.get_dtstart().unwrap())
+      let starts_after = self.from.includes_date(event.get_dtstart().unwrap());
+      let ends_after = self.from.includes_date(event.get_dtend().unwrap());
+      starts_after || ends_after
     }
   }
 
   pub fn predicate_line_is_to(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {
     move |event| {
-      self.to.includes_date(event.get_dtend().unwrap())
+      self.to.includes_date(event.get_dtstart().unwrap())
     }
   }
+}
+
+#[cfg(test)]
+use testdata;
+#[test]
+fn test_from_ends_before() {
+  let filtered = test_filter_event(&["from", "2007-08-01"]);
+  assert_eq!(false, filtered)
+}
+#[test]
+fn test_from_begins_after() {
+  let filtered = test_filter_event(&["from", "2007-06-01"]);
+  assert_eq!(true, filtered);
+}
+#[test]
+fn test_from_begins_before_ends_after() {
+  let filtered = test_filter_event(&["from", "2007-07-01"]);
+  assert_eq!(true, filtered);
+}
+#[test]
+fn test_to_ends_before() {
+  let filtered = test_filter_event(&["to", "2007-08-01"]);
+  assert_eq!(true, filtered);
+}
+#[test]
+fn test_to_begins_after() {
+  let filtered = test_filter_event(&["to", "2007-06-01"]);
+  assert_eq!(false, filtered);
+}
+#[test]
+fn test_to_begins_before_ends_after() {
+  let filtered = test_filter_event(&["to", "2007-07-01"]);
+  assert_eq!(true, filtered);
+}
+
+#[cfg(test)]
+fn test_filter_event(args: &[&str]) -> bool {
+  // DTSTART: 2007-06-28
+  // DTEND: 2007-07-09
+  let event = testdata::get_test_event(testdata::TEST_EVENT_MULTIDAY);
+
+  let args: Vec<String> = args.into_iter().map(|x| x.to_string()).collect();
+  let filters = SelectFilters::parse_from_args(&args).unwrap();
+  let pred_from = filters.predicate_line_is_from()(&event);
+  let pred_to = filters.predicate_line_is_to()(&event);
+
+  pred_from && pred_to
 }

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use defaults;
-use selectors::*;
+use selectors::{SelectFilters,SelectFilterFrom,SelectFilterTo};
 use utils;
 
 impl SelectFilters {
@@ -33,15 +33,10 @@ impl SelectFilterTo {
 }
 
 pub fn select_by_args(args: &[String]) {
-  let filters: SelectFilters;
-
-  match SelectFilters::parse_from_args(args) {
-    Err(error) => {
-      println!("{}", error);
-      return
-    },
-    Ok(parsed_filters) => filters = parsed_filters,
-  }
+  let filters = match SelectFilters::parse_from_args(args) {
+    Err(error) => { println!("{}", error); return; },
+    Ok(parsed_filters) => parsed_filters,
+  };
 
   let indexdir = defaults::get_indexdir();
 

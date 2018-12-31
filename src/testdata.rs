@@ -85,3 +85,12 @@ pub static TEST_EVENT_WITH_TIMEZONE_COMPONENT: &str = indoc!("
     END:VCALENDAR
 ");
 
+#[cfg(test)]
+use icalwrap::{IcalVCalendar,IcalVEvent};
+#[cfg(test)]
+pub fn get_test_event(str: &str) -> IcalVEvent {
+  IcalVCalendar::from_str(str, None)
+    .map(|cal| cal.get_principal_event())
+    .unwrap()
+}
+
