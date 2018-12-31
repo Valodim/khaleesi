@@ -28,6 +28,7 @@ extern crate itertools;
 extern crate libc;
 extern crate libical_sys as ical;
 extern crate stderrlog;
+extern crate uuid;
 extern crate yansi;
 
 #[macro_use]
