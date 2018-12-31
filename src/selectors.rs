@@ -9,7 +9,7 @@ use utils;
 pub struct SelectFilters {
   pub from: SelectFilterFrom,
   pub to: SelectFilterTo,
-  pub others: Vec<Box<dyn SelectFilter>>,
+  others: Vec<Box<dyn SelectFilter>>,
 }
 
 trait SelectFilter {
