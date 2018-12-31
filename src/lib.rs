@@ -7,7 +7,6 @@ pub mod config;
 pub mod dateutil;
 pub mod defaults;
 pub mod edit;
-pub mod grep;
 pub mod icalwrap;
 pub mod index;
 pub mod list;

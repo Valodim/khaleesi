@@ -11,7 +11,6 @@ use khaleesi::copy;
 use khaleesi::config::{self,Config};
 use khaleesi::defaults::*;
 use khaleesi::edit;
-use khaleesi::grep;
 use khaleesi::index;
 use khaleesi::list;
 use khaleesi::prettyprint;
@@ -45,7 +44,6 @@ fn main() {
       "copy" => action_copy(&args[2..]),
       "dbg" => cal::dbg(),
       "edit" => action_edit(&args[2..]),
-      "grep" => action_grep(&args[2..]),
       "index" => action_index(&args[2..]),
       "list" => action_list(&args[2..]),
       "select" => action_select(&args[2..]),
@@ -94,12 +92,6 @@ fn action_edit(args: &[String]) {
 fn action_select(args: &[String]) {
   //selects from index
   select::select_by_args(args);
-}
-
-fn action_grep(args: &[String]) {
-  if let Some(mut input) = default_input() {
-    grep::grep(&mut input, &args);
-  }
 }
 
 fn action_sort(args: &[String]) {
