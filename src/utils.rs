@@ -36,6 +36,13 @@ pub fn write_file(filepath: &Path, contents: String) -> io::Result<()> {
   file.write_all(contents.as_bytes())
 }
 
+pub fn write_cal(cal: &IcalVCalendar) -> Result<(), String> {
+  match cal.get_path() {
+    Some(path) => write_file(&path, cal.to_string()).map_err(|error| format!("{}", error)),
+    None => Err(format!("calendar has no path")),
+  }
+}
+
 pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = String>> {
   let f = fs::File::open(filepath)?;
   let f = BufReader::new(f);
