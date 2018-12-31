@@ -4,7 +4,7 @@ use chrono::*;
 use std::fmt::Display;
 use std::io::prelude::*;
 use std::io::{BufRead, BufReader};
-use std::path::{Path,PathBuf};
+use std::path::{Path, PathBuf};
 use std::{fs, io, time};
 
 use icalwrap::IcalVCalendar;
