@@ -504,8 +504,8 @@ fn recur_iterator_test() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
   let event = cal.get_principal_event();
-  assert_eq!(format!("{}", event.get_dtstart_date().unwrap().format("%Y%m%d")), "20181011");
-  assert_eq!(format!("{}", event.get_dtend_date().unwrap().format("%Y%m%d")), "20181013");
+  assert_eq!(event.get_dtstart_date().unwrap(), Local.ymd(2018, 10, 11));
+  assert_eq!(event.get_dtend_date().unwrap(), Local.ymd(2018, 10, 13));
   assert_eq!(event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string(), "RRULE:FREQ=WEEKLY;COUNT=10");
   assert_eq!(event.get_recur_datetimes().len(), 10);
   assert_eq!(event.get_recur_instances().count(), 10);
@@ -534,9 +534,8 @@ fn recur_datetimes_test() {
 
   let event = cal.get_principal_event();
   let mut recur_instances = event.get_recur_instances();
-//TODO also check times
-  assert_eq!(format!("{}", recur_instances.next().unwrap().get_dtstart().unwrap().format("%Y%m%d")), "20181011");
-  assert_eq!(format!("{}", recur_instances.next().unwrap().get_dtstart().unwrap().format("%Y%m%d")), "20181018");
+  assert_eq!(recur_instances.next().unwrap().get_dtstart().unwrap(), Local.ymd(2018, 10, 11).and_hms(2, 0, 0));
+  assert_eq!(recur_instances.next().unwrap().get_dtstart().unwrap(), Local.ymd(2018, 10, 18).and_hms(2, 0, 0));
 }
 
 #[test]
