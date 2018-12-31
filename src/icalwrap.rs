@@ -221,7 +221,7 @@ impl IcalVCalendar {
         }
       }
     }
-    self.path = self.path.map(|path| path.with_file_name(uid));
+    self.path = self.path.map(|path| path.with_file_name(uid.to_owned() + ".ics"));
     return self;
   }
 
