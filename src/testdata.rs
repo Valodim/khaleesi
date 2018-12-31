@@ -8,6 +8,7 @@ pub static TEST_EVENT_MULTIDAY: &str = indoc!("
     DTSTART;VALUE=DATE:20070628
     DTEND;VALUE=DATE:20070709
     SUMMARY:Festival International de Jazz de Montreal
+    LOCATION:LDB Lobby
     TRANSP:TRANSPARENT
     END:VEVENT
     END:VCALENDAR

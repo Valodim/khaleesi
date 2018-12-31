@@ -24,6 +24,11 @@ impl SelectFilter for GrepFilter  {
         return true;
       }
     }
+    if let Some(location) = event.get_location() {
+      if location.to_lowercase().contains(&self.term) {
+        return true;
+      }
+    }
     false
   }
 }
@@ -34,6 +39,12 @@ use super::test::test_filter_event;
 #[test]
 fn test_grep() {
   let filtered = test_filter_event(&["grep", "International"]);
+  assert_eq!(true, filtered);
+}
+
+#[test]
+fn test_grep_location() {
+  let filtered = test_filter_event(&["grep", "Lobby"]);
   assert_eq!(true, filtered);
 }
 
