@@ -515,11 +515,11 @@ fn recur_iterator_test() {
   use testdata;
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
   let event = cal.get_principal_event();
-  assert_eq!(event.get_dtstart_date().unwrap(), Local.ymd(2018, 10, 11));
-  assert_eq!(event.get_dtend_date().unwrap(), Local.ymd(2018, 10, 13));
-  assert_eq!(event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string(), "RRULE:FREQ=WEEKLY;COUNT=10");
-  assert_eq!(event.get_recur_datetimes().len(), 10);
-  assert_eq!(event.get_recur_instances().count(), 10);
+  assert_eq!(Local.ymd(2018, 10, 11), event.get_dtstart_date().unwrap());
+  assert_eq!(Local.ymd(2018, 10, 13), event.get_dtend_date().unwrap());
+  assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string());
+  assert_eq!(10, event.get_recur_datetimes().len());
+  assert_eq!(10, event.get_recur_instances().count());
 }
 
 #[test]
@@ -528,7 +528,7 @@ fn get_khaleesi_line_test() {
   let path = Some(PathBuf::from("test/path"));
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
   let event = cal.get_principal_event();
-  assert_eq!(event.get_khaleesi_line().unwrap(), String::from("1182988800 test/path"))
+  assert_eq!(String::from("1182988800 test/path"), event.get_khaleesi_line().unwrap())
 }
 
 #[test]
@@ -545,8 +545,8 @@ fn recur_datetimes_test() {
 
   let event = cal.get_principal_event();
   let mut recur_instances = event.get_recur_instances();
-  assert_eq!(recur_instances.next().unwrap().get_dtstart().unwrap(), Local.ymd(2018, 10, 11).and_hms(2, 0, 0));
-  assert_eq!(recur_instances.next().unwrap().get_dtstart().unwrap(), Local.ymd(2018, 10, 18).and_hms(2, 0, 0));
+  assert_eq!(Local.ymd(2018, 10, 11).and_hms(2, 0, 0), recur_instances.next().unwrap().get_dtstart().unwrap());
+  assert_eq!(Local.ymd(2018, 10, 18).and_hms(2, 0, 0), recur_instances.next().unwrap().get_dtstart().unwrap());
 }
 
 #[test]
