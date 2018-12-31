@@ -211,6 +211,20 @@ impl IcalVCalendar {
     }
   }
 
+  pub fn with_uid(mut self, uid: &str) -> Self {
+    {
+      let events = self.events_iter();
+      let uid_cstr = CString::new(uid).unwrap();
+      for event in events {
+        unsafe {
+          ical::icalcomponent_set_uid(event.get_ptr(), uid_cstr.as_ptr());
+        }
+      }
+    }
+    self.path = self.path.map(|path| path.with_file_name(uid));
+    return self;
+  }
+
   pub fn get_path_as_string(&self) -> String {
     format!("{}", self.path.as_ref().unwrap().display())
   }
@@ -389,12 +403,6 @@ impl IcalVEvent {
     }
   }
 
-  pub fn set_uid(&self, uid: &str) {
-    unsafe {
-      ical::icalcomponent_set_uid(self.get_ptr(), CString::new(uid).unwrap().as_ptr());
-    }
-  }
-
   pub fn is_allday(&self) -> bool {
     unsafe {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
@@ -529,4 +537,19 @@ fn recur_datetimes_test() {
 //TODO also check times
   assert_eq!(format!("{}", recur_instances.next().unwrap().get_dtstart().unwrap().format("%Y%m%d")), "20181011");
   assert_eq!(format!("{}", recur_instances.next().unwrap().get_dtstart().unwrap().format("%Y%m%d")), "20181018");
+}
+
+#[test]
+fn with_uid_test() {
+  use testdata;
+  let path = Some(PathBuf::from("test/path"));
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path.clone()).unwrap();
+
+  let uid = "my_new_uid";
+  let new_cal = cal.with_uid(uid);
+
+  for event in new_cal.events_iter() {
+    assert_eq!(uid, event.get_uid());
+  }
+  assert_eq!(Some(path.unwrap().with_file_name(uid)), new_cal.path);
 }
