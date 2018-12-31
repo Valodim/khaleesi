@@ -1,4 +1,5 @@
 use utils;
+use icalwrap::IcalVCalendar;
 
 pub fn do_copy(lines: &mut Iterator<Item = String>, _args: &[String]) {
 
@@ -8,26 +9,22 @@ pub fn do_copy(lines: &mut Iterator<Item = String>, _args: &[String]) {
     return;
   };
 
-  let cal = utils::read_khaleesi_line(&lines[0]).unwrap();  //TODO do not stupidly unwrap
-  let mut event = cal.get_principal_event();
-
-  debug!("uid: {}", event.get_uid());
-  let uid = &utils::make_new_uid();
-  event.set_uid(uid);
-  debug!("uid: {}", event.get_uid());
-
-  let path = match cal.get_path() {
-    Some(path) => path.with_file_name(uid),
-    None => {
-      error!("Could not get path.");
+  let cal: IcalVCalendar;
+  match utils::read_khaleesi_line(&lines[0]) {
+    Ok(calendar) => cal = calendar,
+    Err(error) => {
+      error!("{}", error);
       return
-    }
-  };
-
-  match utils::write_file(&path, cal.to_string()) {
-    Ok(_) => info!("Successfully wrote file: {}", path.display()),
-    Err(err) => error!("{}", err), 
+    },
+  }
+  let new_cal = cal.with_uid(&utils::make_new_uid());
+  match utils::write_cal(&new_cal) {
+    Ok(_) => info!("Successfully wrote file: {}", new_cal.get_path().unwrap().display()),
+    Err(err) => {
+      error!("{}", err);
+      return
+    },
   }
 
-  println!("{}", cal.get_principal_event().get_khaleesi_line().unwrap());
+  println!("{}", new_cal.get_principal_event().get_khaleesi_line().unwrap());
 }
