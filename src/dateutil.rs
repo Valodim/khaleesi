@@ -35,24 +35,24 @@ fn test_week_from_str_begin() {
   let date = week_from_str_begin("2018-W50").unwrap();
   assert_eq!("2018-12-10", format!("{}", date.format("%F")));
   let date = week_from_str_begin("W50").unwrap();
-  assert_eq!("2018-12-10", format!("{}", date.format("%F")));
+  assert_eq!("2019-12-09", format!("{}", date.format("%F")));
 }
 
 #[test]
 fn test_week_from_str_begin_current_year() {
   // TODO test must be adapted once a year. hum.
   let date = week_from_str_begin("W50").unwrap();
-  assert_eq!("2018-12-10", format!("{}", date.format("%F")));
+  assert_eq!("2019-12-09", format!("{}", date.format("%F")));
 }
 
 #[test]
 fn test_week_from_str_end() {
   let date = week_from_str_end("W50").unwrap();
-  assert_eq!("2018-12-16", format!("{}", date.format("%F")));
+  assert_eq!("2019-12-15", format!("{}", date.format("%F")));
 }
 #[test]
 fn test_week_from_str_end_current_year() {
   // TODO test must be adapted once a year. hum.
   let date = week_from_str_end("W50").unwrap();
-  assert_eq!("2018-12-16", format!("{}", date.format("%F")));
+  assert_eq!("2019-12-15", format!("{}", date.format("%F")));
 }
