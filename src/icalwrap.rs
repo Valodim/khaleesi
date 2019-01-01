@@ -163,6 +163,18 @@ impl IcalComponent for IcalVEvent {
   }
 }
 
+impl Clone for IcalVCalendar {
+  fn clone (&self) -> Self {
+    let new_comp_ptr = unsafe {
+      ical::icalcomponent_new_clone(self.comp.ptr)
+    };
+    let mut new_calendar = IcalVCalendar::from_ptr(new_comp_ptr);
+    new_calendar.path = self.path.clone();
+    new_calendar.instance_timestamp = self.instance_timestamp.clone();
+    new_calendar
+  }
+}
+
 impl IcalVCalendar {
   fn from_ptr(ptr: *mut ical::icalcomponent) -> Self {
     IcalVCalendar {
