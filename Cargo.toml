@@ -18,3 +18,7 @@ toml = "0.4.2"
 serde = "1.0.82"
 serde_derive = "1.0.82"
 uuid = { version = "0.7", features = ["v4"] }
+
+[dev-dependencies]
+tempfile = "3.0"
+assert_cmd = "0.10"
