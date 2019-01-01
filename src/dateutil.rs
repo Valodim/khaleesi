@@ -10,6 +10,9 @@ pub fn date_from_str(date_str: &str) -> ParseResult<Date<Local>> {
 
 pub fn week_from_str_begin(date_str: &str) -> Result<Date<Local>,String> {
   let now = Local::now();
+  if date_str == "toweek" || date_str == "thisweek" {
+    return Ok(Local.isoywd(now.year(), now.iso_week().week(), Weekday::Mon));
+  }
   if let Ok(date) = &NaiveDate::parse_from_str(&format!("{}-1", date_str), "%G-W%V-%u") {
     return Ok(Local.from_local_date(date).unwrap());
   }
@@ -21,6 +24,9 @@ pub fn week_from_str_begin(date_str: &str) -> Result<Date<Local>,String> {
 
 pub fn week_from_str_end(date_str: &str) -> Result<Date<Local>,String> {
   let now = Local::now();
+  if date_str == "toweek" || date_str == "thisweek"  {
+    return Ok(Local.isoywd(now.year(), now.iso_week().week(), Weekday::Sun));
+  }
   if let Ok(date) = &NaiveDate::parse_from_str(&format!("{}-7", date_str), "%G-W%V-%u") {
     return Ok(Local.from_local_date(date).unwrap());
   }
