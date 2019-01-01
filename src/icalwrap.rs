@@ -55,7 +55,6 @@ impl Deref for IcalComponentOwner {
   }
 }
 
-#[derive(Clone)]
 pub struct IcalVCalendar {
   comp: Rc<IcalComponentOwner>,
   path: Option<PathBuf>,
@@ -170,6 +169,14 @@ impl IcalVCalendar {
       comp: Rc::new(IcalComponentOwner { ptr }),
       path: None,
       instance_timestamp: None,
+    }
+  }
+
+  pub fn shallow_copy(&self) -> Self {
+    IcalVCalendar {
+      comp: self.comp.clone(),
+      path: self.path.clone(),
+      instance_timestamp: self.instance_timestamp.clone(),
     }
   }
 
@@ -300,7 +307,7 @@ impl IcalVEvent {
       ) -> IcalVEvent {
     IcalVEvent {
       ptr,
-      parent: Some(parent.clone()),
+      parent: Some(parent.shallow_copy()),
       instance_timestamp: None,
     }
   }
@@ -382,7 +389,7 @@ impl IcalVEvent {
   fn with_internal_timestamp(&self, datetime: DateTime<Utc>) -> IcalVEvent {
     IcalVEvent {
       ptr: self.ptr,
-      parent: self.parent.clone(),
+      parent: self.parent.as_ref().map(|parent| parent.shallow_copy()),
       instance_timestamp: Some(datetime),
     }
   }
