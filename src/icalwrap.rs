@@ -229,6 +229,31 @@ impl IcalVCalendar {
     return Ok(self);
   }
 
+  pub fn with_keep_uid(self, uid_to_keep: &str) -> Self {
+    unsafe {
+      ical::icalcomponent_get_first_component(
+        self.comp.ptr,
+        ical::icalcomponent_kind_ICAL_ANY_COMPONENT,
+      );
+
+      loop {
+        let comp = ical::icalcomponent_get_current_component(self.comp.ptr);
+        if comp.is_null() {
+          return self;
+        }
+        let uid_ptr = ical::icalcomponent_get_uid(comp);
+        if !uid_ptr.is_null() {
+            let uid = CStr::from_ptr(uid_ptr).to_string_lossy();
+            if uid != uid_to_keep {
+              ical::icalcomponent_remove_component(self.comp.ptr, comp);
+              continue;
+            }
+        }
+        ical::icalcomponent_get_next_component(self.comp.ptr, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
+      }
+    }
+  }
+
   pub fn get_path_as_string(&self) -> String {
     format!("{}", self.path.as_ref().unwrap().display())
   }
@@ -266,7 +291,6 @@ impl IcalVCalendar {
     }
     event
   }
-
 }
 
 impl IcalVEvent {
@@ -578,4 +602,21 @@ fn with_uid_multiple_test() {
   let new_cal = cal.with_uid(uid);
 
   assert!(new_cal.is_err());
+}
+
+#[test]
+fn with_keep_uid_test() {
+  use testdata;
+
+  for uid in &["uid1", "uid2"] {
+    // TODO use deep clone trait for this, when available
+    let path = Some(PathBuf::from("test/path"));
+    let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
+
+    let new_cal = cal.with_keep_uid(uid);
+
+    assert_eq!(1, new_cal.events_iter().count());
+    assert_eq!(*uid, new_cal.get_uid());
+    assert_eq!(*uid, new_cal.get_principal_event().get_uid());
+  }
 }
