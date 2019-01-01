@@ -211,8 +211,12 @@ impl IcalVCalendar {
     }
   }
 
-  pub fn with_uid(mut self, uid: &str) -> Self {
+  pub fn with_uid(mut self, uid: &str) -> Result<Self, String> {
     {
+      let events = self.events_iter();
+      if events.unique_uid_count() > 1 {
+        return Err(format!("More than one event in file: {}", self.get_path_as_string()));
+      }
       let events = self.events_iter();
       let uid_cstr = CString::new(uid).unwrap();
       for event in events {
@@ -222,7 +226,7 @@ impl IcalVCalendar {
       }
     }
     self.path = self.path.map(|path| path.with_file_name(uid.to_owned() + ".ics"));
-    return self;
+    return Ok(self);
   }
 
   pub fn get_path_as_string(&self) -> String {
@@ -556,10 +560,22 @@ fn with_uid_test() {
   let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path.clone()).unwrap();
 
   let uid = "my_new_uid";
-  let new_cal = cal.with_uid(uid);
+  let new_cal = cal.with_uid(uid).unwrap();
 
   for event in new_cal.events_iter() {
     assert_eq!(uid, event.get_uid());
   }
   assert_eq!(Some(path.unwrap().with_file_name(uid.to_owned() + ".ics")), new_cal.path);
+}
+
+#[test]
+fn with_uid_multiple_test() {
+  use testdata;
+  let path = Some(PathBuf::from("test/path"));
+  let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
+
+  let uid = "my_new_uid";
+  let new_cal = cal.with_uid(uid);
+
+  assert!(new_cal.is_err());
 }

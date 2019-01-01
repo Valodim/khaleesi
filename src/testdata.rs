@@ -86,6 +86,23 @@ pub static TEST_EVENT_WITH_TIMEZONE_COMPONENT: &str = indoc!("
     END:VCALENDAR
 ");
 
+pub static TEST_MULTIPLE_EVENTS: &str = indoc!("
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    BEGIN:VEVENT
+    UID:uid1
+    DTSTAMP:20070423T123432Z
+    DTSTART;VALUE=DATE:20070628
+    SUMMARY:First Event
+    END:VEVENT
+    BEGIN:VEVENT
+    UID:uid2
+    DTSTAMP:20070423T123432Z
+    DTSTART;VALUE=DATE:20070628
+    SUMMARY:Second Event
+    END:VEVENT
+    END:VCALENDAR
+");
 #[cfg(test)]
 use icalwrap::{IcalVCalendar,IcalVEvent};
 #[cfg(test)]
