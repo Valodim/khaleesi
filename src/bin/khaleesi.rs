@@ -13,6 +13,7 @@ use khaleesi::defaults::*;
 use khaleesi::edit;
 use khaleesi::index;
 use khaleesi::list;
+use khaleesi::new;
 use khaleesi::prettyprint;
 use khaleesi::select;
 use khaleesi::seq;
@@ -42,6 +43,7 @@ fn main() {
       "agenda" => action_agenda(config, &args[2..]),
       "cal" => cal::printcal(),
       "copy" => action_copy(&args[2..]),
+      "new" => action_new(&args[2..]),
       "dbg" => cal::dbg(),
       "edit" => action_edit(&args[2..]),
       "index" => action_index(&args[2..]),
@@ -149,6 +151,12 @@ fn action_index(args: &[String]) {
 fn action_copy(args: &[String]) {
   if let Some(mut input) = default_input() {
     copy::do_copy(&mut input, &args);
+  }
+}
+
+fn action_new(args: &[String]) {
+  if let Some(mut input) = default_input() {
+    new::do_new(&mut input, &args);
   }
 }
 
