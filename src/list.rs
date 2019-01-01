@@ -36,10 +36,6 @@ if args.len() == 1 {
 
 */
 
-// TODO port cal query
-// "cal"  => calendar = Some(chunk[1].clone()) ,
-// .map_or(false,  |path| path.parent().map_or(false, |path| path.ends_with(calendar)))
-
 pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   let filters = match SelectFilters::parse_from_args(args) {
     Err(error) => { println!("{}", error); return; },
