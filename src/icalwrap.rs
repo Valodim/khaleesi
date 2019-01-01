@@ -626,16 +626,24 @@ fn with_uid_multiple_test() {
 #[test]
 fn with_keep_uid_test() {
   use testdata;
+  let path = Some(PathBuf::from("test/path"));
+  let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
 
   for uid in &["uid1", "uid2"] {
-    // TODO use deep clone trait for this, when available
-    let path = Some(PathBuf::from("test/path"));
-    let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
-
-    let new_cal = cal.with_keep_uid(uid);
+    let new_cal = cal.clone().with_keep_uid(uid);
 
     assert_eq!(1, new_cal.events_iter().count());
     assert_eq!(*uid, new_cal.get_uid());
     assert_eq!(*uid, new_cal.get_principal_event().get_uid());
   }
+}
+
+#[test]
+fn clone_test() {
+  use testdata;
+  let path = Some(PathBuf::from("test/path"));
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
+  let cal2 = cal.clone().with_uid("my_new_uid").unwrap();
+
+  assert_ne!(cal.get_uid(), cal2.get_uid());
 }
