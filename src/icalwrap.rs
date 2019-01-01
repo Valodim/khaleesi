@@ -172,7 +172,7 @@ impl IcalVCalendar {
     }
   }
 
-  pub fn shallow_copy(&self) -> Self {
+  fn shallow_copy(&self) -> Self {
     IcalVCalendar {
       comp: self.comp.clone(),
       path: self.path.clone(),
