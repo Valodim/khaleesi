@@ -26,7 +26,11 @@ use std::env;
 use std::path::{Path,PathBuf};
 
 fn main() {
-  stderrlog::new().timestamp(stderrlog::Timestamp::Second).verbosity(3).init().unwrap();
+  stderrlog::new()
+    .timestamp(stderrlog::Timestamp::Off)
+    .verbosity(3)
+    .init()
+    .unwrap();
   //            0 => LevelFilter::Error,
   //            1 => LevelFilter::Warn,
   //            2 => LevelFilter::Info,
@@ -58,12 +62,10 @@ fn main() {
     }
   }
 
-  // do_other_stuff(args)
-  // do_stuff(args)
 }
 
 fn print_usage(name: &String) {
-  println!("Usage: {} index|print|short|sort|agenda|cal|dbg|select", name)
+  error!("Usage: {} index|print|short|sort|agenda|cal|dbg|select", name)
 }
 
 fn action_sequence(args: &[String]) {
@@ -78,14 +80,12 @@ fn action_list(args: &[String]) {
 }
 
 fn action_show(args: &[String]) {
-  //lists from sequence file or stdin
   if let Some(mut input) = default_input() {
     show::do_show(&mut input, &args);
   }
 }
 
 fn action_edit(args: &[String]) {
-  //lists from sequence file or stdin
   if let Some(mut input) = default_input() {
     edit::do_edit(&mut input, &args);
   }
