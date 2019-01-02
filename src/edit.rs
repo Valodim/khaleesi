@@ -16,7 +16,7 @@ pub fn do_edit(filenames: &mut Iterator<Item = String>, _args: &[String]) {
   paths.sort_unstable();
   paths.dedup();
 
-  let editor = env::var("EDITOR").unwrap_or("vim".to_string());
+  let editor = env::var("EDITOR").unwrap_or_else(|_| "vim".to_string());
 
   Command::new(&editor)
     .args(paths)

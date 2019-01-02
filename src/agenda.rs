@@ -19,7 +19,7 @@ pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
     Some((_, _, event, _)) => {
       event
         .get_dtstart()
-        .unwrap_or(Local.timestamp(0, 0))
+        .unwrap_or_else(|| Local.timestamp(0, 0))
         .date()
     }
     None => return,

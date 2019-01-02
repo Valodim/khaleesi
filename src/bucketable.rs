@@ -24,7 +24,7 @@ impl Bucketable for IcalVEvent {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String> {
     let mut result:  HashMap<String, Vec<String>> = HashMap::new();
 
-    let start_date = self.get_dtstart_date().ok_or(format!("Invalid DTSTART in {}", self.get_uid()))?;
+    let start_date = self.get_dtstart_date().ok_or_else(|| format!("Invalid DTSTART in {}", self.get_uid()))?;
     let mut end_date = self.get_dtend_date().unwrap_or(start_date);
 
     // end-dtimes are non-inclusive
@@ -38,7 +38,7 @@ impl Bucketable for IcalVEvent {
       result
         .entry(bucketid)
         .and_modify(|items| items.push(self.get_khaleesi_line().unwrap()))
-        .or_insert(vec!(self.get_khaleesi_line().unwrap()));
+        .or_insert_with(|| vec!(self.get_khaleesi_line().unwrap()));
     }
 
     if self.has_recur() {
