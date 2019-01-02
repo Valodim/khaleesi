@@ -86,6 +86,19 @@ where K: cmp::Eq + hash::Hash
 }
 
 #[test]
+fn merge_test() {
+  let mut map_a: HashMap<&str, Vec<String>> = HashMap::new();
+  let mut map_b: HashMap<&str, Vec<String>> = HashMap::new();
+
+  let key = "key";
+  map_a.insert(&key, vec!["a".to_string(), "b".to_string()]);
+  map_b.insert(&key, vec!["c".to_string(), "d".to_string()]);
+
+  map_a.merge(map_b);
+  assert_eq!(map_a.get(&key).unwrap(), &vec!["a".to_string(), "b".to_string(), "c".to_string(), "d".to_string()]);
+}
+
+#[test]
 fn buckets_multi_day_allday() {
   use testdata;
   use std::path::PathBuf;
