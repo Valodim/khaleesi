@@ -526,8 +526,6 @@ extern "C" fn recur_callback(
   };
 
   data.push(spanstart);
-
-  ()
 }
 
 impl <'a> Iterator for IcalEventIter<'a> {
