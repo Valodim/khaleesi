@@ -97,7 +97,7 @@ fn action_select(args: &[String]) {
 }
 
 fn action_sort(args: &[String]) {
-  if args.len() == 0 {
+  if args.is_empty() {
     if let Some(mut input) = default_input() {
         sort::sort_filenames_by_dtstart(&mut input)
     }
@@ -110,7 +110,7 @@ fn action_sort(args: &[String]) {
 }
 
 fn action_agenda(config: Config, args: &[String]) {
-  if args.len() == 0 {
+  if args.is_empty() {
     if let Some(mut input) = default_input() {
       agenda::show_events(config, &mut input);
     }
@@ -134,7 +134,7 @@ fn action_prettyprint_all(args: &[String]) {
 }
 
 fn action_index(args: &[String]) {
-  let indexpath = if args.len() == 0 {
+  let indexpath = if args.is_empty() {
     get_caldir()
   } else {
     PathBuf::from(&args[0])
