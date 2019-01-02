@@ -605,8 +605,8 @@ fn recur_datetimes_test() {
 
   let event = cal.get_principal_event();
   let mut recur_instances = event.get_recur_instances();
-  assert_eq!(Local.ymd(2018, 10, 11).and_hms(2, 0, 0), recur_instances.next().unwrap().get_dtstart().unwrap());
-  assert_eq!(Local.ymd(2018, 10, 18).and_hms(2, 0, 0), recur_instances.next().unwrap().get_dtstart().unwrap());
+  assert_eq!(Utc.ymd(2018, 10, 11).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
+  assert_eq!(Utc.ymd(2018, 10, 18).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
 }
 
 #[test]
