@@ -27,7 +27,7 @@ pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
 
   let mut cur_day = start_day.pred();
   let mut last_printed_day = start_day.pred();
-  while !cals_iter.peek().is_none() || !not_over_yet.is_empty() {
+  while cals_iter.peek().is_some() || !not_over_yet.is_empty() {
     cur_day = cur_day.succ();
 
     maybe_print_date_line_header(&config, &cur_day, &start_day, &mut last_printed_day);
