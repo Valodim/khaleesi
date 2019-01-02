@@ -6,7 +6,7 @@ use icalwrap::*;
 use utils;
 use config::{self,Config,CalendarConfig};
 
-pub fn show_events(config: Config, lines: &mut Iterator<Item = String>) {
+pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
   let cals = utils::read_calendars_from_files(lines).unwrap();
 
   let mut not_over_yet: Vec<(usize, &IcalVCalendar, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();

@@ -112,12 +112,12 @@ fn action_sort(args: &[String]) {
 fn action_agenda(config: Config, args: &[String]) {
   if args.is_empty() {
     if let Some(mut input) = default_input() {
-      agenda::show_events(config, &mut input);
+      agenda::show_events(&config, &mut input);
     }
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
-    agenda::show_events(config, &mut utils::read_lines_from_file(filepath).unwrap());
+    agenda::show_events(&config, &mut utils::read_lines_from_file(filepath).unwrap());
   }
 }
 
