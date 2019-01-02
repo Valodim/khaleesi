@@ -49,7 +49,7 @@ impl SelectFilters {
           others.push(Box::new(cal_filter));
           args = &args[2..];
         }
-        _ => return Err("select [from|to parameter]+".to_string())
+        _ => return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
       }
     }
 
