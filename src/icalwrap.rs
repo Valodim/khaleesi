@@ -253,6 +253,7 @@ impl IcalVCalendar {
     return Ok(self);
   }
 
+  #[allow(unused_mut)]
   pub fn with_dtstamp_now(mut self) -> Result<Self, String> {
     unsafe {
       let foo = ical::icaltime_current_time_with_zone(ical::icaltimezone_get_utc_timezone());
