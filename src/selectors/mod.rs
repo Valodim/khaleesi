@@ -2,6 +2,7 @@ use utils;
 use icalwrap::IcalVEvent;
 
 use self::daterange::{SelectFilterFrom,SelectFilterTo};
+use self::cal::CalendarFilter;
 
 mod cal;
 mod grep;
@@ -22,6 +23,7 @@ impl SelectFilters {
   pub fn parse_from_args(mut args: &[String]) -> Result<Self, String> {
     let mut from: SelectFilterFrom = Default::default();
     let mut to: SelectFilterTo = Default::default();
+    let mut cal: Option<CalendarFilter> = None;
     let mut others: Vec<Box<dyn SelectFilter>> = vec!();
 
     while !args.is_empty() {
@@ -45,17 +47,20 @@ impl SelectFilters {
           args = &args[2..];
         }
         "cal" => {
-          let cal_filter = cal::CalendarFilter::new(&args[1]);
-          others.push(Box::new(cal_filter));
+          cal = Some(cal.unwrap_or_default().add_cal(&args[1]));
           args = &args[2..];
         }
         _ => return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
       }
     }
+    if let Some(cal) = cal {
+      others.push(Box::new(cal));
+    }
 
     // debug!("from: {:?}, to: {:?}", from, to);
     Ok(SelectFilters { from, to, others })
   }
+
   fn line_is_from(&self, event: &IcalVEvent) -> bool {
     let starts_after = self.from.includes_date(event.get_dtstart().unwrap());
     let ends_after = self.from.includes_date(event.get_dtend().unwrap());

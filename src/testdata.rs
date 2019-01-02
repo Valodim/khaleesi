@@ -103,11 +103,14 @@ pub static TEST_MULTIPLE_EVENTS: &str = indoc!("
     END:VEVENT
     END:VCALENDAR
 ");
+
 #[cfg(test)]
 use icalwrap::{IcalVCalendar,IcalVEvent};
 #[cfg(test)]
-pub fn get_test_event(str: &str) -> IcalVEvent {
-  IcalVCalendar::from_str(str, None)
+use std::path::PathBuf;
+#[cfg(test)]
+pub fn get_test_event(str: &str, path: Option<PathBuf>) -> IcalVEvent {
+  IcalVCalendar::from_str(str, path)
     .map(|cal| cal.get_principal_event())
     .unwrap()
 }
