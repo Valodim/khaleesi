@@ -24,10 +24,10 @@ impl SelectFilterFrom {
   }
 
   fn from_date(date: Option<Date<Local>>) -> Self {
-    Self { date, bucket: date.map(|date| utils::get_bucket_for_date(&date))  }
+    Self { date, bucket: date.map(utils::get_bucket_for_date)  }
   }
 
-  pub fn combine_with(self, other: Self) -> Self {
+  pub fn combine_with(self, other: &Self) -> Self {
     let date = if self.date.is_some() {
       cmp::max(self.date, other.date)
     } else {
@@ -43,10 +43,10 @@ impl SelectFilterTo {
   }
 
   fn from_date(date: Option<Date<Local>>) -> Self {
-    Self { date, bucket: date.map(|date| utils::get_bucket_for_date(&date))  }
+    Self { date, bucket: date.map(utils::get_bucket_for_date)  }
   }
 
-  pub fn combine_with(self, other: Self) -> Self {
+  pub fn combine_with(self, other: &Self) -> Self {
     let date = if self.date.is_some() {
       cmp::min(self.date, other.date)
     } else {

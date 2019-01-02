@@ -31,15 +31,15 @@ pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
     .map(|entry| entry.into_path())
 }
 
-pub fn write_file(filepath: &Path, contents: String) -> io::Result<()> {
+pub fn write_file(filepath: &Path, contents: &str) -> io::Result<()> {
   let mut file = fs::File::create(filepath)?;
   file.write_all(contents.as_bytes())
 }
 
 pub fn write_cal(cal: &IcalVCalendar) -> Result<(), String> {
   match cal.get_path() {
-    Some(path) => write_file(&path, cal.to_string()).map_err(|error| format!("{}", error)),
-    None => Err(format!("calendar has no path")),
+    Some(path) => write_file(&path, &cal.to_string()).map_err(|error| format!("{}", error)),
+    None => Err("calendar has no path".to_string()),
   }
 }
 
@@ -121,10 +121,10 @@ pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Utc>> {
 }
 
 pub fn format_duration(duration: &time::Duration) -> impl Display {
-  duration.as_secs() * 1000 + (duration.subsec_millis() as u64)
+  duration.as_secs() * 1000 + u64::from(duration.subsec_millis())
 }
 
-pub fn get_bucket_for_date(date: &Date<Local>) -> String {
+pub fn get_bucket_for_date(date: Date<Local>) -> String {
   date.format("%G-W%V").to_string()
 }
 

@@ -32,7 +32,7 @@ fn write_stdin_to_seqfile() {
     }
   }
   lines.push_str("\n");
-  if let Err(error) = utils::write_file(&tmpfilename, lines) {
+  if let Err(error) = utils::write_file(&tmpfilename, &lines) {
     error!("Could not write seqfile: {}", error);
     return
   }

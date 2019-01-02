@@ -341,7 +341,7 @@ impl IcalVEvent {
     match self.instance_timestamp {
       Some(timestamp) => unsafe {
         let icalduration = ical::icalcomponent_get_duration(self.ptr);
-        let duration = Duration::seconds(ical::icaldurationtype_as_int(icalduration) as i64);
+        let duration = Duration::seconds(i64::from(ical::icaldurationtype_as_int(icalduration)));
         Some(timestamp.checked_add_signed(duration)?.timestamp())
       },
       None =>
@@ -403,7 +403,7 @@ impl IcalVEvent {
       let mut dtend = ical::icalcomponent_get_dtend(self.ptr);
 
       //unroll up to 1 year in the future
-      dtend.year = dtend.year + 1;
+      dtend.year += 1;
 
       ical::icalcomponent_foreach_recurrence(self.ptr, dtstart, dtend, Some(recur_callback), result_ptr);
     }

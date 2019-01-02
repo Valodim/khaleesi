@@ -34,7 +34,7 @@ pub fn index_dir(dir: &Path) {
 
   match prepare_index_dir() {
     Ok(_) => {
-      write_index(buckets);
+      write_index(&buckets);
       info!("Index written in {}ms", utils::format_duration(&now.elapsed()));
     },
     Err(error) => error!("{}", error),
@@ -56,7 +56,7 @@ fn read_buckets(ics_files: impl Iterator<Item = PathBuf>) -> HashMap<String, Vec
       Ok(content) => {
         total_files += 1;
         match IcalVCalendar::from_str(&content, Some(file)) {
-          Ok(mut cal) => add_buckets_for_calendar(&mut buckets, &mut cal),
+          Ok(mut cal) => add_buckets_for_calendar(&mut buckets, &cal),
           Err(error) => error!("{}", error)
         }
       }
@@ -68,11 +68,11 @@ fn read_buckets(ics_files: impl Iterator<Item = PathBuf>) -> HashMap<String, Vec
   buckets
 }
 
-fn write_index(buckets: HashMap<String, Vec<String>>) {
+fn write_index(buckets: &HashMap<String, Vec<String>>) {
   for (key, val) in buckets.iter() {
     let bucketfile = get_indexfile(key);
     trace!("Writing bucket: {}", key);
-    if let Err(error) = utils::write_file(&bucketfile, val.join("\n")) {
+    if let Err(error) = utils::write_file(&bucketfile, &val.join("\n")) {
       error!("{}", error);
       return;
     }

@@ -22,13 +22,13 @@ impl SelectFilters {
 
 impl SelectFilterFrom {
   fn is_bucket_before(&self, bucketname: &str) -> bool {
-    self.bucket.as_ref().map_or(false, |bucket| bucketname < &bucket)
+    self.bucket.as_ref().map_or(false, |bucket| bucketname < bucket)
   }
 }
 
 impl SelectFilterTo {
   fn is_bucket_while(&self, bucketname: &str) -> bool {
-    self.bucket.as_ref().map_or(true, |bucket| bucketname <= &bucket)
+    self.bucket.as_ref().map_or(true, |bucket| bucketname <= bucket)
   }
 }
 

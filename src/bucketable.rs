@@ -12,7 +12,7 @@ pub trait Bucketable {
     let mut buckets = Vec::new();
 
     while start.iso_week() <= end.iso_week() {
-      let bucket = utils::get_bucket_for_date(&start);
+      let bucket = utils::get_bucket_for_date(start);
       buckets.push(bucket);
       start = start.checked_add_signed(Duration::days(7)).unwrap();
     }

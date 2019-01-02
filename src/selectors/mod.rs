@@ -29,16 +29,16 @@ impl SelectFilters {
     while !args.is_empty() {
       match args[0].as_str() {
         "from" => {
-          from = from.combine_with(args[1].parse()?);
+          from = from.combine_with(&args[1].parse()?);
           args = &args[2..];
         }
         "to" => {
-          to = to.combine_with(args[1].parse()?);
+          to = to.combine_with(&args[1].parse()?);
           args = &args[2..];
         }
         "in" | "on" => {
-          from = from.combine_with(args[1].parse()?);
-          to = to.combine_with(args[1].parse()?);
+          from = from.combine_with(&args[1].parse()?);
+          to = to.combine_with(&args[1].parse()?);
           args = &args[2..];
         }
         "grep" => {
