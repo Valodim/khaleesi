@@ -200,19 +200,24 @@ impl IcalVCalendar {
   pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, String> {
     unsafe {
       let parsed_cal = ical::icalparser_parse_string(CString::new(str).unwrap().as_ptr());
-      if !parsed_cal.is_null() {
-        let kind = ical::icalcomponent_isa(parsed_cal);
-        if kind == ical::icalcomponent_kind_ICAL_VCALENDAR_COMPONENT {
-          let mut cal = IcalVCalendar::from_ptr(parsed_cal);
-          cal.path = path;
-          Ok(cal)
-        } else {
-          let kind = CStr::from_ptr(ical::icalcomponent_kind_to_string(kind)).to_string_lossy();
-          Err(format!("expected VCALENDAR component, got {}", kind))
-        }
-      } else {
-        Err("could not read component".to_string())
+      if parsed_cal.is_null() {
+        return Err("could not read component".to_string());
       }
+
+      let kind = ical::icalcomponent_isa(parsed_cal);
+      if kind != ical::icalcomponent_kind_ICAL_VCALENDAR_COMPONENT {
+        let kind = CStr::from_ptr(ical::icalcomponent_kind_to_string(kind)).to_string_lossy();
+        return Err(format!("expected VCALENDAR component, got {}", kind));
+      }
+
+      let uid = ical::icalcomponent_get_uid(parsed_cal);
+      if uid.is_null() {
+        return Err("missing required property: UID".to_string());
+      }
+
+      let mut cal = IcalVCalendar::from_ptr(parsed_cal);
+      cal.path = path;
+      Ok(cal)
     }
   }
 
