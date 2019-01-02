@@ -37,7 +37,8 @@ pub trait IcalComponent {
 
   fn get_properties_by_name(&self, property_name: &str) -> Vec<IcalProperty> {
     let property_kind = unsafe {
-      ical::icalproperty_string_to_kind(CString::new(property_name).unwrap().as_ptr())
+      let c_str = CString::new(property_name).unwrap();
+      ical::icalproperty_string_to_kind(c_str.as_ptr())
     };
     self.get_properties(property_kind)
   }
@@ -199,7 +200,8 @@ impl IcalVCalendar {
 
   pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, String> {
     unsafe {
-      let parsed_cal = ical::icalparser_parse_string(CString::new(str).unwrap().as_ptr());
+      let c_str = CString::new(str).unwrap();
+      let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
       if parsed_cal.is_null() {
         return Err("could not read component".to_string());
       }
