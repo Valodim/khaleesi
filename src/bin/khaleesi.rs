@@ -127,12 +127,6 @@ fn action_unroll(args: &[String]) {
   unroll::do_unroll(filepath)
 }
 
-//fn action_show(args: &[String]) {
-  //let file = &args[0];
-  //let filepath = Path::new(file);
-  //prettyprint::prettyprint_file(filepath)
-//}
-
 fn action_prettyprint_all(args: &[String]) {
   let file = &args[0];
   let filepath = Path::new(file);

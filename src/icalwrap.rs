@@ -304,16 +304,16 @@ impl IcalVCalendar {
   }
 
   pub fn get_first_event(&self) -> IcalVEvent {
-    unsafe {
-      let event = ical::icalcomponent_get_first_component(
+    let event = unsafe {
+      ical::icalcomponent_get_first_component(
         self.get_ptr(),
         ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT,
-      );
-      if self.events_iter().unique_uid_count() > 1 {
-        warn!("More than one event in file: {}", self.get_path_as_string())
-      }
-      IcalVEvent::from_ptr_with_parent(event, self)
+      )
+    };
+    if self.events_iter().unique_uid_count() > 1 {
+      warn!("More than one event in file: {}", self.get_path_as_string())
     }
+    IcalVEvent::from_ptr_with_parent(event, self)
   }
 
   pub fn get_principal_event(&self) -> IcalVEvent {
