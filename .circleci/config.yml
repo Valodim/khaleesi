@@ -107,9 +107,10 @@ workflows:
       - test:
           requires:
             - cargo_fetch
-      - coverage:
-          requires:
-            - test
-      - codecov_upload:
-          requires:
-            - coverage
+# TODO fix kcov SIGILL, see https://circleci.com/gh/Valodim/khaleesi/30
+#      - coverage:
+#         requires:
+#           - test
+#     - codecov_upload:
+#         requires:
+#           - coverage
