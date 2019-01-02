@@ -77,7 +77,7 @@ impl SelectFilters {
         return false;
       }
     }
-    return true;
+    true
   }
 
   pub fn predicate(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {

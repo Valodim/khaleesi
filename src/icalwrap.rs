@@ -252,7 +252,7 @@ impl IcalVCalendar {
       }
     }
     self.path = self.path.map(|path| path.with_file_name(uid.to_owned() + ".ics"));
-    return Ok(self);
+    Ok(self)
   }
 
   pub fn with_dtstamp_now(self) -> Self {
