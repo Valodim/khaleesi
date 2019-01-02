@@ -32,6 +32,8 @@ jobs:
       - restore_cache:
           keys:
             - cargo-v2-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+      - restore_cache:
+          keys:
             - target-v2-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Print version information
