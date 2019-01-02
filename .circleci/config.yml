@@ -71,7 +71,7 @@ jobs:
           command: |
             for file in ./target/debug/*; do
               if test -x $file; then
-                kcov --verify --exclude-pattern=/usr/include --exclude-pattern=tests \
+                kcov --verify --exclude-pattern=tests \
                     target/coverage/$(basename $file) \
                   $file --quiet
               fi
