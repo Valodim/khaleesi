@@ -1,0 +1,22 @@
+jobs:
+  build:
+    docker:
+      - image: puzzlewolf/rust-libical3:0.1
+
+    steps:
+      - checkout
+      - restore_cache:
+          key: project-cache
+
+      - run:
+          name: Build
+          command: cargo build
+      - run:
+          name: Running tests
+          command: cargo test
+
+      - save_cache:
+          key: project-cache
+          paths:
+            - "~/.cargo"
+            - "./target"
