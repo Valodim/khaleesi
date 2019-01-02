@@ -45,7 +45,7 @@ pub static TEST_EVENT_RECUR: &str = indoc!("
     VERSION:2.0
     BEGIN:VEVENT
     UID:autocryptthursday
-    DTSTART:20181011T000000Z
+    DTSTART;VALUE=DATE:20181011
     DURATION:P2D
     SUMMARY:Autocrypt Thursdays
     RRULE:FREQ=WEEKLY;COUNT=10
