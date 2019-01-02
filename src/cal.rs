@@ -33,7 +33,7 @@ pub fn dbg() {
 fn render_cells(cells: &Vec<Cell>) -> String {
     let mut result = String::with_capacity(50);
 
-    let now = cells[0].date.clone();
+    let now = cells[0].date;
 
     result.push_str(&format!("{:>28} {:<8}\n",
         now.format("%B").to_string(),

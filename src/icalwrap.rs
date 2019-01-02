@@ -171,7 +171,7 @@ impl Clone for IcalVCalendar {
     };
     let mut new_calendar = IcalVCalendar::from_ptr(new_comp_ptr);
     new_calendar.path = self.path.clone();
-    new_calendar.instance_timestamp = self.instance_timestamp.clone();
+    new_calendar.instance_timestamp = self.instance_timestamp;
     new_calendar
   }
 }
@@ -189,7 +189,7 @@ impl IcalVCalendar {
     IcalVCalendar {
       comp: self.comp.clone(),
       path: self.path.clone(),
-      instance_timestamp: self.instance_timestamp.clone(),
+      instance_timestamp: self.instance_timestamp,
     }
   }
 
