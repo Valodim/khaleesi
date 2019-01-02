@@ -65,7 +65,7 @@ fn main() {
 }
 
 fn print_usage(name: &String) {
-  error!("Usage: {} index|print|short|sort|agenda|cal|dbg|select", name)
+  error!("Usage: {} index|select|list|agenda|copy|new|edit|show|cal|sort|dbg|short", name)
 }
 
 fn action_sequence(args: &[String]) {
