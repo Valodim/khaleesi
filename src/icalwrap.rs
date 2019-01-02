@@ -253,6 +253,14 @@ impl IcalVCalendar {
     return Ok(self);
   }
 
+  pub fn with_dtstamp_now(mut self) -> Result<Self, String> {
+    unsafe {
+      let foo = ical::icaltime_current_time_with_zone(ical::icaltimezone_get_utc_timezone());
+      ical::icalcomponent_set_dtstamp(self.get_ptr(), foo);
+    }
+    return Ok(self);
+  }
+
   pub fn with_keep_uid(self, uid_to_keep: &str) -> Self {
     unsafe {
       ical::icalcomponent_get_first_component(
