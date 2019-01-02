@@ -32,6 +32,7 @@ jobs:
       - restore_cache:
           keys:
             - cargo-v2-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - target-v2-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Print version information
           command: rustc --version; cargo --version
@@ -47,6 +48,10 @@ jobs:
             for file in target/debug/* target/debug/.??*; do
               [ -d $file -o ! -x $file ] && rm -r $file
             done
+      - save_cache:
+          key: target-v2-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ./target
       - persist_to_workspace:
           root: "."
           paths:
