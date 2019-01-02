@@ -110,22 +110,22 @@ impl<'a> IcalProperty<'a> {
 
   pub fn get_name(&self) -> String {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalproperty_get_property_name(self.ptr));
-      foo.to_string_lossy().into_owned()
+      let cstr = CStr::from_ptr(ical::icalproperty_get_property_name(self.ptr));
+      cstr.to_string_lossy().into_owned()
     }
   }
 
   pub fn get_value(&self) -> String {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalproperty_get_value_as_string(self.ptr));
-      foo.to_string_lossy().into_owned()
+      let cstr = CStr::from_ptr(ical::icalproperty_get_value_as_string(self.ptr));
+      cstr.to_string_lossy().into_owned()
     }
   }
 
   pub fn as_ical_string(&self) -> String {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalproperty_as_ical_string(self.ptr));
-      foo.to_string_lossy().trim().to_owned()
+      let cstr = CStr::from_ptr(ical::icalproperty_as_ical_string(self.ptr));
+      cstr.to_string_lossy().trim().to_owned()
     }
   }
 
@@ -218,15 +218,15 @@ impl IcalVCalendar {
 
   pub fn to_string(&self) -> String {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalcomponent_as_ical_string(self.get_ptr()));
-      foo.to_string_lossy().into_owned()
+      let ical_cstr = CStr::from_ptr(ical::icalcomponent_as_ical_string(self.get_ptr()));
+      ical_cstr.to_string_lossy().into_owned()
     }
   }
 
   pub fn get_uid(&self) -> String {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.get_principal_event().get_ptr()));
-      foo.to_string_lossy().into_owned()
+      let uid_cstr = CStr::from_ptr(ical::icalcomponent_get_uid(self.get_principal_event().get_ptr()));
+      uid_cstr.to_string_lossy().into_owned()
     }
   }
 
@@ -456,8 +456,8 @@ impl IcalVEvent {
 
   pub fn get_uid(&self) -> String {
     unsafe {
-      let foo = CStr::from_ptr(ical::icalcomponent_get_uid(self.ptr));
-      foo.to_string_lossy().into_owned()
+      let cstr = CStr::from_ptr(ical::icalcomponent_get_uid(self.ptr));
+      cstr.to_string_lossy().into_owned()
     }
   }
 
