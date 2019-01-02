@@ -1,6 +1,6 @@
 # khaleesi
 
-[![Travis Build Status](https://travis-ci.com/Valodim/khaleesi.svg?branch=master)](https://travis-ci.com/Valodim/khaleesi)
+[![CircleCI](https://circleci.com/gh/Valodim/khaleesi.svg?style=svg)](https://circleci.com/gh/Valodim/khaleesi)
 
 ## Assumptions
 
