@@ -19,8 +19,8 @@ jobs:
       - save_cache:
           key: cargo-v1-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
-            - /usr/local/cargo/registry
-            - /usr/local/cargo/git
+            - ~/.cargo/registry
+            - ~/.cargo/git
   test:
     docker:
       - image: puzzlewolf/rust-libical3:0.2
