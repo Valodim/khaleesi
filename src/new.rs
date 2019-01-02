@@ -14,13 +14,7 @@ pub fn do_new(_lines: &mut Iterator<Item = String>, _args: &[String]) {
       return
     },
   };
-  let new_cal = match new_cal.with_dtstamp_now() {
-    Ok(new_cal) => new_cal,
-    Err(error) => {
-      error!("{}", error);
-      return
-    },
-  };
+  let new_cal = new_cal.with_dtstamp_now();
   
   match utils::write_cal(&new_cal) {
     Ok(_) => info!("Successfully wrote file: {}", new_cal.get_path().unwrap().display()),

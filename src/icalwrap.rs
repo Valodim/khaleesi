@@ -253,13 +253,12 @@ impl IcalVCalendar {
     return Ok(self);
   }
 
-  #[allow(unused_mut)]
-  pub fn with_dtstamp_now(mut self) -> Result<Self, String> {
+  pub fn with_dtstamp_now(self) -> Self {
     unsafe {
-      let foo = ical::icaltime_current_time_with_zone(ical::icaltimezone_get_utc_timezone());
-      ical::icalcomponent_set_dtstamp(self.get_ptr(), foo);
+      let dtstamp_icaltime = ical::icaltime_current_time_with_zone(ical::icaltimezone_get_utc_timezone());
+      ical::icalcomponent_set_dtstamp(self.get_ptr(), dtstamp_icaltime);
     }
-    return Ok(self);
+    self
   }
 
   pub fn with_keep_uid(self, uid_to_keep: &str) -> Self {
