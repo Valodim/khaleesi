@@ -30,26 +30,26 @@ pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
   while cals_iter.peek().is_some() || !not_over_yet.is_empty() {
     cur_day = cur_day.succ();
 
-    maybe_print_date_line_header(&config, &cur_day, &start_day, &mut last_printed_day);
+    maybe_print_date_line_header(&config, cur_day, start_day, &mut last_printed_day);
 
     not_over_yet.retain( |(index, _, event, cal_config)| {
-      maybe_print_date_line(&config, &cur_day, &start_day, &mut last_printed_day);
-      print_event_line(*cal_config, &index, &event, &cur_day);
-      event.continues_after(&cur_day)
+      maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
+      print_event_line(*cal_config, *index, &event, cur_day);
+      event.continues_after(cur_day)
     });
 
-    let relevant_events = cals_iter.peeking_take_while(|(_,_,event,_)| event.relevant_on(&cur_day));
+    let relevant_events = cals_iter.peeking_take_while(|(_,_,event,_)| event.relevant_on(cur_day));
     for (i, cal, event, cal_config) in relevant_events {
-      maybe_print_date_line(&config, &cur_day, &start_day, &mut last_printed_day);
-      print_event_line(cal_config, &i, &event, &cur_day);
-      if event.continues_after(&cur_day) {
+      maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
+      print_event_line(cal_config, i, &event, cur_day);
+      if event.continues_after(cur_day) {
         not_over_yet.push((i, cal, event, cal_config));
       }
     }
   }
 }
 
-fn maybe_print_week_separator(config: &Config, date: &Date<Local>, start_date: &Date<Local>, last_printed_date: &Date<Local>) {
+fn maybe_print_week_separator(config: &Config, date: Date<Local>, start_date: Date<Local>, last_printed_date: Date<Local>) {
   if !config.agenda.print_week_separator {
     return;
   }
@@ -58,35 +58,35 @@ fn maybe_print_week_separator(config: &Config, date: &Date<Local>, start_date: &
   }
 }
 
-fn maybe_print_date_line_header(config: &Config, date: &Date<Local>, start_date: &Date<Local>, last_printed_date: &mut Date<Local>) {
+fn maybe_print_date_line_header(config: &Config, date: Date<Local>, start_date: Date<Local>, last_printed_date: &mut Date<Local>) {
   if !config.agenda.print_empty_days {
     return;
   }
   maybe_print_date_line(config, date, start_date, last_printed_date);
 }
 
-fn maybe_print_date_line(config: &Config, date: &Date<Local>, start_date: &Date<Local>, last_printed_date: &mut Date<Local>) {
-  if date <= last_printed_date {
+fn maybe_print_date_line(config: &Config, date: Date<Local>, start_date: Date<Local>, last_printed_date: &mut Date<Local>) {
+  if date <= *last_printed_date {
     return;
   }
-  maybe_print_week_separator(config, date, start_date, last_printed_date);
+  maybe_print_week_separator(config, date, start_date, *last_printed_date);
   print_date_line(date);
-  *last_printed_date = *date;
+  *last_printed_date = date;
 }
 
-fn print_date_line(date: &Date<Local>) {
+fn print_date_line(date: Date<Local>) {
   let style_heading = Style::new().bold();
   println!("{}, {}", style_heading.paint(date.format("%Y-%m-%d")), date.format("%A"));
 }
 
-fn print_event_line(config: Option<&CalendarConfig>, index: &usize, event: &IcalVEvent, date: &Date<Local>) {
-  match event_line(config, &event, &date) {
+fn print_event_line(config: Option<&CalendarConfig>, index: usize, event: &IcalVEvent, date: Date<Local>) {
+  match event_line(config, &event, date) {
     Ok(line) => println!("{:4}  {}", index, line),
     Err(error) => warn!("{} in {}", error, event.get_uid())
   }
 }
 
-pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: &Date<Local>) -> Result<String, String> {
+pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: Date<Local>) -> Result<String, String> {
   if event.is_allday() {
     let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
     if let Some(config) = config {
@@ -97,7 +97,7 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
   } else {
     let mut time_sep = " ";
     let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?.with_timezone(&Local);
-    let start_string = if &dtstart.date() != cur_day {
+    let start_string = if dtstart.date() != cur_day {
       "".to_string()
     } else {
       time_sep = "-";
@@ -105,7 +105,7 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
     };
 
     let dtend = event.get_dtend().ok_or("Invalid DTEND")?.with_timezone(&Local);
-    let end_string = if &dtend.date() != cur_day {
+    let end_string = if dtend.date() != cur_day {
       "".to_string()
     } else {
       time_sep = "-";
@@ -130,19 +130,19 @@ impl IcalVCalendar {
 }
 
 impl IcalVEvent {
-  fn relevant_on(&self, date: &Date<Local>) -> bool {
+  fn relevant_on(&self, date: Date<Local>) -> bool {
     if let Some(start) = self.get_dtstart() {
-      start.date() == *date
+      start.date() == date
     } else {
         warn!("Invalid DTSTART in {}", self.get_uid());
         false
     }
   }
 
-  fn continues_after(&self, date: &Date<Local>) -> bool {
+  fn continues_after(&self, date: Date<Local>) -> bool {
     match self.is_allday() {
-      true => self.get_dtend().map( |dtend| dtend.date().pred() > *date),
-      false => self.get_dtend().map( |dtend| dtend.date() > *date)
+      true => self.get_dtend().map( |dtend| dtend.date().pred() > date),
+      false => self.get_dtend().map( |dtend| dtend.date() > date)
     }.unwrap_or(false)
   }
 }
