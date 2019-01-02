@@ -53,7 +53,7 @@ jobs:
             - target/debug/*
   coverage:
     docker:
-      - image: ragnaroek/kcov:v33
+      - image: puzzlewolf/rust-libical3-kcov:0.2
         entrypoint: /bin/bash
     working_directory: /mnt/crate
     steps:
