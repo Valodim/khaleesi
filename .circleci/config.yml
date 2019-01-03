@@ -73,7 +73,7 @@ jobs:
           command: |
             for file in ./target/debug/*; do
               if test -x $file; then
-                kcov --verify --exclude-pattern=tests \
+                kcov --verify --include-path $(pwd) --exclude-pattern=tests \
                     target/coverage/$(basename $file) \
                   $file --quiet
               fi
@@ -109,10 +109,10 @@ workflows:
       - test:
           requires:
             - cargo_fetch
-# TODO fix kcov SIGILL, see https://circleci.com/gh/Valodim/khaleesi/30
-#      - coverage:
-#         requires:
-#           - test
-#     - codecov_upload:
-#         requires:
-#           - coverage
+      # TODO fix kcov SIGILL, see https://circleci.com/gh/Valodim/khaleesi/30
+      - coverage:
+          requires:
+            - test
+      - codecov_upload:
+          requires:
+            - coverage
