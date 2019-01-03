@@ -30,7 +30,7 @@ pub fn dbg() {
     print!("{}", render);
 }
 
-fn render_cells(cells: &Vec<Cell>) -> String {
+fn render_cells(cells: &[Cell]) -> String {
     let mut result = String::with_capacity(50);
 
     let now = cells[0].date;
@@ -49,7 +49,7 @@ fn render_cells(cells: &Vec<Cell>) -> String {
     result
 }
 
-fn render_flow(cells_per_line: usize, cell_width: usize, cells: &Vec<Cell>) -> String {
+fn render_flow(cells_per_line: usize, cell_width: usize, cells: &[Cell]) -> String {
     let mut result = String::with_capacity(50);
 
     let style = Style::new().bg(Color::Fixed(236));
