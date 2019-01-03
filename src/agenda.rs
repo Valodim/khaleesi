@@ -140,9 +140,10 @@ impl IcalVEvent {
   }
 
   fn continues_after(&self, date: Date<Local>) -> bool {
-    match self.is_allday() {
-      true => self.get_dtend().map( |dtend| dtend.date().pred() > date),
-      false => self.get_dtend().map( |dtend| dtend.date() > date)
+    if self.is_allday() {
+      self.get_dtend().map( |dtend| dtend.date().pred() > date)
+    } else {
+      self.get_dtend().map( |dtend| dtend.date() > date)
     }.unwrap_or(false)
   }
 }
