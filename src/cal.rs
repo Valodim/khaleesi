@@ -11,9 +11,9 @@ struct Cell {
 
 pub fn printcal() {
     let now = Local::today();
-    let a = cal_month(&now);
-    let b = cal_month(&now.with_month(now.month() + 1).unwrap());
-    let c = cal_month(&now.with_month(now.month() + 2).unwrap());
+    let a = cal_month(now);
+    let b = cal_month(now.with_month(now.month() + 1).unwrap());
+    let c = cal_month(now.with_month(now.month() + 2).unwrap());
 
     let joined = utils::joinlines(&a, &b);
     let joined = utils::joinlines(&joined, &c);
@@ -131,7 +131,7 @@ fn expand_cells_to_week(cells: Vec<Cell>) -> Vec<Cell> {
     result
 }
 
-pub fn cal_month(now: &Date<Local>) -> String {
+pub fn cal_month(now: Date<Local>) -> String {
     let mut result = String::with_capacity(50);
 
     result.push_str(&format!("{:>11} {:<8}\n",
