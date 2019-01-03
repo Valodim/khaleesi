@@ -44,7 +44,7 @@ fn main() {
     print_usage(&args[0])
   } else {
     match args[1].as_str() {
-      "agenda" => action_agenda(config, &args[2..]),
+      "agenda" => action_agenda(&config, &args[2..]),
       "cal" => cal::printcal(),
       "copy" => action_copy(&args[2..]),
       "new" => action_new(&args[2..]),
@@ -109,7 +109,7 @@ fn action_sort(args: &[String]) {
   }
 }
 
-fn action_agenda(config: Config, args: &[String]) {
+fn action_agenda(config: &Config, args: &[String]) {
   if args.is_empty() {
     if let Some(mut input) = default_input() {
       agenda::show_events(&config, &mut input);
