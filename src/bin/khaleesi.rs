@@ -64,7 +64,7 @@ fn main() {
 
 }
 
-fn print_usage(name: &String) {
+fn print_usage(name: &str) {
   error!("Usage: {} index|select|list|agenda|copy|new|edit|show|cal|sort|dbg|short", name)
 }
 
