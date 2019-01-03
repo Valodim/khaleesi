@@ -7,14 +7,20 @@ use utils;
 impl SelectFilters {
   pub fn predicate_path_skip_while(&self) -> impl Fn(&PathBuf) -> bool + '_ {
     move |path| {
-      let bucketname = path.file_name().expect(&format!("{:?} not a file", path)).to_string_lossy();
+      let bucketname = match path.file_name() {
+        Some(path_os_str) => path_os_str.to_string_lossy(),
+        None => panic!("{:?} not a file", path),
+      };
       self.from.is_bucket_before(&bucketname)
     }
   }
 
   pub fn predicate_path_take_while<'a>(&'a self) -> impl Fn(&PathBuf) -> bool + 'a {
     move |path| {
-      let bucketname = path.file_name().expect(&format!("{:?} not a file", path)).to_string_lossy();
+      let bucketname = match path.file_name() {
+        Some(path_os_str) => path_os_str.to_string_lossy(),
+        None => panic!("{:?} not a file", path),
+      };
       self.to.is_bucket_while(&bucketname)
     }
   }
