@@ -18,9 +18,11 @@ pub fn do_edit(filenames: &mut Iterator<Item = String>, _args: &[String]) {
 
   let editor = env::var("EDITOR").unwrap_or_else(|_| "vim".to_string());
 
-  Command::new(&editor)
+  if let Err(error) = Command::new(&editor)
     .args(paths)
     .stdin(fs::File::open("/dev/tty").unwrap())
-    .status()
-    .expect(&format!("{} command failed to start", editor));
+    .status() {
+      error!("{} command failed to start, error: {}", editor, error);
+      return
+    };
 }
