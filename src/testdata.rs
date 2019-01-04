@@ -79,7 +79,7 @@ pub static TEST_EVENT_ONE_MEETING: &str = indoc!(r"
     CLASS:PUBLIC
     SUMMARY:Calendaring Interoperability Planning Meeting
     DESCRIPTION:Discuss how we can test c&s interoperability\n
-      using iCalendar and other IETF standards.
+     using iCalendar and other IETF standards.
     LOCATION:LDB Lobby
     ATTACH;FMTTYPE=application/postscript:ftp://example.com/pub/conf/bkgrnd.ps
     END:VEVENT
@@ -153,6 +153,18 @@ pub static TEST_MULTIPLE_EVENTS: &str = indoc!("
     END:VCALENDAR
 ");
 
+
+pub static TEST_NO_SUMMARY: &str = indoc!("
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//ABC Corporation//NONSGML My Product//EN
+    BEGIN:VEVENT
+    UID:uid3
+    DTSTAMP:20070423T123432Z
+    DTSTART;VALUE=DATE:20070628
+    END:VEVENT
+    END:VCALENDAR
+");
 #[cfg(test)]
 use icalwrap::{IcalVCalendar,IcalVEvent};
 #[cfg(test)]

@@ -588,158 +588,243 @@ impl <'a> Iterator for IcalEventIter<'a> {
   }
 }
 
-#[test]
-fn event_iterator_element_count() {
+#[cfg(test)]
+mod test {
+  use super::*;
   use testdata;
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-  assert_eq!(cal.events_iter().count(), 1)
-}
 
-#[test]
-fn event_iterator_element_count_with_other() {
-  use testdata;
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_WITH_TIMEZONE_COMPONENT, None).unwrap();
-  assert_eq!(cal.events_iter().count(), 1)
-}
-
-#[test]
-fn load_serialize() {
-  use testdata;
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-  let back = unsafe {
-    let ical_str = ical::icalcomponent_as_ical_string(cal.get_ptr());
-    CStr::from_ptr(ical_str).to_string_lossy().into_owned()
-  }.replace("\r\n", "\n");
-  assert_eq!(back.trim(), testdata::TEST_EVENT_MULTIDAY)
-}
-
-#[test]
-fn recur_iterator_test() {
-  use testdata;
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-  let event = cal.get_principal_event();
-  assert_eq!(Local.ymd(2018, 10, 11), event.get_dtstart_date().unwrap());
-  assert_eq!(Local.ymd(2018, 10, 13), event.get_dtend_date().unwrap());
-  assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string());
-  assert_eq!(10, event.get_recur_datetimes().len());
-  assert_eq!(10, event.get_recur_instances().count());
-}
-
-#[test]
-fn get_khaleesi_line_test() {
-  use testdata;
-  let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
-  let event = cal.get_principal_event();
-  assert_eq!(String::from("1182988800 test/path"), event.get_khaleesi_line().unwrap())
-}
-
-#[test]
-fn has_recur_test() {
-  use testdata;
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-  assert!(cal.get_principal_event().has_recur());
-}
-
-#[test]
-fn recur_datetimes_test() {
-  use testdata;
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-
-  let event = cal.get_principal_event();
-  let mut recur_instances = event.get_recur_instances();
-  assert_eq!(Utc.ymd(2018, 10, 11).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
-  assert_eq!(Utc.ymd(2018, 10, 18).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
-}
-
-#[test]
-fn with_uid_test() {
-  use testdata;
-  let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path.clone()).unwrap();
-
-  let uid = "my_new_uid";
-  let new_cal = cal.with_uid(uid).unwrap();
-
-  for event in new_cal.events_iter() {
-    assert_eq!(uid, event.get_uid());
+  #[test]
+  fn event_iterator_element_count() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    assert_eq!(cal.events_iter().count(), 1)
   }
-  assert_eq!(Some(path.unwrap().with_file_name(uid.to_owned() + ".ics")), new_cal.path);
-}
 
-#[test]
-fn with_uid_multiple_test() {
-  use testdata;
-  let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
-
-  let uid = "my_new_uid";
-  let new_cal = cal.with_uid(uid);
-
-  assert!(new_cal.is_err());
-}
-
-#[test]
-fn with_keep_uid_test() {
-  use testdata;
-  let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
-
-  for uid in &["uid1", "uid2"] {
-    let new_cal = cal.clone().with_keep_uid(uid);
-
-    assert_eq!(1, new_cal.events_iter().count());
-    assert_eq!(*uid, new_cal.get_uid());
-    assert_eq!(*uid, new_cal.get_principal_event().get_uid());
+  #[test]
+  fn event_iterator_element_count_with_other() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_WITH_TIMEZONE_COMPONENT, None).unwrap();
+    assert_eq!(cal.events_iter().count(), 1)
   }
-}
 
-#[test]
-fn clone_test() {
-  use testdata;
-  let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
-  let cal2 = cal.clone().with_uid("my_new_uid").unwrap();
-
-  assert_ne!(cal.get_uid(), cal2.get_uid());
-}
-
-#[test]
-fn parse_checker_test_empty_summary() {
-  use testdata;
-  let c_str = CString::new(testdata::TEST_EVENT_EMPTY_SUMMARY).unwrap();
-  unsafe {
-    let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-    assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+  #[test]
+  fn load_serialize() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let back = unsafe {
+      let ical_str = ical::icalcomponent_as_ical_string(cal.get_ptr());
+      CStr::from_ptr(ical_str).to_string_lossy().into_owned()
+    }.replace("\r\n", "\n");
+    assert_eq!(back.trim(), testdata::TEST_EVENT_MULTIDAY)
   }
-}
 
-#[test]
-fn parse_checker_test_no_uid() {
-  use testdata;
-  let c_str = CString::new(testdata::TEST_EVENT_NO_UID).unwrap();
-  unsafe {
-    let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-    assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+  #[test]
+  fn recur_iterator_test() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_event();
+    assert_eq!(Local.ymd(2018, 10, 11), event.get_dtstart_date().unwrap());
+    assert_eq!(Local.ymd(2018, 10, 13), event.get_dtend_date().unwrap());
+    assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string());
+    assert_eq!(10, event.get_recur_datetimes().len());
+    assert_eq!(10, event.get_recur_instances().count());
   }
-}
 
-#[test]
-fn parse_checker_test_no_prodid() {
-  use testdata;
-  let c_str = CString::new(testdata::TEST_EVENT_NO_PRODID).unwrap();
-  unsafe {
-    let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-    assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+  #[test]
+  fn get_khaleesi_line_test() {
+    let path = Some(PathBuf::from("test/path"));
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
+    let event = cal.get_principal_event();
+    assert_eq!(String::from("1182988800 test/path"), event.get_khaleesi_line().unwrap())
   }
-}
 
-#[test]
-fn parse_checker_test() {
-  use testdata;
-  let c_str = CString::new(testdata::TEST_EVENT_MULTIDAY).unwrap();
-  unsafe {
-    let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-    assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_ok())
+  #[test]
+  fn test_get_all_properties() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+
+    let props = cal.get_properties_all();
+    assert_eq!(2, props.len());
+
+    let event = cal.get_principal_event();
+    let props = event.get_properties_all();
+    assert_eq!(7, props.len());
+  }
+
+  #[test]
+  fn test_get_property_get_value() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+    let prop = event.get_properties_by_name("DTSTART");
+
+    assert_eq!(1, prop.len());
+    assert_eq!("DTSTART", prop[0].get_name());
+    assert_eq!("20070628", prop[0].get_value());
+    assert_eq!(NaiveDate::from_ymd_opt(2007,6,28), prop[0].get_value_as_date());
+  }
+
+  #[test]
+  fn test_get_property_debug() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+    let prop = event.get_properties_by_name("DTSTART");
+
+    assert_eq!("DTSTART;VALUE=DATE:20070628", format!("{:?}", prop[0]));
+  }
+
+  #[test]
+  fn test_get_sumary() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(Some("Festival International de Jazz de Montreal".to_string()), event.get_summary());
+  }
+
+  #[test]
+  fn test_get_sumary_none() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_NO_SUMMARY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(None, event.get_summary());
+  }
+
+  #[test]
+  fn test_get_description() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(Some("Discuss how we can test c&s interoperability\nusing iCalendar and other IETF standards.".to_string()), event.get_description());
+  }
+
+  #[test]
+  fn parse_checker_test_empty_summary() {
+    let c_str = CString::new(testdata::TEST_EVENT_EMPTY_SUMMARY).unwrap();
+    unsafe {
+      let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+    }
+  }
+
+  #[test]
+  fn parse_checker_test_no_uid() {
+    let c_str = CString::new(testdata::TEST_EVENT_NO_UID).unwrap();
+    unsafe {
+      let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+    }
+  }
+
+  #[test]
+  fn parse_checker_test_no_prodid() {
+    let c_str = CString::new(testdata::TEST_EVENT_NO_PRODID).unwrap();
+    unsafe {
+      let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+    }
+  }
+
+  #[test]
+  fn test_get_location() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(Some("LDB Lobby".to_string()), event.get_location());
+  }
+
+
+  #[test]
+  fn test_get_location_none() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_NO_SUMMARY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(None, event.get_location());
+  }
+
+  #[test]
+  fn has_recur_test() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    assert!(cal.get_principal_event().has_recur());
+  }
+
+  #[test]
+  fn recur_datetimes_test() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+
+    let event = cal.get_principal_event();
+    let mut recur_instances = event.get_recur_instances();
+    assert_eq!(Utc.ymd(2018, 10, 11).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
+    assert_eq!(Utc.ymd(2018, 10, 18).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
+  }
+
+  #[test]
+  fn test_with_internal_timestamp() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+
+    let timestamp = Utc.ymd(2018, 1, 1).and_hms(11, 30, 20);
+    let new_cal = cal.with_internal_timestamp(timestamp);
+
+    let event = new_cal.get_principal_event();
+    assert_eq!(timestamp.with_timezone(&Local), event.get_dtstart().unwrap());
+  }
+
+  #[test]
+  fn with_uid_test() {
+    let path = Some(PathBuf::from("test/path"));
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path.clone()).unwrap();
+
+    let uid = "my_new_uid";
+    let new_cal = cal.with_uid(uid).unwrap();
+
+    for event in new_cal.events_iter() {
+      assert_eq!(uid, event.get_uid());
+    }
+    assert_eq!(Some(path.unwrap().with_file_name(uid.to_owned() + ".ics")), new_cal.path);
+  }
+
+  #[test]
+  fn with_uid_multiple_test() {
+    let path = Some(PathBuf::from("test/path"));
+    let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
+
+    let uid = "my_new_uid";
+    let new_cal = cal.with_uid(uid);
+
+    assert!(new_cal.is_err());
+  }
+
+  #[test]
+  fn with_keep_uid_test() {
+    let path = Some(PathBuf::from("test/path"));
+    let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
+
+    for uid in &["uid1", "uid2"] {
+      let new_cal = cal.clone().with_keep_uid(uid);
+
+      assert_eq!(1, new_cal.events_iter().count());
+      assert_eq!(*uid, new_cal.get_uid());
+      assert_eq!(*uid, new_cal.get_principal_event().get_uid());
+    }
+  }
+
+  #[test]
+  fn clone_test() {
+    let path = Some(PathBuf::from("test/path"));
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
+    let cal2 = cal.clone().with_uid("my_new_uid").unwrap();
+
+    assert_ne!(cal.get_uid(), cal2.get_uid());
+  }
+
+  #[test]
+  fn parse_checker_test_negative() {
+    let c_str = CString::new(testdata::TEST_EVENT_NO_PRODID).unwrap();
+    unsafe {
+      let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+    }
+  }
+
+  #[test]
+  fn parse_checker_test() {
+    let c_str = CString::new(testdata::TEST_EVENT_MULTIDAY).unwrap();
+    unsafe {
+      let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_ok())
+    }
   }
 }

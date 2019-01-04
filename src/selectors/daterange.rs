@@ -6,13 +6,11 @@ use super::*;
 
 use dateutil;
 
-#[derive(Debug)]
 pub struct SelectFilterFrom {
   pub date: Option<Date<Local>>,
   pub bucket: Option<String>,
 }
 
-#[derive(Debug)]
 pub struct SelectFilterTo {
   pub date: Option<Date<Local>>,
   pub bucket: Option<String>,
