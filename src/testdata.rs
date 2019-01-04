@@ -31,7 +31,7 @@ pub static TEST_EVENT_NO_PRODID: &str = indoc!("
 ");
 
 // from https://tools.ietf.org/html/rfc5545#section-4
-pub static TEST_EVENT_ONE_MEETING: &str = indoc!("
+pub static TEST_EVENT_ONE_MEETING: &str = indoc!(r"
     BEGIN:VCALENDAR
     METHOD:xyz
     VERSION:2.0
@@ -48,7 +48,7 @@ pub static TEST_EVENT_ONE_MEETING: &str = indoc!("
     CLASS:PUBLIC
     SUMMARY:Calendaring Interoperability Planning Meeting
     DESCRIPTION:Discuss how we can test c&s interoperability\n
-    using iCalendar and other IETF standards.
+      using iCalendar and other IETF standards.
     LOCATION:LDB Lobby
     ATTACH;FMTTYPE=application/postscript:ftp://example.com/pub/conf/bkgrnd.ps
     END:VEVENT
