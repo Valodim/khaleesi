@@ -55,9 +55,10 @@ fn read_buckets(ics_files: impl Iterator<Item = PathBuf>) -> HashMap<String, Vec
     match utils::read_file_to_string(&file) {
       Ok(content) => {
         total_files += 1;
+        let file_cpy = file.clone();
         match IcalVCalendar::from_str(&content, Some(file)) {
           Ok(mut cal) => add_buckets_for_calendar(&mut buckets, &cal),
-          Err(error) => error!("{}", error)
+          Err(error) => error!("{:?}: {}", file_cpy, error)
         }
       }
       Err(error) => error!("{}", error),
