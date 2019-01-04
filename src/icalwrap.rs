@@ -206,6 +206,8 @@ impl IcalVCalendar {
         return Err("could not read component".to_string());
       }
 
+      IcalVCalendar::check_icalcomponent(parsed_cal)?;
+
       let kind = ical::icalcomponent_isa(parsed_cal);
       if kind != ical::icalcomponent_kind_ICAL_VCALENDAR_COMPONENT {
         let kind = CStr::from_ptr(ical::icalcomponent_kind_to_string(kind)).to_string_lossy();
@@ -325,6 +327,43 @@ impl IcalVCalendar {
     }
     event
   }
+
+  //to be used after parsing, parser adds X-LIC-ERROR properties for any error
+  //ical::icalrestriction_check() checks if the specification is violated and adds X-LIC-ERRORs accordingly
+  //ical::icalcomponent_count_errors() counts all X-LIC-ERROR properties
+  unsafe fn check_icalcomponent(comp: *mut ical::icalcomponent) -> Result<(), String> {
+    ical::icalrestriction_check(comp);
+    let error_count = ical::icalcomponent_count_errors(comp);
+    if error_count > 0 {
+      //let ical_str = ical::icalcomponent_as_ical_string(comp);
+      //println!("{}", CStr::from_ptr(ical_str).to_string_lossy());
+
+      let mut output: Vec<String> = Vec::new();
+      output.append(&mut IcalVCalendar::get_errors(comp));
+
+      let mut event = ical::icalcomponent_get_first_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
+      while !event.is_null() {
+        output.append(&mut IcalVCalendar::get_errors(event));
+        event = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
+      }
+
+      Err(format!("calendar contains errors: {}", output.join(" ")))
+    } else {
+      Ok(())
+    }
+  }
+
+  unsafe fn get_errors(comp: *mut ical::icalcomponent) -> Vec<String> {
+    let mut prop = ical::icalcomponent_get_first_property(comp, ical::icalproperty_kind_ICAL_XLICERROR_PROPERTY);
+    let mut output: Vec<String> = Vec::new();
+    while !prop.is_null() {
+      let error_cstr = CStr::from_ptr(ical::icalproperty_get_xlicerror(prop)).to_str().unwrap();
+      output.push(error_cstr.to_owned());
+      prop = ical::icalcomponent_get_next_property(comp, ical::icalproperty_kind_ICAL_XLICERROR_PROPERTY);
+    }
+    output
+  }
+
 }
 
 impl IcalVEvent {
@@ -659,4 +698,15 @@ fn clone_test() {
   let cal2 = cal.clone().with_uid("my_new_uid").unwrap();
 
   assert_ne!(cal.get_uid(), cal2.get_uid());
+}
+
+#[test]
+fn parse_checker_test() {
+  use testdata;
+  let c_str = CString::new(testdata::TEST_EVENT_MULTIDAY).unwrap();
+  //let c_str = CString::new(testdata::TEST_EVENT_ONE_MEETING).unwrap();
+  unsafe {
+    let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+    assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_ok())
+  }
 }

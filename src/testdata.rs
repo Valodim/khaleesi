@@ -2,6 +2,7 @@
 pub static TEST_EVENT_MULTIDAY: &str = indoc!("
     BEGIN:VCALENDAR
     VERSION:2.0
+    PRODID:-//ABC Corporation//NONSGML My Product//EN
     BEGIN:VEVENT
     UID:20070423T123432Z-541111@example.com
     DTSTAMP:20070423T123432Z
@@ -43,6 +44,7 @@ pub static TEST_EVENT_ONE_MEETING: &str = indoc!("
 pub static TEST_EVENT_RECUR: &str = indoc!("
     BEGIN:VCALENDAR
     VERSION:2.0
+    PRODID:-//ABC Corporation//NONSGML My Product//EN
     BEGIN:VEVENT
     UID:autocryptthursday
     DTSTART;VALUE=DATE:20181011
@@ -89,6 +91,7 @@ pub static TEST_EVENT_WITH_TIMEZONE_COMPONENT: &str = indoc!("
 pub static TEST_MULTIPLE_EVENTS: &str = indoc!("
     BEGIN:VCALENDAR
     VERSION:2.0
+    PRODID:-//ABC Corporation//NONSGML My Product//EN
     BEGIN:VEVENT
     UID:uid1
     DTSTAMP:20070423T123432Z
