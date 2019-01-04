@@ -214,11 +214,6 @@ impl IcalVCalendar {
         return Err(format!("expected VCALENDAR component, got {}", kind));
       }
 
-      let uid = ical::icalcomponent_get_uid(parsed_cal);
-      if uid.is_null() {
-        return Err("missing required property: UID".to_string());
-      }
-
       let mut cal = IcalVCalendar::from_ptr(parsed_cal);
       cal.path = path;
       Ok(cal)
@@ -348,6 +343,15 @@ impl IcalVCalendar {
       }
 
       Err(format!("calendar contains errors: {}", output.join(" ")))
+    } else {
+      IcalVCalendar::check_uid(comp)
+    }
+  }
+
+  unsafe fn check_uid(comp: *mut ical::icalcomponent) -> Result<(), String> {
+    let uid = ical::icalcomponent_get_uid(comp);
+    if uid.is_null() {
+      Err("missing required property: UID".to_string())
     } else {
       Ok(())
     }
@@ -701,7 +705,27 @@ fn clone_test() {
 }
 
 #[test]
-fn parse_checker_test_negative() {
+fn parse_checker_test_empty_summary() {
+  use testdata;
+  let c_str = CString::new(testdata::TEST_EVENT_EMPTY_SUMMARY).unwrap();
+  unsafe {
+    let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+    assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+  }
+}
+
+#[test]
+fn parse_checker_test_no_uid() {
+  use testdata;
+  let c_str = CString::new(testdata::TEST_EVENT_NO_UID).unwrap();
+  unsafe {
+    let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+    assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+  }
+}
+
+#[test]
+fn parse_checker_test_no_prodid() {
   use testdata;
   let c_str = CString::new(testdata::TEST_EVENT_NO_PRODID).unwrap();
   unsafe {
