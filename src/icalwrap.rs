@@ -701,10 +701,19 @@ fn clone_test() {
 }
 
 #[test]
+fn parse_checker_test_negative() {
+  use testdata;
+  let c_str = CString::new(testdata::TEST_EVENT_NO_PRODID).unwrap();
+  unsafe {
+    let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
+    assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+  }
+}
+
+#[test]
 fn parse_checker_test() {
   use testdata;
   let c_str = CString::new(testdata::TEST_EVENT_MULTIDAY).unwrap();
-  //let c_str = CString::new(testdata::TEST_EVENT_ONE_MEETING).unwrap();
   unsafe {
     let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
     assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_ok())

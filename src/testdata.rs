@@ -15,6 +15,21 @@ pub static TEST_EVENT_MULTIDAY: &str = indoc!("
     END:VCALENDAR
 ");
 
+pub static TEST_EVENT_NO_PRODID: &str = indoc!("
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    BEGIN:VEVENT
+    UID:20070423T123432Z-541111@example.com
+    DTSTAMP:20070423T123432Z
+    DTSTART;VALUE=DATE:20070628
+    DTEND;VALUE=DATE:20070709
+    SUMMARY:Festival International de Jazz de Montreal
+    LOCATION:LDB Lobby
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    END:VCALENDAR
+");
+
 // from https://tools.ietf.org/html/rfc5545#section-4
 pub static TEST_EVENT_ONE_MEETING: &str = indoc!("
     BEGIN:VCALENDAR
