@@ -493,10 +493,10 @@ impl IcalVEvent {
   pub fn get_description(&self) -> Option<String> {
     unsafe {
       let ptr = ical::icalcomponent_get_description(self.ptr);
-      if ! ptr.is_null() {
-          Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
+      if !ptr.is_null() {
+        Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
       } else {
-          None
+        None
       }
     }
   }
@@ -504,10 +504,10 @@ impl IcalVEvent {
   pub fn get_location(&self) -> Option<String> {
     unsafe {
       let ptr = ical::icalcomponent_get_location(self.ptr);
-      if ! ptr.is_null() {
-          Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
+      if !ptr.is_null() {
+        Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
       } else {
-          None
+        None
       }
     }
   }
@@ -522,7 +522,6 @@ impl IcalVEvent {
   pub fn is_allday(&self) -> bool {
     unsafe {
       let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-//      let dtend = ical::icalcomponent_get_dtend(self.ptr);
       dtstart.is_date == 1
     }
   }
