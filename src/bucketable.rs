@@ -119,6 +119,7 @@ fn buckets_multi_day_allday() {
 }
 
 #[test]
+#[ignore]
 fn buckets_single_event() {
   use testdata;
   use std::path::PathBuf;
