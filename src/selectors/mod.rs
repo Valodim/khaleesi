@@ -3,9 +3,12 @@ use icalwrap::IcalVEvent;
 
 use self::daterange::{SelectFilterFrom,SelectFilterTo};
 use self::cal::CalendarFilter;
+use self::grep::GrepFilter;
+use self::prop::PropFilter;
 
 mod cal;
 mod grep;
+mod prop;
 mod test;
 pub mod daterange;
 
@@ -16,45 +19,59 @@ pub struct SelectFilters {
 }
 
 pub trait SelectFilter {
+  fn add_term(&mut self, it: &mut dyn Iterator<Item = &String>);
   fn includes(&self, event: &IcalVEvent) -> bool;
 }
 
 impl SelectFilters {
-  pub fn parse_from_args(mut args: &[String]) -> Result<Self, String> {
+  pub fn parse_from_args(args: &[String]) -> Result<Self, String> {
     let mut from: SelectFilterFrom = Default::default();
     let mut to: SelectFilterTo = Default::default();
     let mut cal: Option<CalendarFilter> = None;
+    let mut grep: Option<GrepFilter> = None;
+    let mut prop: Option<PropFilter> = None;
     let mut others: Vec<Box<dyn SelectFilter>> = vec!();
 
-    while !args.is_empty() {
-      match args[0].as_str() {
-        "from" => {
-          from = from.combine_with(&args[1].parse()?);
-          args = &args[2..];
+    let mut it = args.into_iter();
+    loop {
+      if let Some(arg) = it.next() {
+        match arg.as_str() {
+          "from" => {
+            let term = it.next().unwrap();
+            from = from.combine_with(&term.parse()?);
+          }
+          "to" => {
+            let term = it.next().unwrap();
+            to = to.combine_with(&term.parse()?);
+          }
+          "in" | "on" => {
+            let term = it.next().unwrap();
+            from = from.combine_with(&term.parse()?);
+            to = to.combine_with(&term.parse()?);
+          }
+          "cal" => {
+            cal.get_or_insert_with(Default::default).add_term(&mut it);
+          }
+          "grep" => {
+            grep.get_or_insert_with(Default::default).add_term(&mut it);
+          }
+          "prop" => {
+            prop.get_or_insert_with(Default::default).add_term(&mut it);
+          }
+          _ => return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
         }
-        "to" => {
-          to = to.combine_with(&args[1].parse()?);
-          args = &args[2..];
-        }
-        "in" | "on" => {
-          from = from.combine_with(&args[1].parse()?);
-          to = to.combine_with(&args[1].parse()?);
-          args = &args[2..];
-        }
-        "grep" => {
-          let grep_filter = grep::GrepFilter::new(&args[1]);
-          others.push(Box::new(grep_filter));
-          args = &args[2..];
-        }
-        "cal" => {
-          cal = Some(cal.unwrap_or_default().add_cal(&args[1]));
-          args = &args[2..];
-        }
-        _ => return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
+      } else {
+        break;
       }
     }
     if let Some(cal) = cal {
       others.push(Box::new(cal));
+    }
+    if let Some(grep) = grep {
+      others.push(Box::new(grep));
+    }
+    if let Some(prop) = prop {
+      others.push(Box::new(prop));
     }
 
     // debug!("from: {:?}, to: {:?}", from, to);

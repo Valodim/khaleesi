@@ -6,19 +6,18 @@ pub struct CalendarFilter {
   cal_names: Vec<String>
 }
 
-impl CalendarFilter {
-  pub fn add_cal(mut self, cal_name: &str) -> CalendarFilter {
-    self.cal_names.push(cal_name.to_owned());
-    self
-  }
-}
-
 impl SelectFilter for CalendarFilter {
+  fn add_term(&mut self, it: &mut dyn Iterator<Item = &String>) {
+    let term = it.next().unwrap();
+    self.cal_names.push(term.to_lowercase());
+  }
+
   fn includes(&self, event: &IcalVEvent) -> bool {
     event.get_parent()
       .and_then(|cal| cal.get_path())
       .and_then(|path| path.parent())
-      .map(|path| self.cal_names.iter().any(|cal| path.ends_with(cal)) )
+      .map(|path| path.to_string_lossy().to_lowercase())
+      .map(|path| self.cal_names.iter().any(|cal| path.contains(cal)) )
       .unwrap_or(false)
   }
 }

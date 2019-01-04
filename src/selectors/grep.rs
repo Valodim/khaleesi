@@ -3,33 +3,40 @@ use super::*;
 use icalwrap::IcalVEvent;
 
 pub struct GrepFilter {
-  term: String
-}
-
-impl GrepFilter {
-  pub fn new(term: &str) -> Self {
-    Self { term: term.to_lowercase().to_owned() }
-  }
+  terms: Vec<String>
 }
 
 impl SelectFilter for GrepFilter  {
+  fn add_term(&mut self, it: &mut dyn Iterator<Item = &String>) {
+    let term = it.next().unwrap();
+    self.terms.push(term.to_lowercase());
+  }
+
   fn includes(&self, event: &IcalVEvent) -> bool {
-    if let Some(summary) = event.get_summary() {
-      if summary.to_lowercase().contains(&self.term) {
-        return true;
+    for term in &self.terms {
+      if let Some(summary) = event.get_summary() {
+        if summary.to_lowercase().contains(term) {
+          return true;
+        }
       }
-    }
-    if let Some(description) = event.get_description() {
-      if description.to_lowercase().contains(&self.term) {
-        return true;
+      if let Some(description) = event.get_description() {
+        if description.to_lowercase().contains(term) {
+          return true;
+        }
       }
-    }
-    if let Some(location) = event.get_location() {
-      if location.to_lowercase().contains(&self.term) {
-        return true;
+      if let Some(location) = event.get_location() {
+        if location.to_lowercase().contains(term) {
+          return true;
+        }
       }
     }
     false
+  }
+}
+
+impl Default for GrepFilter {
+  fn default() -> GrepFilter {
+    GrepFilter { terms: Vec::new() }
   }
 }
 
