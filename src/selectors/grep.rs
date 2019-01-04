@@ -12,6 +12,10 @@ impl SelectFilter for GrepFilter  {
     self.terms.push(term.to_lowercase());
   }
 
+  fn is_not_empty(&self) -> bool {
+    !self.terms.is_empty()
+  }
+
   fn includes(&self, event: &IcalVEvent) -> bool {
     for term in &self.terms {
       if let Some(summary) = event.get_summary() {

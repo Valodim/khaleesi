@@ -18,6 +18,10 @@ impl SelectFilter for PropFilter  {
       .or_insert_with(|| vec!(value.to_lowercase()));
   }
 
+  fn is_not_empty(&self) -> bool {
+    !self.terms.is_empty()
+  }
+
   fn includes(&self, event: &IcalVEvent) -> bool {
     for (term, values) in &self.terms {
       for prop in event.get_properties_by_name(term) {

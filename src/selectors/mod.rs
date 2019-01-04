@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use utils;
 use icalwrap::IcalVEvent;
 
@@ -20,6 +22,7 @@ pub struct SelectFilters {
 
 pub trait SelectFilter {
   fn add_term(&mut self, it: &mut dyn Iterator<Item = &String>);
+  fn is_not_empty(&self) -> bool;
   fn includes(&self, event: &IcalVEvent) -> bool;
 }
 
@@ -27,10 +30,10 @@ impl SelectFilters {
   pub fn parse_from_args(args: &[String]) -> Result<Self, String> {
     let mut from: SelectFilterFrom = Default::default();
     let mut to: SelectFilterTo = Default::default();
-    let mut cal: Option<CalendarFilter> = None;
-    let mut grep: Option<GrepFilter> = None;
-    let mut prop: Option<PropFilter> = None;
-    let mut others: Vec<Box<dyn SelectFilter>> = vec!();
+    let mut others: HashMap<&str, Box<dyn SelectFilter>> = HashMap::with_capacity(3);
+    others.insert("grep", Box::new(GrepFilter::default()));
+    others.insert("cal", Box::new(CalendarFilter::default()));
+    others.insert("prop", Box::new(PropFilter::default()));
 
     let mut it = args.into_iter();
     loop {
@@ -49,32 +52,24 @@ impl SelectFilters {
             from = from.combine_with(&term.parse()?);
             to = to.combine_with(&term.parse()?);
           }
-          "cal" => {
-            cal.get_or_insert_with(Default::default).add_term(&mut it);
+          term => {
+            if let Some(filter) = others.get_mut(term) {
+              filter.add_term(&mut it);
+            } else {
+              return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
+            }
           }
-          "grep" => {
-            grep.get_or_insert_with(Default::default).add_term(&mut it);
-          }
-          "prop" => {
-            prop.get_or_insert_with(Default::default).add_term(&mut it);
-          }
-          _ => return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
         }
       } else {
         break;
       }
     }
-    if let Some(cal) = cal {
-      others.push(Box::new(cal));
-    }
-    if let Some(grep) = grep {
-      others.push(Box::new(grep));
-    }
-    if let Some(prop) = prop {
-      others.push(Box::new(prop));
-    }
 
-    // debug!("from: {:?}, to: {:?}", from, to);
+    let others = others.drain()
+      .map(|x| x.1)
+      .filter(|filter| filter.is_not_empty())
+      .collect();
+
     Ok(SelectFilters { from, to, others })
   }
 
@@ -89,12 +84,7 @@ impl SelectFilters {
   }
 
   fn others(&self, event: &IcalVEvent) -> bool {
-    for filter in &self.others {
-      if ! filter.includes(event) {
-        return false;
-      }
-    }
-    true
+    self.others.is_empty() || self.others.iter().any(|filter| filter.includes(event))
   }
 
   pub fn predicate(&self) -> impl Fn(&IcalVEvent) -> bool + '_ {

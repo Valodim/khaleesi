@@ -12,6 +12,10 @@ impl SelectFilter for CalendarFilter {
     self.cal_names.push(term.to_lowercase());
   }
 
+  fn is_not_empty(&self) -> bool {
+    !self.cal_names.is_empty()
+  }
+
   fn includes(&self, event: &IcalVEvent) -> bool {
     event.get_parent()
       .and_then(|cal| cal.get_path())
