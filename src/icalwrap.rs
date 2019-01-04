@@ -607,10 +607,7 @@ mod test {
   #[test]
   fn load_serialize() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-    let back = unsafe {
-      let ical_str = ical::icalcomponent_as_ical_string(cal.get_ptr());
-      CStr::from_ptr(ical_str).to_string_lossy().into_owned()
-    }.replace("\r\n", "\n");
+    let back = cal.to_string().replace("\r\n", "\n");
     assert_eq!(back.trim(), testdata::TEST_EVENT_MULTIDAY)
   }
 
