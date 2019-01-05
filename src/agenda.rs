@@ -38,7 +38,7 @@ pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
       event.continues_after(cur_day)
     });
 
-    let relevant_events = cals_iter.peeking_take_while(|(_,_,event,_)| event.relevant_on(cur_day));
+    let relevant_events = cals_iter.peeking_take_while(|(_,_,event,_)| event.starts_on(cur_day));
     for (i, cal, event, cal_config) in relevant_events {
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
       print_event_line(cal_config, i, &event, cur_day);
@@ -130,12 +130,12 @@ impl IcalVCalendar {
 }
 
 impl IcalVEvent {
-  fn relevant_on(&self, date: Date<Local>) -> bool {
+  fn starts_on(&self, date: Date<Local>) -> bool {
     if let Some(start) = self.get_dtstart() {
       start.date() == date
     } else {
-        warn!("Invalid DTSTART in {}", self.get_uid());
-        false
+      warn!("Invalid DTSTART in {}", self.get_uid());
+      false
     }
   }
 
@@ -145,5 +145,34 @@ impl IcalVEvent {
     } else {
       self.get_dtend().map( |dtend| dtend.date() > date)
     }.unwrap_or(false)
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use testdata;
+  use chrono::{Local, TimeZone};
+
+#[test]
+  fn test_starts_on() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    let first_day = Local.ymd(2007, 6, 28);
+    assert!(event.starts_on(first_day));
+
+    let last_day = Local.ymd(2007, 7, 7);
+    assert!(!event.starts_on(last_day));
+  }
+
+#[test]
+  fn test_continues_after() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+    let first_day = Local.ymd(2007, 6, 28);
+    assert!(event.continues_after(first_day));
+    let last_day = Local.ymd(2007, 7, 8);
+    assert!(!event.continues_after(last_day));
   }
 }
