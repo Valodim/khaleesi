@@ -49,40 +49,36 @@ impl SelectFilters {
     others.insert("prop", Box::new(PropFilter::default()));
 
     let mut it = args.into_iter();
-    loop {
-      if let Some(arg) = it.next() {
-        match arg.as_str() {
-          "from" => {
-            let term = it.next().unwrap();
-            from = from.combine_with(&term.parse()?);
-          }
-          "to" => {
-            let term = it.next().unwrap();
-            to = to.combine_with(&term.parse()?);
-          }
-          "in" | "on" => {
-            let term = it.next().unwrap();
-            from = from.combine_with(&term.parse()?);
-            to = to.combine_with(&term.parse()?);
-          }
-          term => {
-            if let Some(filter) = others.get_mut(term) {
-              filter.add_term(&mut it);
-            } else if let Ok(parsed_range) = term.parse::<RangeFilter>() {
-              if !with_range {
-                return Err("Range selector not allowed here!".to_string())
-              }
-              if range.is_some() {
-                return Err("Duplicate range selector!".to_string())
-              }
-              range = Some(parsed_range);
-            } else {
-              return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
+    while let Some(arg) = it.next() {
+      match arg.as_str() {
+        "from" => {
+          let term = it.next().unwrap();
+          from = from.combine_with(&term.parse()?);
+        }
+        "to" => {
+          let term = it.next().unwrap();
+          to = to.combine_with(&term.parse()?);
+        }
+        "in" | "on" => {
+          let term = it.next().unwrap();
+          from = from.combine_with(&term.parse()?);
+          to = to.combine_with(&term.parse()?);
+        }
+        term => {
+          if let Some(filter) = others.get_mut(term) {
+            filter.add_term(&mut it);
+          } else if let Ok(parsed_range) = term.parse::<RangeFilter>() {
+            if !with_range {
+              return Err("Range selector not allowed here!".to_string())
             }
+            if range.is_some() {
+              return Err("Duplicate range selector!".to_string())
+            }
+            range = Some(parsed_range);
+          } else {
+            return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
           }
         }
-      } else {
-        break;
       }
     }
 
