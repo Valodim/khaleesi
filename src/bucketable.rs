@@ -72,8 +72,9 @@ where K: cmp::Eq + hash::Hash
   fn merge(&mut self, other: HashMap<K, Vec<String>>);
 }
 
-impl<K> Merge<K> for HashMap<K, Vec<String>>
-where K: cmp::Eq + hash::Hash
+impl<K, S> Merge<K> for HashMap<K, Vec<String>, S>
+where K: cmp::Eq + hash::Hash,
+  S: std::hash::BuildHasher
 {
   fn merge(&mut self, other: HashMap<K, Vec<String>>) {
     for (key, mut lines) in other.into_iter() {
