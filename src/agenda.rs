@@ -131,12 +131,7 @@ impl IcalVCalendar {
 
 impl IcalVEvent {
   fn starts_on(&self, date: Date<Local>) -> bool {
-    if let Some(start) = self.get_dtstart() {
-      start.date() == date
-    } else {
-      warn!("Invalid DTSTART in {}", self.get_uid());
-      false
-    }
+    self.get_dtstart().unwrap().date() == date
   }
 
   fn continues_after(&self, date: Date<Local>) -> bool {
