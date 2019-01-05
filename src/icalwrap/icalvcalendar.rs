@@ -1,60 +1,12 @@
-use chrono::{NaiveDate, Duration, DateTime, Date, Utc, TimeZone, Local};
+use chrono::{DateTime, Utc};
 use std::ffi::{CStr, CString};
-use std::fmt;
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use super::IcalVEvent;
+use super::IcalComponent;
 use ical;
-
-pub trait IcalComponent {
-  fn get_ptr(&self) -> *mut ical::icalcomponent;
-  fn as_component(&self) -> &dyn IcalComponent;
-
-  fn get_property(&self, property_kind: ical::icalproperty_kind) -> IcalProperty<'_> {
-    unsafe {
-      let property = ical::icalcomponent_get_first_property(self.get_ptr(), property_kind);
-      IcalProperty::from_ptr(property, self.as_component())
-    }
-  }
-
-  fn get_properties(self: &Self, property_kind: ical::icalproperty_kind) -> Vec<IcalProperty<'_>> {
-    let mut properties = Vec::new();
-    unsafe {
-      let mut property_ptr = ical::icalcomponent_get_first_property(self.get_ptr(), property_kind);
-      while !property_ptr.is_null() {
-        let property = IcalProperty::from_ptr(property_ptr, self.as_component());
-        properties.push(property);
-        property_ptr = ical::icalcomponent_get_next_property(self.get_ptr(), property_kind);
-      }
-    }
-    properties
-  }
-
-  fn get_properties_all(&self) -> Vec<IcalProperty<'_>> {
-    self.get_properties(ical::icalproperty_kind_ICAL_ANY_PROPERTY)
-  }
-
-  fn get_properties_by_name(&self, property_name: &str) -> Vec<IcalProperty> {
-    let property_kind = unsafe {
-      let c_str = CString::new(property_name).unwrap();
-      ical::icalproperty_string_to_kind(c_str.as_ptr())
-    };
-    self.get_properties(property_kind)
-  }
-}
-
-struct IcalComponentOwner {
-  ptr: *mut ical::icalcomponent
-}
-
-impl Deref for IcalComponentOwner {
-  type Target = *mut ical::icalcomponent;
-
-  fn deref(&self) -> &Self::Target {
-    &self.ptr
-  }
-}
 
 pub struct IcalVCalendar {
   comp: Rc<IcalComponentOwner>,
@@ -62,101 +14,14 @@ pub struct IcalVCalendar {
   instance_timestamp: Option<DateTime<Utc>>,
 }
 
-pub struct IcalVEvent {
-  ptr: *mut ical::icalcomponent,
-  parent: Option<IcalVCalendar>,
-  instance_timestamp: Option<DateTime<Utc>>,
-}
-
-pub struct IcalProperty<'a> {
-  ptr: *mut ical::icalproperty,
-  _parent: &'a dyn IcalComponent,
-}
-
 pub struct IcalEventIter<'a> {
   iter: ical::icalcompiter,
   parent: &'a IcalVCalendar,
 }
 
-impl Drop for IcalComponentOwner {
-  fn drop(&mut self) {
-    unsafe {
-      // println!("free");
-      ical::icalcomponent_free(self.ptr);
-    }
-  }
-}
-
-impl Drop for IcalVEvent {
-  fn drop(&mut self) {
-    unsafe {
-      // println!("free");
-      ical::icalcomponent_free(self.ptr);
-    }
-  }
-}
-
-impl<'a> Drop for IcalProperty<'a> {
-  fn drop(&mut self) {
-    unsafe {
-      ical::icalproperty_free(self.ptr);
-    }
-  }
-}
-
-impl<'a> IcalProperty<'a> {
-  fn from_ptr(ptr: *mut ical::icalproperty, parent: &'a dyn IcalComponent) -> Self {
-    IcalProperty { ptr, _parent: parent }
-  }
-
-  pub fn get_name(&self) -> String {
-    unsafe {
-      let cstr = CStr::from_ptr(ical::icalproperty_get_property_name(self.ptr));
-      cstr.to_string_lossy().into_owned()
-    }
-  }
-
-  pub fn get_value(&self) -> String {
-    unsafe {
-      let cstr = CStr::from_ptr(ical::icalproperty_get_value_as_string(self.ptr));
-      cstr.to_string_lossy().into_owned()
-    }
-  }
-
-  pub fn as_ical_string(&self) -> String {
-    unsafe {
-      let cstr = CStr::from_ptr(ical::icalproperty_as_ical_string(self.ptr));
-      cstr.to_string_lossy().trim().to_owned()
-    }
-  }
-
-  pub fn get_value_as_date(&self) -> Option<NaiveDate> {
-    unsafe {
-      let date = ical::icaltime_from_string(ical::icalproperty_get_value_as_string(self.ptr));
-      NaiveDate::from_ymd_opt(date.year, date.month as u32, date.day as u32)
-    }
-  }
-}
-
-impl<'a> fmt::Debug for IcalProperty<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", self.as_ical_string())
-  }
-}
-
 impl IcalComponent for IcalVCalendar {
   fn get_ptr(&self) -> *mut ical::icalcomponent  {
     self.comp.ptr
-  }
-
-  fn as_component(&self) -> &dyn IcalComponent {
-    self
-  }
-}
-
-impl IcalComponent for IcalVEvent {
-  fn get_ptr (&self) -> *mut ical::icalcomponent {
-    self.ptr
   }
 
   fn as_component(&self) -> &dyn IcalComponent {
@@ -185,7 +50,7 @@ impl IcalVCalendar {
     }
   }
 
-  fn shallow_copy(&self) -> Self {
+  pub fn shallow_copy(&self) -> Self {
     IcalVCalendar {
       comp: self.comp.clone(),
       path: self.path.clone(),
@@ -367,164 +232,6 @@ impl IcalVCalendar {
     }
     output
   }
-
-}
-
-impl IcalVEvent {
-  fn from_ptr_with_parent(
-      ptr: *mut ical::icalcomponent,
-      parent: &IcalVCalendar,
-      ) -> IcalVEvent {
-    IcalVEvent {
-      ptr,
-      parent: Some(parent.shallow_copy()),
-      instance_timestamp: None,
-    }
-  }
-
-  pub fn get_dtend_unix(&self) -> Option<i64> {
-    match self.instance_timestamp {
-      Some(timestamp) => unsafe {
-        let icalduration = ical::icalcomponent_get_duration(self.ptr);
-        let duration = Duration::seconds(i64::from(ical::icaldurationtype_as_int(icalduration)));
-        Some(timestamp.checked_add_signed(duration)?.timestamp())
-      },
-      None =>
-        unsafe {
-          let dtend = ical::icalcomponent_get_dtend(self.ptr);
-          trace!("{:?}", dtend);
-          if ical::icaltime_is_null_time(dtend) == 1 {
-            None
-          } else {
-            Some(ical::icaltime_as_timet_with_zone(dtend, dtend.zone))
-          }
-        }
-    }
-  }
-
-  pub fn get_dtstart_unix(&self) -> Option<i64> {
-    match self.instance_timestamp {
-      Some(timestamp) => Some(timestamp.timestamp()),
-      None => unsafe {
-        let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-        if ical::icaltime_is_null_time(dtstart) == 1 {
-          None
-        } else {
-          Some(ical::icaltime_as_timet_with_zone(dtstart, dtstart.zone))
-        }
-      }
-    }
-  }
-
-  pub fn get_dtend(&self) -> Option<DateTime<Local>> {
-    let dtend = self.get_dtend_unix()?;
-    Some(Utc.timestamp(dtend, 0).with_timezone(&Local))
-  }
-
-  pub fn get_dtstart(&self) -> Option<DateTime<Local>> {
-    let dtstart = self.get_dtstart_unix()?;
-    Some(Utc.timestamp(dtstart, 0).with_timezone(&Local))
-  }
-
-  pub fn get_dtstart_date(&self) -> Option<Date<Local>> {
-    Some(self.get_dtstart()?.date())
-  }
-
-  pub fn get_dtend_date(&self) -> Option<Date<Local>> {
-    Some(self.get_dtend()?.date())
-  }
-
-  pub fn has_recur(&self) -> bool {
-    !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
-    & self.instance_timestamp.is_none()
-  }
-
-  pub fn get_recur_datetimes(&self) -> Vec<DateTime<Utc>> {
-    let mut result = vec!();
-    let result_ptr: *mut ::std::os::raw::c_void = &mut result as *mut _ as *mut ::std::os::raw::c_void;
-
-    unsafe {
-      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-      let mut dtend = ical::icalcomponent_get_dtend(self.ptr);
-
-      //unroll up to 1 year in the future
-      dtend.year += 1;
-
-      ical::icalcomponent_foreach_recurrence(self.ptr, dtstart, dtend, Some(recur_callback), result_ptr);
-    }
-
-    result
-  }
-
-  fn with_internal_timestamp(&self, datetime: DateTime<Utc>) -> IcalVEvent {
-    IcalVEvent {
-      ptr: self.ptr,
-      parent: self.parent.as_ref().map(|parent| parent.shallow_copy()),
-      instance_timestamp: Some(datetime),
-    }
-  }
-
-  pub fn get_recur_instances(&self) -> impl Iterator<Item = IcalVEvent> + '_ {
-    self.get_recur_datetimes().into_iter().map(move |rec| self.with_internal_timestamp(rec))
-  }
-
-  pub fn get_parent(&self) -> Option<&IcalVCalendar> {
-    self.parent.as_ref()
-  }
-
-  pub fn get_khaleesi_line(&self) -> Option<String> {
-    let dtstart = self.get_dtstart()?.timestamp();
-    let dtstart_string = format!("{:010}", dtstart);
-    let path_string = self.parent.as_ref()?.get_path_as_string();
-    Some([dtstart_string, path_string].join(" "))
-  }
-
-  pub fn get_summary(&self) -> Option<String> {
-    unsafe {
-      let ptr = ical::icalcomponent_get_summary(self.ptr);
-      if ! ptr.is_null() {
-          Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
-      } else {
-          None
-      }
-    }
-  }
-
-  pub fn get_description(&self) -> Option<String> {
-    unsafe {
-      let ptr = ical::icalcomponent_get_description(self.ptr);
-      if !ptr.is_null() {
-        Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
-      } else {
-        None
-      }
-    }
-  }
-
-  pub fn get_location(&self) -> Option<String> {
-    unsafe {
-      let ptr = ical::icalcomponent_get_location(self.ptr);
-      if !ptr.is_null() {
-        Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
-      } else {
-        None
-      }
-    }
-  }
-
-  pub fn get_uid(&self) -> String {
-    unsafe {
-      let cstr = CStr::from_ptr(ical::icalcomponent_get_uid(self.ptr));
-      cstr.to_string_lossy().into_owned()
-    }
-  }
-
-  pub fn is_allday(&self) -> bool {
-    unsafe {
-      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-      dtstart.is_date == 1
-    }
-  }
 }
 
 impl<'a> IcalEventIter<'a> {
@@ -546,30 +253,6 @@ impl<'a> IcalEventIter<'a> {
   }
 }
 
-//impl<'a> IntoIterator for &'a IcalComponent {
-//  type Item = IcalComponent;
-//  type IntoIter = IcalCompIter<'a>;
-//
-//  fn into_iter(self) -> Self::IntoIter {
-//    IcalCompIter::from_comp(&self, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
-//  }
-//}
-
-extern "C" fn recur_callback(
-                         _comp: *mut ical::icalcomponent,
-                         span: *mut ical::icaltime_span,
-                         data: *mut ::std::os::raw::c_void) {
-  let data: &mut Vec<DateTime<Utc>> = unsafe { &mut *(data as *mut Vec<DateTime<Utc>>) };
-
-  let spanstart = unsafe {
-    trace!("callback!, {:?}", *span);
-    let start = (*span).start;
-    Utc.timestamp(start, 0)
-  };
-
-  data.push(spanstart);
-}
-
 impl <'a> Iterator for IcalEventIter<'a> {
   type Item = IcalVEvent;
 
@@ -587,10 +270,32 @@ impl <'a> Iterator for IcalEventIter<'a> {
   }
 }
 
+struct IcalComponentOwner {
+  ptr: *mut ical::icalcomponent
+}
+
+impl Deref for IcalComponentOwner {
+  type Target = *mut ical::icalcomponent;
+
+  fn deref(&self) -> &Self::Target {
+    &self.ptr
+  }
+}
+
+impl Drop for IcalComponentOwner {
+  fn drop(&mut self) {
+    unsafe {
+      // println!("free");
+      ical::icalcomponent_free(self.ptr);
+    }
+  }
+}
+
 #[cfg(test)]
-mod test {
+mod tests {
   use super::*;
   use testdata;
+  use chrono::{Local, TimeZone};
 
   #[test]
   fn event_iterator_element_count() {
@@ -612,17 +317,6 @@ mod test {
   }
 
   #[test]
-  fn recur_iterator_test() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_event();
-    assert_eq!(Local.ymd(2018, 10, 11), event.get_dtstart_date().unwrap());
-    assert_eq!(Local.ymd(2018, 10, 13), event.get_dtend_date().unwrap());
-    assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string());
-    assert_eq!(10, event.get_recur_datetimes().len());
-    assert_eq!(10, event.get_recur_instances().count());
-  }
-
-  #[test]
   fn get_khaleesi_line_test() {
     let path = Some(PathBuf::from("test/path"));
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
@@ -631,60 +325,11 @@ mod test {
   }
 
   #[test]
-  fn test_get_all_properties() {
+  fn test_get_all_properties_cal() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
     let props = cal.get_properties_all();
     assert_eq!(2, props.len());
-
-    let event = cal.get_principal_event();
-    let props = event.get_properties_all();
-    assert_eq!(7, props.len());
-  }
-
-  #[test]
-  fn test_get_property_get_value() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-    let event = cal.get_principal_event();
-    let prop = event.get_properties_by_name("DTSTART");
-
-    assert_eq!(1, prop.len());
-    assert_eq!("DTSTART", prop[0].get_name());
-    assert_eq!("20070628", prop[0].get_value());
-    assert_eq!(NaiveDate::from_ymd_opt(2007,6,28), prop[0].get_value_as_date());
-  }
-
-  #[test]
-  fn test_get_property_debug() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-    let event = cal.get_principal_event();
-    let prop = event.get_properties_by_name("DTSTART");
-
-    assert_eq!("DTSTART;VALUE=DATE:20070628", format!("{:?}", prop[0]));
-  }
-
-  #[test]
-  fn test_get_sumary() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-    let event = cal.get_principal_event();
-
-    assert_eq!(Some("Festival International de Jazz de Montreal".to_string()), event.get_summary());
-  }
-
-  #[test]
-  fn test_get_sumary_none() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_NO_SUMMARY, None).unwrap();
-    let event = cal.get_principal_event();
-
-    assert_eq!(None, event.get_summary());
-  }
-
-  #[test]
-  fn test_get_description() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    let event = cal.get_principal_event();
-
-    assert_eq!(Some("Discuss how we can test c&s interoperability\nusing iCalendar and other IETF standards.".to_string()), event.get_description());
   }
 
   #[test]
@@ -712,39 +357,6 @@ mod test {
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
       assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
     }
-  }
-
-  #[test]
-  fn test_get_location() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    let event = cal.get_principal_event();
-
-    assert_eq!(Some("LDB Lobby".to_string()), event.get_location());
-  }
-
-
-  #[test]
-  fn test_get_location_none() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_NO_SUMMARY, None).unwrap();
-    let event = cal.get_principal_event();
-
-    assert_eq!(None, event.get_location());
-  }
-
-  #[test]
-  fn has_recur_test() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    assert!(cal.get_principal_event().has_recur());
-  }
-
-  #[test]
-  fn recur_datetimes_test() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-
-    let event = cal.get_principal_event();
-    let mut recur_instances = event.get_recur_instances();
-    assert_eq!(Utc.ymd(2018, 10, 11).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
-    assert_eq!(Utc.ymd(2018, 10, 18).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
   }
 
   #[test]
