@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use std::ffi::{CStr, CString};
-use std::ops::Deref;
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -272,14 +271,6 @@ impl <'a> Iterator for IcalEventIter<'a> {
 
 struct IcalComponentOwner {
   ptr: *mut ical::icalcomponent
-}
-
-impl Deref for IcalComponentOwner {
-  type Target = *mut ical::icalcomponent;
-
-  fn deref(&self) -> &Self::Target {
-    &self.ptr
-  }
 }
 
 impl Drop for IcalComponentOwner {
