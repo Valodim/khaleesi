@@ -289,6 +289,16 @@ mod tests {
   use chrono::{Local, TimeZone};
 
   #[test]
+  fn test_from_str_empty() {
+    assert!(IcalVCalendar::from_str("", None).is_err());
+  }
+
+  #[test]
+  fn test_from_str_event() {
+    assert!(IcalVCalendar::from_str(testdata::TEST_BARE_EVENT, None).is_err());
+  }
+
+  #[test]
   fn event_iterator_element_count() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     assert_eq!(cal.events_iter().count(), 1)

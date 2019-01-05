@@ -165,6 +165,15 @@ pub static TEST_NO_SUMMARY: &str = indoc!("
     END:VEVENT
     END:VCALENDAR
 ");
+
+pub static TEST_BARE_EVENT: &str = indoc!("
+    BEGIN:VEVENT
+    UID:uid4
+    DTSTAMP:20070423T123432Z
+    DTSTART;VALUE=DATE:20070628
+    END:VEVENT
+");
+
 #[cfg(test)]
 use icalwrap::{IcalVCalendar,IcalVEvent};
 #[cfg(test)]
