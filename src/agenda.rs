@@ -4,7 +4,7 @@ use yansi::{Style};
 
 use icalwrap::*;
 use utils;
-use config::{self,Config,CalendarConfig};
+use config::{Config,CalendarConfig};
 
 pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
   let cals = utils::read_calendars_from_files(lines).unwrap();
@@ -12,7 +12,7 @@ pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
   let mut not_over_yet: Vec<(usize, &IcalVCalendar, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
   let mut cals_iter = cals.iter()
     .enumerate()
-    .map(|(i, cal)| (i, cal, cal.get_principal_event(), cal.get_config(&config)))
+    .map(|(i, cal)| (i, cal, cal.get_principal_event(), config.get_config_for_calendar(&cal)))
     .peekable();
 
   let start_day = match cals_iter.peek() {
@@ -90,7 +90,7 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
   if event.is_allday() {
     let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
     if let Some(config) = config {
-      let calendar_style = config::get_style_for_calendar(config);
+      let calendar_style = config.get_style_for_calendar();
       summary = calendar_style.paint(summary).to_string();
     }
     Ok(format!("             {}", summary))
@@ -115,17 +115,11 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
     let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
 
     if let Some(config) = config {
-      let calendar_style = config::get_style_for_calendar(config);
+      let calendar_style = config.get_style_for_calendar();
       summary = calendar_style.paint(summary).to_string();
     }
 
     Ok(format!("{:5}{}{:5}  {}", start_string, time_sep, end_string, summary))
-  }
-}
-
-impl IcalVCalendar {
-  fn get_config<'a>(&self, config: &'a Config) -> Option<&'a CalendarConfig> {
-    config::get_config_for_calendar(config, self)
   }
 }
 

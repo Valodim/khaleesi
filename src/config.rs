@@ -25,24 +25,28 @@ pub struct CalendarConfig {
   pub color: Option<u8>
 }
 
-pub fn get_config_for_calendar<'a>(config: &'a Config, event: &IcalVCalendar) -> Option<&'a CalendarConfig> {
-  let calendar_name = &event.get_calendar_name()?;
-  config.calendars.get(calendar_name)
-}
-
-pub fn get_style_for_calendar(calendar_config: &CalendarConfig) -> yansi::Style {
-  let mut style = Style::new();
-  if let Some(color) = calendar_config.color {
-    style = style.fg(Color::Fixed(color));
+impl Config {
+  pub fn get_config_for_calendar(&self,  event: &IcalVCalendar) -> Option<&CalendarConfig> {
+    let calendar_name = &event.get_calendar_name()?;
+    self.calendars.get(calendar_name)
   }
-  style
+
+  pub fn read_config() -> Self {
+    let config = utils::read_file_to_string(&defaults::get_configfile());
+    match config {
+      Ok(config) => toml::from_str(&config).unwrap(),
+      Err(_) => Config::default()
+    }
+  }
 }
 
-pub fn read_config() -> Config {
-  let config = utils::read_file_to_string(&defaults::get_configfile());
-  match config {
-    Ok(config) => toml::from_str(&config).unwrap(),
-    Err(_) => Config::default()
+impl CalendarConfig {
+  pub fn get_style_for_calendar(&self) -> yansi::Style {
+    let mut style = Style::new();
+    if let Some(color) = self.color {
+      style = style.fg(Color::Fixed(color));
+    }
+    style
   }
 }
 

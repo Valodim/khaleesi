@@ -8,7 +8,7 @@ extern crate log;
 use khaleesi::agenda;
 use khaleesi::cal;
 use khaleesi::copy;
-use khaleesi::config::{self,Config};
+use khaleesi::config::Config;
 use khaleesi::defaults::*;
 use khaleesi::edit;
 use khaleesi::index;
@@ -38,7 +38,7 @@ fn main() {
   //            _ => LevelFilter::Trace,
 
   let args: Vec<String> = env::args().collect();
-  let config = config::read_config();
+  let config = Config::read_config();
 
   if args.len() == 1 {
     print_usage(&args[0])
