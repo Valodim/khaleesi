@@ -29,6 +29,7 @@ extern crate libc;
 extern crate libical_sys as ical;
 extern crate stderrlog;
 extern crate uuid;
+extern crate walkdir;
 extern crate yansi;
 
 #[macro_use]

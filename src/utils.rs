@@ -1,5 +1,3 @@
-extern crate walkdir;
-
 use chrono::*;
 use std::fmt::Display;
 use std::io::prelude::*;
@@ -23,7 +21,7 @@ pub fn joinlines(first: &str, second: &str) -> String {
 }
 
 pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
-  use self::walkdir::WalkDir;
+  use walkdir::WalkDir;
 
   WalkDir::new(dir).into_iter()
     .filter_map(|e| e.ok())
