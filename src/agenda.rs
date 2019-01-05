@@ -149,7 +149,7 @@ mod tests {
   use testdata;
   use chrono::{Local, TimeZone};
 
-#[test]
+  #[test]
   fn test_starts_on() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
@@ -161,13 +161,21 @@ mod tests {
     assert!(!event.starts_on(last_day));
   }
 
-#[test]
-  fn test_continues_after() {
+  #[test]
+  fn test_continues_after_allday() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
     let first_day = Local.ymd(2007, 6, 28);
     assert!(event.continues_after(first_day));
     let last_day = Local.ymd(2007, 7, 8);
     assert!(!event.continues_after(last_day));
+  }
+
+  #[test]
+  fn test_continues_after() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    let event = cal.get_principal_event();
+    let date = Local.ymd(1997, 3, 24);
+    assert!(!event.continues_after(date));
   }
 }
