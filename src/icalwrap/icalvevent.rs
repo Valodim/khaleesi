@@ -249,7 +249,7 @@ mod tests {
   }
 
   #[test]
-  fn test_get_sumary() {
+  fn test_get_summary() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
 
@@ -257,7 +257,7 @@ mod tests {
   }
 
   #[test]
-  fn test_get_sumary_none() {
+  fn test_get_summary_none() {
     let cal = IcalVCalendar::from_str(testdata::TEST_NO_SUMMARY, None).unwrap();
     let event = cal.get_principal_event();
 
