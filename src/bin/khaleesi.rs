@@ -188,12 +188,9 @@ mod tests {
       [env!("CARGO_MANIFEST_DIR"), "testdata", artifact].iter().collect()
   }
 
-  fn prepare_testdir() -> TempDir {
+  fn prepare_testdir(template: &str) -> TempDir {
       let testdir = TempDir::new().unwrap();
-      let testdir_cal = testdir.child(".khaleesi/cal");
-
-      testdir_cal.copy_from(path_to("cal"), &["*"]).unwrap();
-
+      testdir.child(".khaleesi/").copy_from(path_to(template), &["*"]).unwrap();
       testdir
   }
 
@@ -202,17 +199,16 @@ mod tests {
 
       let config = config.unwrap_or_default();
       let args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
-      main_internal("khaleesi", &args, config);
+      main_internal("khaleesi", &args, config)
   }
 
   #[test]
   fn test_index() {
-      let testdir = prepare_testdir();
+      let testdir = prepare_testdir("testdir");
 
       run(&testdir, &["index"], None);
 
       testdir.child(".khaleesi/index/2018-W50").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
       testdir.child(".khaleesi/index/2018-W51").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
   }
-
 }
