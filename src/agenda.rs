@@ -166,10 +166,28 @@ mod tests {
   }
 
   #[test]
-  fn test_continues_after() {
+  fn test_continues_after_simple() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
     let date = Local.ymd(1997, 3, 24);
     assert!(!event.continues_after(date));
+  }
+
+  #[test]
+  fn test_event_line_simple() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    let event = cal.get_principal_event();
+    let date = Local.ymd(1997, 3, 24);
+    let event_line = event_line(None, &event, date).unwrap();
+    assert_eq!("13:30-22:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
+  }
+
+  #[test]
+  fn test_event_line_multiday() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+    let date = Local.ymd(2007, 6, 28);
+    let event_line = event_line(None, &event, date).unwrap();
+    assert_eq!("             Festival International de Jazz de Montreal".to_string(), event_line)
   }
 }
