@@ -176,15 +176,11 @@ fn default_input() -> Option<Box<dyn Iterator<Item = String>>> {
 
 #[cfg(test)]
 mod tests {
-  extern crate tempfile;
-  extern crate walkdir;
+  extern crate assert_fs;
+  extern crate predicates;
 
-  use std::env;
-  use std::fs;
-  use std::path::PathBuf;
-  use self::tempfile::{tempdir,TempDir};
-  use std::path::Path;
-  use self::walkdir::WalkDir;
+  use self::assert_fs::TempDir;
+  use self::assert_fs::prelude::*;
 
   use super::*;
 
@@ -192,29 +188,11 @@ mod tests {
       [env!("CARGO_MANIFEST_DIR"), "testdata", artifact].iter().collect()
   }
 
-  fn append_path(base: &Path, path: impl AsRef<Path>) -> PathBuf {
-      let mut result = PathBuf::from(base);
-      result.push(path);
-      result
-  }
-
   fn prepare_testdir() -> TempDir {
-      let testdir = tempdir().unwrap();
-      let testdir_khaleesi = append_path(testdir.path(), ".khaleesi");
-      let testdir_cal = append_path(testdir.path(), ".khaleesi/cal");
+      let testdir = TempDir::new().unwrap();
+      let testdir_cal = testdir.child(".khaleesi/cal");
 
-      println!("preparing test dir: {:?}", testdir.path());
-      fs::create_dir(testdir_khaleesi).unwrap();
-      fs::create_dir(testdir_cal.clone()).unwrap();
-
-      for direntry in WalkDir::new(path_to("cal")).into_iter() {
-          if let Ok(file) = direntry {
-              if file.file_type().is_file() {
-                  println!("copying {:?}", file.path());
-                  fs::copy(file.path(), append_path(&testdir_cal, file.file_name())).unwrap();
-              }
-          }
-      }
+      testdir_cal.copy_from(path_to("cal"), &["*"]).unwrap();
 
       testdir
   }
@@ -227,23 +205,14 @@ mod tests {
       main_internal("khaleesi", &args, config);
   }
 
-  fn list_files(path: &Path) -> Vec<String> {
-    let mut list: Vec<String> = fs::read_dir(path).unwrap()
-      .into_iter()
-      .flatten()
-      .map(|x| x.path().file_name().unwrap().to_string_lossy().into_owned())
-      .collect();
-    list.sort();
-    list
-  }
-
   #[test]
   fn test_index() {
       let testdir = prepare_testdir();
+
       run(&testdir, &["index"], None);
 
-      let index_files = list_files(&append_path(testdir.path(), ".khaleesi/index"));
-      assert_eq!(vec!("2018-W50".to_string(), "2018-W51".to_string()), index_files);
+      testdir.child(".khaleesi/index/2018-W50").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
+      testdir.child(".khaleesi/index/2018-W51").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
   }
 
 }
