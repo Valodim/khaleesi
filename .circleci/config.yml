@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  cargo_fetch:
+  test:
     docker:
       - image: puzzlewolf/rust-libical3:0.2
     working_directory: /mnt/crate
@@ -21,17 +21,6 @@ jobs:
           paths:
             - ~/.cargo/registry
             - ~/.cargo/git
-  test:
-    docker:
-      - image: puzzlewolf/rust-libical3:0.2
-    working_directory: /mnt/crate
-    steps:
-      - checkout
-      - attach_workspace:
-          at: "."
-      - restore_cache:
-          keys:
-            - cargo-v2-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Print version information
           command: rustc --version; cargo --version
@@ -62,9 +51,9 @@ jobs:
           at: "."
       - run: mkdir target/coverage
       - run:
-          name: Rerun the tests collecting coverage
+          name: Run coverage for unit tests
           command: |
-            for file in ./target/debug/*; do
+            for file in ./target/debug/khaleesi-*; do
               if test -x $file; then
                 echo "Running coverage for: $file"
                 kcov --verify --include-path $(pwd) --exclude-pattern=tests \
@@ -72,41 +61,29 @@ jobs:
                   $file --quiet
               fi
             done
-            kcov --merge target/coverage-merged target/coverage/*
-      - store_artifacts:
-          path: target/coverage
-          destination: coverage
-      - store_artifacts:
-          path: target/coverage-merged
-          destination: coverage-merged
-      - persist_to_workspace:
-          root: "."
-          paths:
-            - target/coverage
-  codecov_upload:
-    docker:
-      - image: buildpack-deps:curl
-    working_directory: /mnt/crate
-    steps:
-      - checkout
-      - attach_workspace:
-          at: "."
       - run:
           name: Upload to Codecov
-          command: bash <(curl -s https://codecov.io/bash)
+          command: bash <(curl -s https://codecov.io/bash) -c -F unittests
+      - run:
+          name: Run coverage for integration tests
+          command: |
+            for file in ./target/debug/integration-*; do
+              if test -x $file; then
+                echo "Running coverage for: $file"
+                kcov --verify --include-path $(pwd) --exclude-pattern=tests \
+                    target/coverage/$(basename $file) \
+                  $file --quiet
+              fi
+            done
+      - run:
+          name: Upload to Codecov
+          command: bash <(curl -s https://codecov.io/bash) -c -F integration
 
 workflows:
   version: 2
   test_all_and_coverage:
     jobs:
-      - cargo_fetch
-      - test:
-          requires:
-            - cargo_fetch
-      # TODO fix kcov SIGILL, see https://circleci.com/gh/Valodim/khaleesi/30
+      - test
       - coverage:
           requires:
             - test
-      - codecov_upload:
-          requires:
-            - coverage
