@@ -40,24 +40,28 @@ fn main() {
   let args: Vec<String> = env::args().collect();
   let config = Config::read_config();
 
-  if args.len() == 1 {
-    print_usage(&args[0])
+  main_internal(&args[0], &args[1..], config);
+}
+
+fn main_internal(binary_name: &str, args: &[String], config: Config) {
+  if args.len() == 0 {
+    print_usage(&binary_name)
   } else {
-    match args[1].as_str() {
-      "agenda" => action_agenda(&config, &args[2..]),
+    match args[0].as_str() {
+      "agenda" => action_agenda(&config, &args[1..]),
       "cal" => cal::printcal(),
-      "copy" => action_copy(&args[2..]),
-      "new" => action_new(&args[2..]),
+      "copy" => action_copy(&args[1..]),
+      "new" => action_new(&args[1..]),
       "dbg" => cal::dbg(),
-      "edit" => action_edit(&args[2..]),
-      "index" => action_index(&args[2..]),
-      "list" => action_list(&args[2..]),
-      "select" => action_select(&args[2..]),
-      "seq" => action_sequence(&args[2..]),
-      "short" => action_prettyprint_all(&args[2..]),
-      "show" => action_show(&args[2..]),
-      "sort" => action_sort(&args[2..]),
-      "unroll" => action_unroll(&args[2..]),
+      "edit" => action_edit(&args[1..]),
+      "index" => action_index(&args[1..]),
+      "list" => action_list(&args[1..]),
+      "select" => action_select(&args[1..]),
+      "seq" => action_sequence(&args[1..]),
+      "short" => action_prettyprint_all(&args[1..]),
+      "show" => action_show(&args[1..]),
+      "sort" => action_sort(&args[1..]),
+      "unroll" => action_unroll(&args[1..]),
       _  => print_usage(&args[0])
     }
   }
@@ -168,4 +172,78 @@ fn default_input() -> Option<Box<dyn Iterator<Item = String>>> {
     }
 
   }
+}
+
+#[cfg(test)]
+mod tests {
+  extern crate tempfile;
+  extern crate walkdir;
+
+  use std::env;
+  use std::fs;
+  use std::path::PathBuf;
+  use self::tempfile::{tempdir,TempDir};
+  use std::path::Path;
+  use self::walkdir::WalkDir;
+
+  use super::*;
+
+  fn path_to(artifact: &str) -> PathBuf {
+      [env!("CARGO_MANIFEST_DIR"), "testdata", artifact].iter().collect()
+  }
+
+  fn append_path(base: &Path, path: impl AsRef<Path>) -> PathBuf {
+      let mut result = PathBuf::from(base);
+      result.push(path);
+      result
+  }
+
+  fn prepare_testdir() -> TempDir {
+      let testdir = tempdir().unwrap();
+      let testdir_khaleesi = append_path(testdir.path(), ".khaleesi");
+      let testdir_cal = append_path(testdir.path(), ".khaleesi/cal");
+
+      println!("preparing test dir: {:?}", testdir.path());
+      fs::create_dir(testdir_khaleesi).unwrap();
+      fs::create_dir(testdir_cal.clone()).unwrap();
+
+      for direntry in WalkDir::new(path_to("cal")).into_iter() {
+          if let Ok(file) = direntry {
+              if file.file_type().is_file() {
+                  println!("copying {:?}", file.path());
+                  fs::copy(file.path(), append_path(&testdir_cal, file.file_name())).unwrap();
+              }
+          }
+      }
+
+      testdir
+  }
+
+  fn run(testdir: &TempDir, args: &[&str], config: Option<Config>) {
+      env::set_current_dir(testdir).unwrap();
+
+      let config = config.unwrap_or_default();
+      let args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
+      main_internal("khaleesi", &args, config);
+  }
+
+  fn list_files(path: &Path) -> Vec<String> {
+    let mut list: Vec<String> = fs::read_dir(path).unwrap()
+      .into_iter()
+      .flatten()
+      .map(|x| x.path().file_name().unwrap().to_string_lossy().into_owned())
+      .collect();
+    list.sort();
+    list
+  }
+
+  #[test]
+  fn test_index() {
+      let testdir = prepare_testdir();
+      run(&testdir, &["index"], None);
+
+      let index_files = list_files(&append_path(testdir.path(), ".khaleesi/index"));
+      assert_eq!(vec!("2018-W50".to_string(), "2018-W51".to_string()), index_files);
+  }
+
 }
