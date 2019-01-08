@@ -119,6 +119,7 @@ pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Utc>> {
 }
 
 pub fn format_duration(duration: &time::Duration) -> impl Display {
+  //TODO replace this with duration.as_millis() when it becomes stable
   duration.as_secs() * 1000 + u64::from(duration.subsec_millis())
 }
 
@@ -139,4 +140,18 @@ pub fn make_new_uid() -> String {
 
   let suffix = "@khaleesi";
   format!("{}{}", Uuid::new_v4().to_hyphenated_ref(), suffix)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use testdata;
+  //use chrono::{Local, TimeZone};
+
+  #[test]
+  fn make_new_uid_test() {
+    let mut uid = make_new_uid();
+    assert_eq!(45, uid.len());
+    assert_eq!("@khaleesi".to_string(), uid.split_off(36));
+  }
 }
