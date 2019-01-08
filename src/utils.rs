@@ -8,16 +8,16 @@ use std::{fs, io, time};
 use icalwrap::IcalVCalendar;
 
 pub fn joinlines(first: &str, second: &str) -> String {
-    use itertools::Itertools;
+  use itertools::Itertools;
 
-    let first = first.split(|x| x == '\n');
-    let second = second.split(|x| x == '\n');
-    let maxlen = first.clone().map(|x| x.len()).max().unwrap();
+  let first = first.split(|x| x == '\n');
+  let second = second.split(|x| x == '\n');
+  let maxlen = first.clone().map(|x| x.len()).max().unwrap();
 
-    first
-        .zip(second)
-        .map(|(fst, snd)| format!("{:width$} {}", fst, snd, width = maxlen))
-        .join("\n")
+  first
+    .zip(second)
+    .map(|(fst, snd)| format!("{:width$} {}", fst, snd, width = maxlen))
+    .join("\n")
 }
 
 pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
@@ -146,12 +146,23 @@ pub fn make_new_uid() -> String {
 mod tests {
   use super::*;
   use testdata;
-  //use chrono::{Local, TimeZone};
 
   #[test]
   fn make_new_uid_test() {
     let mut uid = make_new_uid();
     assert_eq!(45, uid.len());
     assert_eq!("@khaleesi".to_string(), uid.split_off(36));
+  }
+
+  #[test]
+  fn joinlines_test() {
+    let first = ["123", "ß", "1234"].join("\n");
+    let second = ["abc", "1", "Otto"].join("\n");
+    let expected = indoc!("
+      123  abc
+      ß    1
+      1234 Otto");
+    assert_eq!(expected, joinlines(first.as_str(), second.as_str()));
+    //pub fn joinlines(first: &str, second: &str) -> String {
   }
 }
