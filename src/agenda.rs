@@ -174,6 +174,7 @@ mod tests {
   }
 
   #[test]
+  #[ignore]
   fn test_event_line_simple() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
