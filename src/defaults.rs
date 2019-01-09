@@ -4,6 +4,7 @@ pub static DATADIR: &str = ".khaleesi";
 pub static INDEXDIR: &str = "index";
 pub static SEQFILE: &str  = "seq";
 pub static CALDIR: &str  = "cal";
+pub static BACKUPDIR: &str  = "backup";
 
 pub fn get_datafile(filename: &str) -> PathBuf {
   [DATADIR, filename].iter().collect()
@@ -19,6 +20,10 @@ pub fn get_configfile() -> PathBuf {
 
 pub fn get_indexdir() -> PathBuf {
   [DATADIR, INDEXDIR].iter().collect()
+}
+
+pub fn get_backupdir() -> PathBuf {
+  [DATADIR, BACKUPDIR].iter().collect()
 }
 
 pub fn get_indexfile(key: &str) -> PathBuf {

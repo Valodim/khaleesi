@@ -70,7 +70,13 @@ impl IcalVCalendar {
         return Err("could not read component".to_string());
       }
 
-      IcalVCalendar::check_icalcomponent(parsed_cal)?;
+      if let Err(error) = IcalVCalendar::check_icalcomponent(parsed_cal) {
+        let path_string = match path.as_ref() {
+          Some(foo) => format!("{}", foo.display()),
+          None => "".to_string()
+        };
+        warn!("{}: {}", path_string, error);
+      }
 
       let kind = ical::icalcomponent_isa(parsed_cal);
       if kind != ical::icalcomponent_kind_ICAL_VCALENDAR_COMPONENT {
