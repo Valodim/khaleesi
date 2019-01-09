@@ -45,7 +45,7 @@ fn main() {
 }
 
 fn main_internal(binary_name: &str, args: &[String], config: Config) {
-  if args.len() == 0 {
+  if args.is_empty() {
     print_usage(&binary_name)
   } else {
     match args[0].as_str() {
