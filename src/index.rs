@@ -7,10 +7,12 @@ use walkdir::DirEntry;
 
 use defaults::*;
 use utils::lock;
-use utils::fileutil;
+//use utils::fileutil;
 use chrono::prelude::*;
 
 use indextime;
+use utils::fileutil;
+use utils::misc;
 
 fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &IcalVCalendar) {
   use bucketable::Bucketable;
@@ -70,7 +72,7 @@ pub fn index_dir(dir: &Path, reindex: bool) {
   }
 
   write_index(&indexdir, &buckets);
-  info!("Index written in {}ms", fileutil::format_duration(&now.elapsed()));
+  info!("Index written in {}ms", misc::format_duration(&now.elapsed()));
 
   indextime::write_index_time(&start_time);
 }

@@ -1,5 +1,4 @@
-use chrono::*;
-use std::fmt::Display;
+use super::misc;
 use std::io::prelude::*;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
@@ -7,19 +6,6 @@ use std::{fs, io, time};
 use std::fs::OpenOptions;
 
 use icalwrap::IcalVCalendar;
-
-pub fn joinlines(first: &str, second: &str) -> String {
-  use itertools::Itertools;
-
-  let first = first.split(|x| x == '\n');
-  let second = second.split(|x| x == '\n');
-  let maxlen = first.clone().map(|x| x.len()).max().unwrap();
-
-  first
-    .zip(second)
-    .map(|(fst, snd)| format!("{:width$} {}", fst, snd, width = maxlen))
-    .join("\n")
-}
 
 pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
   use walkdir::WalkDir;
@@ -109,7 +95,7 @@ pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<
 
 pub fn read_khaleesi_line(kline: &str) -> Result<IcalVCalendar, String> {
   let parts: Vec<&str> = kline.splitn(2, ' ').collect();
-  if let Some(timestamp) = datetime_from_timestamp(parts[0]) {
+  if let Some(timestamp) = misc::datetime_from_timestamp(parts[0]) {
     let path = Path::new(parts[1]);
     let calendar = read_calendar_from_path(path)?;
     let calendar = calendar.with_internal_timestamp(timestamp);
@@ -119,21 +105,6 @@ pub fn read_khaleesi_line(kline: &str) -> Result<IcalVCalendar, String> {
     let calendar = read_calendar_from_path(path)?;
     Ok(calendar)
   }
-}
-
-pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Utc>> {
-  let timestamp_i64 = timestamp.parse::<i64>().ok()?;
-  let naive_datetime = NaiveDateTime::from_timestamp_opt(timestamp_i64, 0)?;
-  Some(DateTime::from_utc(naive_datetime, Utc))
-}
-
-pub fn format_duration(duration: &time::Duration) -> impl Display {
-  //TODO replace this with duration.as_millis() when it becomes stable
-  duration.as_secs() * 1000 + u64::from(duration.subsec_millis())
-}
-
-pub fn get_bucket_for_date(date: Date<Local>) -> String {
-  date.format("%G-W%V").to_string()
 }
 
 pub fn print_cals(cals: impl Iterator<Item = IcalVCalendar>) {

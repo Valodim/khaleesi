@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::{hash, cmp};
 
 use icalwrap::{IcalVEvent, IcalVCalendar};
-use utils::fileutil as utils;
+use utils::misc;
 
 pub trait Bucketable {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String>;
@@ -12,7 +12,7 @@ pub trait Bucketable {
     let mut buckets = Vec::new();
 
     while start.iso_week() <= end.iso_week() {
-      let bucket = utils::get_bucket_for_date(start);
+      let bucket = misc::get_bucket_for_date(start);
       buckets.push(bucket);
       start = start.checked_add_signed(Duration::days(7)).unwrap();
     }

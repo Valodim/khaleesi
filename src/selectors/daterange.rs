@@ -5,6 +5,7 @@ use std::str::FromStr;
 use super::*;
 
 use utils::dateutil;
+use utils::misc;
 
 pub struct SelectFilterFrom {
   pub date: Option<Date<Local>>,
@@ -22,7 +23,7 @@ impl SelectFilterFrom {
   }
 
   fn from_date(date: Option<Date<Local>>) -> Self {
-    Self { date, bucket: date.map(utils::get_bucket_for_date)  }
+    Self { date, bucket: date.map(misc::get_bucket_for_date)  }
   }
 
   pub fn combine_with(self, other: &Self) -> Self {
@@ -41,7 +42,7 @@ impl SelectFilterTo {
   }
 
   fn from_date(date: Option<Date<Local>>) -> Self {
-    Self { date, bucket: date.map(utils::get_bucket_for_date)  }
+    Self { date, bucket: date.map(misc::get_bucket_for_date)  }
   }
 
   pub fn combine_with(self, other: &Self) -> Self {

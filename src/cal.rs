@@ -2,7 +2,7 @@ use chrono::Duration;
 use chrono::prelude::*;
 use yansi::{Style,Color};
 
-use utils::fileutil as utils;
+use utils::misc;
 
 struct Cell {
     date: NaiveDate,
@@ -15,8 +15,8 @@ pub fn printcal() {
     let b = cal_month(now.with_month(now.month() + 1).unwrap());
     let c = cal_month(now.with_month(now.month() + 2).unwrap());
 
-    let joined = utils::joinlines(&a, &b);
-    let joined = utils::joinlines(&joined, &c);
+    let joined = misc::joinlines(&a, &b);
+    let joined = misc::joinlines(&joined, &c);
     println!("{}", joined);
 }
 
