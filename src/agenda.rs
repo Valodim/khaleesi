@@ -165,7 +165,7 @@ mod tests {
 
   #[test]
   fn test_continues_after_allday() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
     let event = cal.get_principal_event();
     let first_day = Local.ymd(2007, 6, 28);
     assert!(event.continues_after(first_day));
@@ -201,8 +201,8 @@ mod tests {
   }
 
   #[test]
-  fn test_event_line_multiday() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+  fn test_event_line_multiday_allday() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
     let event = cal.get_principal_event();
     let date = Local.ymd(2007, 6, 28);
     let event_line = event_line(None, &event, date).unwrap();

@@ -105,7 +105,7 @@ fn buckets_multi_day_allday() {
   use std::path::PathBuf;
 
   let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, path).unwrap();
 
   let event_buckets = cal.get_principal_event().get_buckets().unwrap();
 

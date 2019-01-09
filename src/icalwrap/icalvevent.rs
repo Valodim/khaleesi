@@ -237,7 +237,7 @@ mod tests {
 
   #[test]
   fn test_get_property_get_value() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
     let event = cal.get_principal_event();
     let prop = event.get_properties_by_name("DTSTART");
 
@@ -249,7 +249,7 @@ mod tests {
 
   #[test]
   fn test_get_property_debug() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
     let event = cal.get_principal_event();
     let prop = event.get_properties_by_name("DTSTART");
 
