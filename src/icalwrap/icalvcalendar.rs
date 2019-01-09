@@ -130,29 +130,33 @@ impl IcalVCalendar {
     self
   }
 
-  pub fn with_remove_property(self, property_name: &str) -> Self {
+  pub fn with_remove_property(self, property_name: &str) -> (Self, usize) {
     let property_kind = unsafe {
       let c_str = CString::new(property_name).unwrap();
       ical::icalproperty_string_to_kind(c_str.as_ptr())
     };
-    unsafe {
-      IcalVCalendar::remove_property(self.get_ptr(), property_kind);
-    }
-    self
+
+    let count = unsafe {
+      IcalVCalendar::remove_property(self.get_ptr(), property_kind)
+    };
+    (self, count)
   }
 
-  unsafe fn remove_property(comp: *mut ical::icalcomponent, kind: ical::icalproperty_kind) {
+  unsafe fn remove_property(comp: *mut ical::icalcomponent, kind: ical::icalproperty_kind) -> usize {
     //let kind = ical::icalproperty_kind_ICAL_ANY_PROPERTY;
+    let mut count = 0;
     let mut prop = ical::icalcomponent_get_first_property(comp, kind);
     while !prop.is_null() {
       ical::icalcomponent_remove_property(comp, prop);
+      count += 1;
       prop = ical::icalcomponent_get_current_property(comp);
     }
     let mut inner_comp = ical::icalcomponent_get_first_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
     while !inner_comp.is_null() {
-      IcalVCalendar::remove_property(inner_comp, kind);
+      count += IcalVCalendar::remove_property(inner_comp, kind);
       inner_comp = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
     }
+    count
   }
 
   pub fn with_keep_uid(self, uid_to_keep: &str) -> Self {
