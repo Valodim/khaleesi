@@ -25,6 +25,10 @@ pub fn get_indexfile(key: &str) -> PathBuf {
   [DATADIR, INDEXDIR, key].iter().collect()
 }
 
+pub fn get_indexlockfile() -> PathBuf {
+  [DATADIR, "index-lock"].iter().collect()
+}
+
 pub fn get_caldir() -> PathBuf {
   [DATADIR, CALDIR].iter().collect()
 }

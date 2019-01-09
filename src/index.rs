@@ -2,6 +2,7 @@ use icalwrap::*;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path,PathBuf};
+use lock;
 
 use defaults::*;
 use utils;
@@ -21,6 +22,8 @@ fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &Ic
 pub fn index_dir(dir: &Path) {
   use std::time::Instant;
 
+  let _lock = lock::lock_file_exclusive(&get_indexlockfile());
+
   info!("Recursively indexing '.ics' files in directory: {}", dir.to_string_lossy());
   if !dir.exists() {
     error!("Directory doesn't exist: {}", dir.to_string_lossy());
@@ -39,7 +42,6 @@ pub fn index_dir(dir: &Path) {
     },
     Err(error) => error!("{}", error),
   }
-
 }
 
 fn get_ics_files(dir: &Path) -> impl Iterator<Item = PathBuf> {

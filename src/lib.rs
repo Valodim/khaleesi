@@ -10,6 +10,7 @@ pub mod edit;
 pub mod icalwrap;
 pub mod index;
 pub mod list;
+pub mod lock;
 pub mod new;
 pub mod prettyprint;
 pub mod select;
@@ -22,8 +23,11 @@ pub mod utils;
 
 #[cfg(test)]
 pub mod testdata;
+#[cfg(test)]
+extern crate tempfile;
 
 extern crate chrono;
+extern crate fs2;
 extern crate itertools;
 extern crate libc;
 extern crate libical_sys as ical;
@@ -41,4 +45,3 @@ extern crate log;
 
 #[macro_use]
 extern crate indoc;
-
