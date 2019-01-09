@@ -149,7 +149,6 @@ mod tests {
   use super::*;
   use testdata;
   use chrono::{Local, TimeZone};
-  use std::env;
 
   #[test]
   fn test_starts_on() {
@@ -192,7 +191,7 @@ mod tests {
 
   #[test]
   fn test_event_line_simple() {
-    env::set_var("TZ", "UTC");
+    testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
     let date = Local.ymd(1997, 3, 24);
@@ -202,7 +201,7 @@ mod tests {
 
   #[test]
   fn test_event_line_multiday() {
-    env::set_var("TZ", "UTC");
+    testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
     let begin = Local.ymd(2007, 6, 28);

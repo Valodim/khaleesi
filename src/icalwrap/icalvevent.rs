@@ -217,6 +217,7 @@ mod tests {
 
   #[test]
   fn recur_iterator_test() {
+    testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let event = cal.get_principal_event();
     assert_eq!(Local.ymd(2018, 10, 11), event.get_dtstart_date().unwrap());

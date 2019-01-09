@@ -190,6 +190,20 @@ pub static TEST_BARE_EVENT: &str = indoc!("
     END:VEVENT
 ");
 
+
+#[cfg(test)]
+use std::sync::{Once, ONCE_INIT};
+#[cfg(test)]
+static INIT: Once = ONCE_INIT;
+/// Setup function that is only run once, even if called multiple times.
+#[cfg(test)]
+pub fn setup() {
+  use std::env;
+  INIT.call_once(|| {
+    env::set_var("TZ", "UTC");
+  });
+}
+
 #[cfg(test)]
 use icalwrap::{IcalVCalendar,IcalVEvent};
 #[cfg(test)]
