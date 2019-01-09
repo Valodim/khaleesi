@@ -185,30 +185,30 @@ mod tests {
   use super::*;
 
   fn path_to(artifact: &str) -> PathBuf {
-      [env!("CARGO_MANIFEST_DIR"), "testdata", artifact].iter().collect()
+    [env!("CARGO_MANIFEST_DIR"), "testdata", artifact].iter().collect()
   }
 
   fn prepare_testdir(template: &str) -> TempDir {
-      let testdir = TempDir::new().unwrap();
-      testdir.child(".khaleesi/").copy_from(path_to(template), &["*"]).unwrap();
-      testdir
+    let testdir = TempDir::new().unwrap();
+    testdir.child(".khaleesi/").copy_from(path_to(template), &["*"]).unwrap();
+    testdir
   }
 
   fn run(testdir: &TempDir, args: &[&str], config: Option<Config>) {
-      env::set_current_dir(testdir).unwrap();
+    env::set_current_dir(testdir).unwrap();
 
-      let config = config.unwrap_or_default();
-      let args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
-      main_internal("khaleesi", &args, config)
+    let config = config.unwrap_or_default();
+    let args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
+    main_internal("khaleesi", &args, config)
   }
 
   #[test]
   fn test_index() {
-      let testdir = prepare_testdir("testdir");
+    let testdir = prepare_testdir("testdir");
 
-      run(&testdir, &["index"], None);
+    run(&testdir, &["index"], None);
 
-      testdir.child(".khaleesi/index/2018-W50").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
-      testdir.child(".khaleesi/index/2018-W51").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
+    testdir.child(".khaleesi/index/2018-W50").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
+    testdir.child(".khaleesi/index/2018-W51").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
   }
 }
