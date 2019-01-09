@@ -145,7 +145,6 @@ pub fn make_new_uid() -> String {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use testdata;
 
   #[test]
   fn make_new_uid_test() {
@@ -163,6 +162,5 @@ mod tests {
       ß    1
       1234 Otto");
     assert_eq!(expected, joinlines(first.as_str(), second.as_str()));
-    //pub fn joinlines(first: &str, second: &str) -> String {
   }
 }
