@@ -149,10 +149,10 @@ impl IcalVEvent {
   pub fn get_summary(&self) -> Option<String> {
     unsafe {
       let ptr = ical::icalcomponent_get_summary(self.ptr);
-      if ! ptr.is_null() {
-          Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
+      if !ptr.is_null() {
+        Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
       } else {
-          None
+        None
       }
     }
   }
@@ -221,7 +221,7 @@ mod tests {
     let event = cal.get_principal_event();
     assert_eq!(Local.ymd(2018, 10, 11), event.get_dtstart_date().unwrap());
     assert_eq!(Local.ymd(2018, 10, 13), event.get_dtend_date().unwrap());
-    assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).as_ical_string());
+    assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).unwrap().as_ical_string());
     assert_eq!(10, event.get_recur_datetimes().len());
     assert_eq!(10, event.get_recur_instances().count());
   }

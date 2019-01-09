@@ -7,10 +7,14 @@ pub trait IcalComponent {
   fn get_ptr(&self) -> *mut ical::icalcomponent;
   fn as_component(&self) -> &dyn IcalComponent;
 
-  fn get_property(&self, property_kind: ical::icalproperty_kind) -> IcalProperty<'_> {
-    unsafe {
-      let property = ical::icalcomponent_get_first_property(self.get_ptr(), property_kind);
-      IcalProperty::from_ptr(property, self.as_component())
+  fn get_property(&self, property_kind: ical::icalproperty_kind) -> Option<IcalProperty<'_>> {
+    let property  = unsafe {
+      ical::icalcomponent_get_first_property(self.get_ptr(), property_kind)
+    };
+    if !property.is_null() {
+      Some(IcalProperty::from_ptr(property, self.as_component()))
+    } else {
+      None
     }
   }
 
@@ -37,6 +41,14 @@ pub trait IcalComponent {
       ical::icalproperty_string_to_kind(c_str.as_ptr())
     };
     self.get_properties(property_kind)
+  }
+
+  fn get_property_by_name(&self, property_name: &str) -> Option<IcalProperty> {
+    let property_kind = unsafe {
+      let c_str = CString::new(property_name).unwrap();
+      ical::icalproperty_string_to_kind(c_str.as_ptr())
+    };
+    self.get_property(property_kind)
   }
 }
 
