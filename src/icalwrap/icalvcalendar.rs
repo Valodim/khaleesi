@@ -225,10 +225,10 @@ impl IcalVCalendar {
       let mut output: Vec<String> = Vec::new();
       output.append(&mut IcalVCalendar::get_errors(comp));
 
-      let mut event = ical::icalcomponent_get_first_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
-      while !event.is_null() {
-        output.append(&mut IcalVCalendar::get_errors(event));
-        event = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
+      let mut inner_comp = ical::icalcomponent_get_first_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
+      while !inner_comp.is_null() {
+        output.append(&mut IcalVCalendar::get_errors(inner_comp));
+        inner_comp = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
       }
 
       Err(format!("calendar contains errors: {}", output.join(" ")))
