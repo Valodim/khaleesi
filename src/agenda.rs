@@ -87,6 +87,10 @@ fn print_event_line(config: Option<&CalendarConfig>, index: usize, event: &IcalV
 }
 
 pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: Date<Local>) -> Result<String, String> {
+  if !event.relevant_on(cur_day) {
+    return Err(format!("event is not relevant for {:?}", cur_day));
+  }
+
   if event.is_allday() {
     let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
     if let Some(config) = config {
@@ -128,6 +132,11 @@ impl IcalVEvent {
     self.get_dtstart().unwrap().date() == date
   }
 
+  fn relevant_on(&self, date: Date<Local>) -> bool {
+    self.get_dtstart().map(|dtstart| dtstart.date() <= date).unwrap_or(false) &&
+    self.get_last_relevant_date().map(|enddate| enddate >= date).unwrap_or(false)
+  }
+
   fn get_dtend_for_event_line(&self)  -> Option<DateTime<Local>> {
     if cfg!(test) {
       Some(self.get_dtend()?.date().and_hms(22, 29, 0))
@@ -145,11 +154,9 @@ impl IcalVEvent {
   }
 
   fn continues_after(&self, date: Date<Local>) -> bool {
-    if self.is_allday() {
-      self.get_dtend().map( |dtend| dtend.date().pred() > date)
-    } else {
-      self.get_dtend().map( |dtend| dtend.date() > date)
-    }.unwrap_or(false)
+    self.get_last_relevant_date()
+      .map(|enddate| enddate > date)
+      .unwrap_or(false)
   }
 }
 

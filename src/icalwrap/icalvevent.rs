@@ -93,6 +93,14 @@ impl IcalVEvent {
     Some(self.get_dtend()?.date())
   }
 
+  pub fn get_last_relevant_date(&self) -> Option<Date<Local>> {
+    if self.is_allday() {
+      self.get_dtend().map( |dtend| dtend.date().pred())
+    } else {
+      self.get_dtend().map( |dtend| dtend.date())
+    }
+  }
+
   pub fn has_recur(&self) -> bool {
     !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
     & self.instance_timestamp.is_none()
