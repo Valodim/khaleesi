@@ -9,14 +9,14 @@ pub struct FileLock {
 
 impl Drop for FileLock {
   fn drop(&mut self) {
-    debug!("Dropping lock on {}", self.path.to_string_lossy());
+    debug!("Dropping lock on file {}", self.path.to_string_lossy());
 
     self.lockfile.unlock().unwrap();
   }
 }
 
 pub fn lock_file_exclusive(path: &Path) -> Result<FileLock ,()> {
-  debug!("Locking index ({})", path.to_string_lossy());
+  debug!("Locking on file ({})", path.to_string_lossy());
 
   let lockfile = fs::File::create(path).unwrap();
   lockfile.try_lock_exclusive().map_err(|_| ())?;

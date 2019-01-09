@@ -22,7 +22,11 @@ fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &Ic
 pub fn index_dir(dir: &Path) {
   use std::time::Instant;
 
-  let _lock = lock::lock_file_exclusive(&get_indexlockfile());
+  let lock = lock::lock_file_exclusive(&get_indexlockfile());
+  if lock.is_err() {
+    error!("Failed to obtain index lock!");
+    return;
+  }
 
   info!("Recursively indexing '.ics' files in directory: {}", dir.to_string_lossy());
   if !dir.exists() {
