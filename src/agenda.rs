@@ -201,6 +201,21 @@ mod tests {
   }
 
   #[test]
+  fn test_event_line_multiday() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+    let begin = Local.ymd(2007, 6, 28);
+    let middle = Local.ymd(2007, 6, 30);
+    let end = Local.ymd(2007, 7, 9);
+    let event_line_begin = event_line(None, &event, begin).unwrap();
+    let event_line_middle = event_line(None, &event, middle).unwrap();
+    let event_line_end = event_line(None, &event, end).unwrap();
+    assert_eq!("07:29-       Festival International de Jazz de Montreal".to_string(), event_line_begin);
+    assert_eq!("             Festival International de Jazz de Montreal".to_string(), event_line_middle);
+    assert_eq!("     -22:29  Festival International de Jazz de Montreal".to_string(), event_line_end);
+  }
+
+  #[test]
   fn test_event_line_multiday_allday() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
     let event = cal.get_principal_event();
