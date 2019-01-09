@@ -11,6 +11,7 @@ pub mod icalwrap;
 pub mod index;
 pub mod list;
 pub mod lock;
+pub mod modify;
 pub mod new;
 pub mod prettyprint;
 pub mod select;

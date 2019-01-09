@@ -13,6 +13,7 @@ use khaleesi::defaults::*;
 use khaleesi::edit;
 use khaleesi::index;
 use khaleesi::list;
+use khaleesi::modify;
 use khaleesi::new;
 use khaleesi::prettyprint;
 use khaleesi::select;
@@ -56,6 +57,7 @@ fn main_internal(binary_name: &str, args: &[String], config: Config) {
       "edit" => action_edit(&args[1..]),
       "index" => action_index(&args[1..]),
       "list" => action_list(&args[1..]),
+      "modify" => action_modify(&args[1..]),
       "select" => action_select(&args[1..]),
       "seq" => action_sequence(&args[1..]),
       "short" => action_prettyprint_all(&args[1..]),
@@ -80,6 +82,12 @@ fn action_list(args: &[String]) {
   //lists from sequence file or stdin
   if let Some(mut input) = default_input() {
     list::list_by_args(&mut input, &args);
+  }
+}
+
+fn action_modify(args: &[String]) {
+  if let Some(mut input) = default_input() {
+    modify::do_modify(&mut input, &args);
   }
 }
 
