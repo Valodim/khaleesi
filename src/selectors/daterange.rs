@@ -5,7 +5,6 @@ use std::str::FromStr;
 use super::*;
 
 use utils::dateutil;
-use utils::misc;
 
 pub struct SelectFilterFrom {
   pub date: Option<Date<Local>>,
