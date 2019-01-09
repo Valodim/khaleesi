@@ -197,6 +197,15 @@ mod tests {
   }
 
   #[test]
+  fn test_event_line_negative() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    let event = cal.get_principal_event();
+    let date = Local.ymd(1998, 1, 1);
+    let event_line = event_line(None, &event, date);
+    assert!(event_line.is_err())
+  }
+
+  #[test]
   fn test_event_line_simple() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
