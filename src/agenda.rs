@@ -96,7 +96,7 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
     Ok(format!("             {}", summary))
   } else {
     let mut time_sep = " ";
-    let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?.with_timezone(&Local);
+    let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?;
     let start_string = if dtstart.date() != cur_day {
       "".to_string()
     } else {
@@ -104,7 +104,7 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
       format!("{}", dtstart.format("%H:%M"))
     };
 
-    let dtend = event.get_dtend().ok_or("Invalid DTEND")?.with_timezone(&Local);
+    let dtend = event.get_dtend().ok_or("Invalid DTEND")?;
     let end_string = if dtend.date() != cur_day {
       "".to_string()
     } else {
