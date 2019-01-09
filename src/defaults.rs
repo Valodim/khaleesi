@@ -34,6 +34,10 @@ pub fn get_indexlockfile() -> PathBuf {
   [DATADIR, "index-lock"].iter().collect()
 }
 
+pub fn get_indextimefile() -> PathBuf {
+  [DATADIR, "index-time"].iter().collect()
+}
+
 pub fn get_caldir() -> PathBuf {
   [DATADIR, CALDIR].iter().collect()
 }

@@ -7,6 +7,7 @@ pub mod defaults;
 pub mod edit;
 pub mod icalwrap;
 pub mod index;
+pub mod indextime;
 pub mod list;
 pub mod modify;
 pub mod new;
@@ -18,11 +19,15 @@ pub mod show;
 pub mod sort;
 pub mod unroll;
 pub mod utils;
+#[cfg(test)]
+pub mod testutils;
 
 #[cfg(test)]
 pub mod testdata;
 #[cfg(test)]
 extern crate tempfile;
+#[cfg(test)]
+extern crate assert_fs;
 
 extern crate chrono;
 extern crate fs2;

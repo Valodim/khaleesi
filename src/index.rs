@@ -2,10 +2,13 @@ use icalwrap::*;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path,PathBuf};
-use utils::lock;
 
 use defaults::*;
+use utils::lock;
 use utils::fileutil as utils;
+use chrono::prelude::*;
+
+use indextime;
 
 fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &IcalVCalendar) {
   use bucketable::Bucketable;
@@ -35,6 +38,7 @@ pub fn index_dir(dir: &Path) {
   }
 
   let now = Instant::now();
+  let start_time = Utc::now();
 
   let ics_files = get_ics_files(dir);
   let buckets = read_buckets(ics_files);
@@ -46,6 +50,8 @@ pub fn index_dir(dir: &Path) {
     },
     Err(error) => error!("{}", error),
   }
+
+  indextime::write_index_time(&start_time);
 }
 
 fn get_ics_files(dir: &Path) -> impl Iterator<Item = PathBuf> {

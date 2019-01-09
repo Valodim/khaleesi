@@ -187,8 +187,8 @@ mod tests {
   extern crate assert_fs;
   extern crate predicates;
 
-  use self::assert_fs::TempDir;
   use self::assert_fs::prelude::*;
+  use self::assert_fs::TempDir;
 
   use super::*;
 
