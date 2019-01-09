@@ -52,3 +52,42 @@ pub trait IcalComponent {
   }
 }
 
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use testdata;
+  use chrono::NaiveDate;
+  use icalwrap::IcalVEvent;
+  use icalwrap::IcalVCalendar;
+
+  #[test]
+  fn get_property_test() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+    let prop_name = "SUMMARY";
+    let prop_value: String = event.get_property_by_name(prop_name).unwrap().get_value();
+
+    assert_eq!("Festival International de Jazz de Montreal".to_string(), prop_value);
+  }
+
+  #[test]
+  fn get_property_test_negative() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+    let prop_name = "DESCRIPTION";
+    let prop = event.get_property_by_name(prop_name);
+
+    assert!(prop.is_none());
+  }
+
+  #[test]
+  fn get_property_by_name_test() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+    let prop_name = "NONSENSE";
+    let prop = event.get_property_by_name(prop_name);
+
+    assert!(prop.is_none());
+  }
+}
