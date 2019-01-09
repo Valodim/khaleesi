@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use utils;
+use utils::fileutil as utils;
 use icalwrap::IcalVEvent;
 
 use self::daterange::{SelectFilterFrom,SelectFilterTo};

@@ -2,10 +2,10 @@ use icalwrap::*;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path,PathBuf};
-use lock;
+use utils::lock;
 
 use defaults::*;
-use utils;
+use utils::fileutil as utils;
 
 fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &IcalVCalendar) {
   use bucketable::Bucketable;

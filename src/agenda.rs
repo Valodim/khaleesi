@@ -3,7 +3,7 @@ use itertools::Itertools;
 use yansi::{Style};
 
 use icalwrap::*;
-use utils;
+use utils::fileutil as utils;
 use config::{Config,CalendarConfig};
 
 pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {

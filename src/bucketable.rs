@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::{hash, cmp};
 
 use icalwrap::{IcalVEvent, IcalVCalendar};
-use utils;
+use utils::fileutil as utils;
 
 pub trait Bucketable {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String>;

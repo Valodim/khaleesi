@@ -2,7 +2,7 @@ use chrono::Duration;
 use chrono::prelude::*;
 use yansi::{Style,Color};
 
-use utils;
+use utils::fileutil as utils;
 
 struct Cell {
     date: NaiveDate,

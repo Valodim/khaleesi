@@ -4,7 +4,7 @@ use yansi::{self,Style,Color};
 
 use defaults;
 use icalwrap::IcalVCalendar;
-use utils;
+use utils::fileutil as utils;
 
 #[derive(Deserialize)]
 #[serde(default)]

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use defaults;
 use selectors::{SelectFilters,daterange::SelectFilterFrom,daterange::SelectFilterTo};
-use utils;
+use utils::fileutil as utils;
 
 impl SelectFilters {
   pub fn predicate_path_skip_while(&self) -> impl Fn(&PathBuf) -> bool + '_ {

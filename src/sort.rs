@@ -1,4 +1,4 @@
-use utils;
+use utils::fileutil as utils;
 
 pub fn sort_filenames_by_dtstart (files: &mut Iterator<Item = String>) {
   let mut cals = utils::read_calendars_from_files(files).unwrap();

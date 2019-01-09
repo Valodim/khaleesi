@@ -21,7 +21,7 @@ use khaleesi::seq;
 use khaleesi::show;
 use khaleesi::sort;
 use khaleesi::unroll;
-use khaleesi::utils;
+use khaleesi::utils::fileutil as utils;
 
 use std::env;
 use std::path::{Path,PathBuf};

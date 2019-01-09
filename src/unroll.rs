@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use utils;
+use utils::fileutil as utils;
 
 pub fn do_unroll(filepath: &Path) {
   let cal = utils::read_calendar_from_path(filepath).unwrap();   

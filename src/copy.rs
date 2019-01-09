@@ -1,4 +1,4 @@
-use utils;
+use utils::fileutil as utils;
 
 pub fn do_copy(lines: &mut Iterator<Item = String>, _args: &[String]) {
 

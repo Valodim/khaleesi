@@ -5,7 +5,7 @@ use std::fs::rename;
 use std::io;
 
 use defaults::*;
-use utils;
+use utils::fileutil as utils;
 
 pub fn do_seq(_args: &[String]) {
   if atty::isnt(atty::Stream::Stdin) {

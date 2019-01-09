@@ -1,4 +1,4 @@
-use utils;
+use utils::fileutil as utils;
 use icalwrap::IcalVCalendar;
 use defaults;
 

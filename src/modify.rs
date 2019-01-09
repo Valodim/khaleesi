@@ -1,5 +1,5 @@
 use std::path::Path;
-use utils;
+use utils::fileutil as utils;
 
 pub fn do_modify(lines: &mut Iterator<Item = String>, args: &[String]) {
   info!("do_modify");

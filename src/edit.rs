@@ -2,7 +2,7 @@ use std::env;
 use std::fs;
 use std::process::Command;
 
-use utils;
+use utils::fileutil as utils;
 
 pub fn do_edit(filenames: &mut Iterator<Item = String>, _args: &[String]) {
 

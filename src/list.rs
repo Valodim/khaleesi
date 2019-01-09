@@ -1,5 +1,5 @@
 use selectors::SelectFilters;
-use utils;
+use utils::fileutil as utils;
 
 pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   let filters = match SelectFilters::parse_from_args_with_range(args) {

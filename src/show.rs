@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use utils;
+use utils::fileutil as utils;
 
 pub fn do_show(filenames: &mut Iterator<Item = String>, _args: &[String]) {
   info!("do_show");

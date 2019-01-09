@@ -1,7 +1,7 @@
 use std::path::{Path};
 
 use icalwrap::{IcalComponent,IcalVCalendar,IcalProperty};
-use utils;
+use utils::fileutil as utils;
 
 pub fn shortprint_dir(dir: &Path) {
   for filepath in utils::file_iter(dir) {
