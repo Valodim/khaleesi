@@ -72,7 +72,7 @@ impl IcalVCalendar {
 
       if let Err(error) = IcalVCalendar::check_icalcomponent(parsed_cal) {
         let path_string = match path.as_ref() {
-          Some(foo) => format!("{}", foo.display()),
+          Some(path_ref) => format!("{}", path_ref.display()),
           None => "".to_string()
         };
         warn!("{}: {}", path_string, error);
