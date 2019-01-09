@@ -202,6 +202,7 @@ mod tests {
 
   #[test]
   fn test_event_line_multiday() {
+    env::set_var("TZ", "UTC");
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
     let begin = Local.ymd(2007, 6, 28);
@@ -210,9 +211,9 @@ mod tests {
     let event_line_begin = event_line(None, &event, begin).unwrap();
     let event_line_middle = event_line(None, &event, middle).unwrap();
     let event_line_end = event_line(None, &event, end).unwrap();
-    assert_eq!("07:29-       Festival International de Jazz de Montreal".to_string(), event_line_begin);
+    assert_eq!("13:29-       Festival International de Jazz de Montreal".to_string(), event_line_begin);
     assert_eq!("             Festival International de Jazz de Montreal".to_string(), event_line_middle);
-    assert_eq!("     -22:29  Festival International de Jazz de Montreal".to_string(), event_line_end);
+    assert_eq!("     -07:29  Festival International de Jazz de Montreal".to_string(), event_line_end);
   }
 
   #[test]
