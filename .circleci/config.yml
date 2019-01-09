@@ -53,32 +53,24 @@ jobs:
       - run:
           name: Run coverage for unit tests
           command: |
-            for file in ./target/debug/khaleesi-*; do
-              if test -x $file; then
-                echo "Running coverage for: $file"
+            # hack - order by size to assign flags (unit tests are smaller)
+            flags=( unit integration );
+            for file in $(ls --sort=size -r ./target/debug/khaleesi-*); do
+              if [[ -f "$file" && -x "$file" ]]; then
+                flag=${flags[0]};
+                flags=("${flags[@]:1}"); # shift array by 1
+                if [[ -z "$flag" ]]; then
+                  echo "Error, no flag left!";
+                  break;
+                fi
+                echo "Running coverage for: $file, flag $flag";
                 kcov --verify --include-path $(pwd) --exclude-pattern=tests \
                     target/coverage/$(basename $file) \
                   $file --quiet
+                # -c deletes coverage data after submission
+                bash <(curl -s https://codecov.io/bash) -c -F $flag;
               fi
             done
-      - run:
-          name: Upload to Codecov
-          command: bash <(curl -s https://codecov.io/bash) -c -F unittests
-      - run:
-          name: Run coverage for integration tests
-          command: |
-            for file in ./target/debug/integration-*; do
-              if test -x $file; then
-                echo "Running coverage for: $file"
-                kcov --verify --include-path $(pwd) --exclude-pattern=tests \
-                    target/coverage/$(basename $file) \
-                  $file --quiet
-              fi
-            done
-      - run:
-          name: Upload to Codecov
-          command: bash <(curl -s https://codecov.io/bash) -c -F integration
-
 workflows:
   version: 2
   test_all_and_coverage:
