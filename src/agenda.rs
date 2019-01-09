@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, TimeZone, Local, Date};
+use chrono::{Datelike, TimeZone, Local, Date};
 use itertools::Itertools;
 use yansi::{Style};
 
@@ -100,7 +100,7 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
     Ok(format!("             {}", summary))
   } else {
     let mut time_sep = " ";
-    let dtstart = event.get_dtstart_for_event_line().ok_or("Invalid DTSTART")?;
+    let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?;
     let start_string = if dtstart.date() != cur_day {
       "".to_string()
     } else {
@@ -108,7 +108,7 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
       format!("{}", dtstart.format("%H:%M"))
     };
 
-    let dtend = event.get_dtend_for_event_line().ok_or("Invalid DTEND")?;
+    let dtend = event.get_dtend().ok_or("Invalid DTEND")?;
     let end_string = if dtend.date() != cur_day {
       "".to_string()
     } else {
@@ -137,22 +137,6 @@ impl IcalVEvent {
     self.get_last_relevant_date().map(|enddate| enddate >= date).unwrap_or(false)
   }
 
-  fn get_dtend_for_event_line(&self)  -> Option<DateTime<Local>> {
-    if cfg!(test) {
-      Some(self.get_dtend()?.date().and_hms(22, 29, 0))
-    } else {
-      self.get_dtend()
-    }
-  }
-
-  fn get_dtstart_for_event_line(&self)  -> Option<DateTime<Local>> {
-    if cfg!(test) {
-      Some(self.get_dtstart()?.date().and_hms(7, 29, 0))
-    } else {
-      self.get_dtstart()
-    }
-  }
-
   fn continues_after(&self, date: Date<Local>) -> bool {
     self.get_last_relevant_date()
       .map(|enddate| enddate > date)
@@ -165,6 +149,7 @@ mod tests {
   use super::*;
   use testdata;
   use chrono::{Local, TimeZone};
+  use std::env;
 
   #[test]
   fn test_starts_on() {
@@ -207,11 +192,12 @@ mod tests {
 
   #[test]
   fn test_event_line_simple() {
+    env::set_var("TZ", "UTC");
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
     let date = Local.ymd(1997, 3, 24);
     let event_line = event_line(None, &event, date).unwrap();
-    assert_eq!("07:29-22:29  Calendaring Interoperability Planning Meeting".to_string(), event_line)
+    assert_eq!("12:30-21:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
   }
 
   #[test]
