@@ -281,6 +281,14 @@ mod tests {
   }
 
   #[test]
+  fn test_get_description_none() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(None, event.get_description());
+  }
+
+  #[test]
   fn test_get_location() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
