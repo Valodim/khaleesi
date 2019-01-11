@@ -70,6 +70,15 @@ mod tests {
   }
 
   #[test]
+  fn get_property_test_cal() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let prop_name = "PRODID";
+    let prop_value: String = cal.get_property_by_name(prop_name).unwrap().get_value();
+
+    assert_eq!("-//ABC Corporation//NONSGML My Product//EN".to_string(), prop_value);
+  }
+
+  #[test]
   fn get_property_test_negative() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();

@@ -201,7 +201,7 @@ impl IcalVCalendar {
     IcalEventIter::from_vcalendar(self)
   }
 
-  pub fn get_first_event(&self) -> IcalVEvent {
+  fn get_first_event(&self) -> IcalVEvent {
     let event = unsafe {
       ical::icalcomponent_get_first_component(
         self.get_ptr(),
@@ -360,11 +360,28 @@ mod tests {
   }
 
   #[test]
+  fn with_dtstamp_test() {
+    let mut cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    cal = cal.with_dtstamp_now();
+    let event = cal.get_principal_event();
+    let now_dtstamp = event.get_property_by_name("DTSTAMP").unwrap().get_value();
+    let now_expected = format!("{}", Utc::now().format("%Y%m%dT%H%M%SZ"));
+    assert_eq!(now_expected, now_dtstamp)
+  }
+
+  #[test]
   fn get_khaleesi_line_test() {
     let path = Some(PathBuf::from("test/path"));
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, path).unwrap();
     let event = cal.get_principal_event();
     assert_eq!(String::from("1182988800 test/path"), event.get_khaleesi_line().unwrap())
+  }
+
+  #[test]
+  fn get_calendar_name_test() {
+    let path = Some(PathBuf::from("calname/event"));
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, path).unwrap();
+    assert_eq!("calname".to_string(), cal.get_calendar_name().unwrap())
   }
 
   #[test]
