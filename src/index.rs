@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use icalwrap::*;
 use std::collections::HashMap;
 use std::fs;
@@ -6,13 +7,11 @@ use std::time::SystemTime;
 use walkdir::DirEntry;
 
 use defaults::*;
-use utils::lock;
-//use utils::fileutil;
-use chrono::prelude::*;
-
 use indextime;
 use utils::fileutil;
+use utils::lock;
 use utils::misc;
+
 
 fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &IcalVCalendar) {
   use bucketable::Bucketable;
@@ -44,19 +43,16 @@ pub fn index_dir(dir: &Path, reindex: bool) {
   let now = Instant::now();
   let start_time = Utc::now();
 
-  let last_index_time = match reindex {
-    true => {
-      debug!("Forced reindex, indexing all files");
-      None
-    },
-    false => {
-      let last_index_time = indextime::get_index_time();
-      match last_index_time {
-        Some(time) => debug!("Previously indexed {}, indexing newer files only", time.with_timezone(&Local)),
+  let last_index_time = if reindex {
+    debug!("Forced reindex, indexing all files");
+    None
+  } else {
+    let last_index_time = indextime::get_index_time();
+    match last_index_time {
+      Some(time) => debug!("Previously indexed {}, indexing newer files only", time.with_timezone(&Local)),
         None => debug!("No previous index time, indexing all files"),
-      }
-      last_index_time
     }
+    last_index_time
   };
 
   let modified_since = last_index_time.map(|time| time.timestamp()).unwrap_or(0);
