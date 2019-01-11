@@ -5,7 +5,7 @@ use selectors::{SelectFilters,daterange::SelectFilterFrom,daterange::SelectFilte
 use utils::fileutil as utils;
 
 impl SelectFilters {
-  pub fn predicate_path_skip_while(&self) -> impl Fn(&PathBuf) -> bool + '_ {
+  fn predicate_path_skip_while(&self) -> impl Fn(&PathBuf) -> bool + '_ {
     move |path| {
       let bucketname = match path.file_name() {
         Some(path_os_str) => path_os_str.to_string_lossy(),
@@ -15,7 +15,7 @@ impl SelectFilters {
     }
   }
 
-  pub fn predicate_path_take_while<'a>(&'a self) -> impl Fn(&PathBuf) -> bool + 'a {
+  fn predicate_path_take_while<'a>(&'a self) -> impl Fn(&PathBuf) -> bool + 'a {
     move |path| {
       let bucketname = match path.file_name() {
         Some(path_os_str) => path_os_str.to_string_lossy(),
