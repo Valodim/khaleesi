@@ -2,7 +2,7 @@ use super::misc;
 use std::io::prelude::*;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::{fs, io, time};
+use std::{fs, io};
 use std::fs::OpenOptions;
 
 use icalwrap::IcalVCalendar;
@@ -115,37 +115,12 @@ pub fn print_cals(cals: impl Iterator<Item = IcalVCalendar>) {
   }
 }
 
-pub fn make_new_uid() -> String {
-  use uuid::Uuid;
-
-  let suffix = "@khaleesi";
-  format!("{}{}", Uuid::new_v4().to_hyphenated_ref(), suffix)
-}
-
 #[cfg(test)]
 mod tests {
   use super::*;
 
   use testutils::prepare_testdir;
   use assert_fs::prelude::*;
-
-  #[test]
-  fn make_new_uid_test() {
-    let mut uid = make_new_uid();
-    assert_eq!(45, uid.len());
-    assert_eq!("@khaleesi".to_string(), uid.split_off(36));
-  }
-
-  #[test]
-  fn joinlines_test() {
-    let first = ["123", "ß", "1234"].join("\n");
-    let second = ["abc", "1", "Otto"].join("\n");
-    let expected = indoc!("
-      123  abc
-      ß    1
-      1234 Otto");
-    assert_eq!(expected, joinlines(first.as_str(), second.as_str()));
-  }
 
   #[test]
   fn test_append_file() {

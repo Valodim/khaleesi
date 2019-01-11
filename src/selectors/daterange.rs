@@ -2,9 +2,8 @@ use chrono::*;
 use std::cmp;
 use std::str::FromStr;
 
-use super::*;
-
 use utils::dateutil;
+use utils::misc;
 
 pub struct SelectFilterFrom {
   pub date: Option<Date<Local>>,
@@ -95,7 +94,7 @@ impl Default for SelectFilterFrom {
 }
 
 #[cfg(test)]
-use self::test::test_filter_event;
+use super::test::test_filter_event;
 #[cfg(test)]
 use testdata;
 #[test]
