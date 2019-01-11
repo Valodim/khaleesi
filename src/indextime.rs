@@ -6,7 +6,7 @@ use defaults::*;
 
 pub fn write_index_time(index_time: &DateTime<Utc>) {
   let mut timefile = fs::File::create(get_indextimefile()).unwrap();
-  timefile.write(format!("{}\n", index_time.timestamp()).as_bytes()).unwrap();
+  timefile.write_all(format!("{}\n", index_time.timestamp()).as_bytes()).unwrap();
 }
 
 pub fn get_index_time() -> Option<DateTime<Utc>> {
