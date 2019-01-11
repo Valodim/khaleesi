@@ -45,37 +45,37 @@ impl Default for GrepFilter {
 }
 
 #[cfg(test)]
-use super::test::test_filter_event;
-#[cfg(test)]
-use testdata;
+mod tests {
+  use super::test::test_filter_event;
+  use testdata;
 
-#[test]
-fn test_grep() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "International"]);
-  assert_eq!(true, filtered);
+  #[test]
+  fn test_grep() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "International"]);
+    assert_eq!(true, filtered);
+  }
+
+  #[test]
+  fn test_grep_location() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "Lobby"]);
+    assert_eq!(true, filtered);
+  }
+
+  #[test]
+  fn test_grep_description() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_ONE_MEETING, None, &["grep", "interoperability"]);
+    assert_eq!(true, filtered);
+  }
+
+  #[test]
+  fn test_grep_case() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "InTeRnAtIOnAl"]);
+    assert_eq!(true, filtered);
+  }
+
+  #[test]
+  fn test_grep_negative() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "nonexistent term"]);
+    assert_eq!(false, filtered);
+  }
 }
-
-#[test]
-fn test_grep_location() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "Lobby"]);
-  assert_eq!(true, filtered);
-}
-
-#[test]
-fn test_grep_description() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_ONE_MEETING, None, &["grep", "interoperability"]);
-  assert_eq!(true, filtered);
-}
-
-#[test]
-fn test_grep_case() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "InTeRnAtIOnAl"]);
-  assert_eq!(true, filtered);
-}
-
-#[test]
-fn test_grep_negative() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "nonexistent term"]);
-  assert_eq!(false, filtered);
-}
-
