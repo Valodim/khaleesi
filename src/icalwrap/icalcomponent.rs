@@ -57,8 +57,6 @@ pub trait IcalComponent {
 mod tests {
   use super::*;
   use testdata;
-  use chrono::NaiveDate;
-  use icalwrap::IcalVEvent;
   use icalwrap::IcalVCalendar;
 
   #[test]

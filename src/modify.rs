@@ -1,4 +1,3 @@
-use std::path::Path;
 use utils::fileutil as utils;
 
 pub fn do_modify(lines: &mut Iterator<Item = String>, args: &[String]) {
