@@ -190,6 +190,25 @@ pub static TEST_BARE_EVENT: &str = indoc!("
     END:VEVENT
 ");
 
+pub static TEST_EVENT_WITH_X_LIC_ERROR: &str = indoc!("
+    BEGIN:VCALENDAR
+    PRODID:CommuniGate Pro 6.2.5
+    VERSION:2.0
+    BEGIN:VEVENT
+    DTSTAMP:20180821T103922Z
+    UID:1
+    SUMMARY:Summary
+    DTSTART:20180516T093000Z
+    DTEND:20180516T110000Z
+    X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+    LAST-MODIFIED:20180821T103105Z
+    CREATED:20180404T130941Z
+    PRIORITY:5
+    STATUS:CONFIRMED
+    X-LIC-ERROR:No value for LOCATION property. Removing entire property:
+    END:VEVENT
+    END:VCALENDAR
+");
 
 #[cfg(test)]
 use std::sync::{Once, ONCE_INIT};

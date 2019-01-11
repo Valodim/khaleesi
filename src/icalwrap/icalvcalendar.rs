@@ -353,6 +353,13 @@ mod tests {
   }
 
   #[test]
+  fn load_serialize_with_error() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_WITH_X_LIC_ERROR, None).unwrap();
+    let back = cal.to_string().replace("\r\n", "\n");
+    assert_eq!(back.trim(), testdata::TEST_EVENT_WITH_X_LIC_ERROR)
+  }
+
+  #[test]
   fn get_khaleesi_line_test() {
     let path = Some(PathBuf::from("test/path"));
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, path).unwrap();
