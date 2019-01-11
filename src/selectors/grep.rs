@@ -62,6 +62,12 @@ fn test_grep_location() {
 }
 
 #[test]
+fn test_grep_description() {
+  let filtered = test_filter_event(&testdata::TEST_EVENT_ONE_MEETING, None, &["grep", "interoperability"]);
+  assert_eq!(true, filtered);
+}
+
+#[test]
 fn test_grep_case() {
   let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "InTeRnAtIOnAl"]);
   assert_eq!(true, filtered);
