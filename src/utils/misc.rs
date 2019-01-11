@@ -49,6 +49,23 @@ mod tests {
   }
 
   #[test]
+  fn test_datetime_from_timestamp() {
+    let timestamp = "1547234687";
+    let dt_from_ts = datetime_from_timestamp(timestamp).unwrap();
+    let dt = Utc.ymd(2019, 01, 11).and_hms(19, 24, 47);
+    assert_eq!(dt, dt_from_ts);
+  }
+
+  #[test]
+  fn format_duration_test() {
+    let millis: u64 = 12345678;
+    let duration = time::Duration::from_millis(millis);
+    let string_duration = format!("{}", format_duration(&duration));
+    let string_from_secs = format!("{}", millis);
+    assert_eq!(string_from_secs, string_duration);
+  }
+
+  #[test]
   fn joinlines_test() {
     let first = ["123", "ß", "1234"].join("\n");
     let second = ["abc", "1", "Otto"].join("\n");
