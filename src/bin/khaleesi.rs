@@ -145,13 +145,17 @@ fn action_prettyprint_all(args: &[String]) {
   prettyprint::shortprint_dir(filepath)
 }
 
-fn action_index(args: &[String]) {
+fn action_index(mut args: &[String]) {
+  let reindex = !args.is_empty() && args[0] == "--reindex";
+  if reindex {
+    args = &args[1..];
+  }
   let indexpath = if args.is_empty() {
     get_caldir()
   } else {
     PathBuf::from(&args[0])
   };
-  index::index_dir(&indexpath)
+  index::index_dir(&indexpath, reindex)
 }
 
 fn action_copy(args: &[String]) {
@@ -216,7 +220,7 @@ mod tests {
 
     run(&testdir, &["index"], None);
 
-    testdir.child(".khaleesi/index/2018-W50").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
-    testdir.child(".khaleesi/index/2018-W51").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics");
+    testdir.child(".khaleesi/index/2018-W50").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics\n");
+    testdir.child(".khaleesi/index/2018-W51").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics\n");
   }
 }
