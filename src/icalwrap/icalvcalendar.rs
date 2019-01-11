@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use std::ffi::{CStr, CString};
-use std::path::PathBuf;
+use std::path::{PathBuf,Path};
 use std::rc::Rc;
 
 use super::IcalVEvent;
@@ -62,7 +62,7 @@ impl IcalVCalendar {
     self
   }
 
-  pub fn from_str(str: &str, path: Option<PathBuf>) -> Result<Self, String> {
+  pub fn from_str(str: &str, path: Option<&Path>) -> Result<Self, String> {
     unsafe {
       let c_str = CString::new(str).unwrap();
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
@@ -71,7 +71,7 @@ impl IcalVCalendar {
       }
 
       if let Err(error) = IcalVCalendar::check_icalcomponent(parsed_cal) {
-        let path_string = match path.as_ref() {
+        let path_string = match path {
           Some(path_ref) => format!("{}", path_ref.display()),
           None => "".to_string()
         };
@@ -85,7 +85,7 @@ impl IcalVCalendar {
       }
 
       let mut cal = IcalVCalendar::from_ptr(parsed_cal);
-      cal.path = path;
+      cal.path = path.map(|path| path.to_path_buf());
       Ok(cal)
     }
   }
@@ -371,16 +371,16 @@ mod tests {
 
   #[test]
   fn get_khaleesi_line_test() {
-    let path = Some(PathBuf::from("test/path"));
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, path).unwrap();
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
     let event = cal.get_principal_event();
     assert_eq!(String::from("1182988800 test/path"), event.get_khaleesi_line().unwrap())
   }
 
   #[test]
   fn get_calendar_name_test() {
-    let path = Some(PathBuf::from("calname/event"));
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, path).unwrap();
+    let path = PathBuf::from("calname/event");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
     assert_eq!("calname".to_string(), cal.get_calendar_name().unwrap())
   }
 
@@ -432,8 +432,8 @@ mod tests {
 
   #[test]
   fn with_uid_test() {
-    let path = Some(PathBuf::from("test/path"));
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path.clone()).unwrap();
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, Some(&path)).unwrap();
 
     let uid = "my_new_uid";
     let new_cal = cal.with_uid(uid).unwrap();
@@ -441,13 +441,13 @@ mod tests {
     for event in new_cal.events_iter() {
       assert_eq!(uid, event.get_uid());
     }
-    assert_eq!(Some(path.unwrap().with_file_name(uid.to_owned() + ".ics")), new_cal.path);
+    assert_eq!(Some(path.with_file_name(uid.to_owned() + ".ics")), new_cal.path);
   }
 
   #[test]
   fn with_uid_multiple_test() {
-    let path = Some(PathBuf::from("test/path"));
-    let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, Some(&path)).unwrap();
 
     let uid = "my_new_uid";
     let new_cal = cal.with_uid(uid);
@@ -457,8 +457,8 @@ mod tests {
 
   #[test]
   fn with_keep_uid_test() {
-    let path = Some(PathBuf::from("test/path"));
-    let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, path).unwrap();
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_MULTIPLE_EVENTS, Some(&path)).unwrap();
 
     for uid in &["uid1", "uid2"] {
       let new_cal = cal.clone().with_keep_uid(uid);
@@ -471,8 +471,8 @@ mod tests {
 
   #[test]
   fn clone_test() {
-    let path = Some(PathBuf::from("test/path"));
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, path).unwrap();
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, Some(&path)).unwrap();
     let cal2 = cal.clone().with_uid("my_new_uid").unwrap();
 
     assert_ne!(cal.get_uid(), cal2.get_uid());

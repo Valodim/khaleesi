@@ -104,8 +104,8 @@ fn buckets_multi_day_allday() {
   use testdata;
   use std::path::PathBuf;
 
-  let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, path).unwrap();
+  let path = PathBuf::from("test/path");
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
 
   let event_buckets = cal.get_principal_event().get_buckets().unwrap();
 
@@ -124,8 +124,8 @@ fn buckets_single_event() {
   use testdata;
   use std::path::PathBuf;
 
-  let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, path).unwrap();
+  let path = PathBuf::from("test/path");
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, Some(&path)).unwrap();
 
   let comp_buckets = cal.get_buckets().unwrap();
   assert_eq!(vec!("1997-W13"), comp_buckets.keys().collect::<Vec<&String>>());
@@ -136,8 +136,8 @@ fn buckets_simple_recurring_event() {
   use testdata;
   use std::path::PathBuf;
 
-  let path = Some(PathBuf::from("test/path"));
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, path).unwrap();
+  let path = PathBuf::from("test/path");
+  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, Some(&path)).unwrap();
 
   let event = cal.get_principal_event();
   let event_buckets = event.get_buckets().unwrap();

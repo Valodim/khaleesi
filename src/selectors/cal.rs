@@ -42,20 +42,20 @@ use std::path::PathBuf;
 #[test]
 fn test_cal_first() {
   let path1 = PathBuf::from("test/cal1/event1.ics");
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, Some(path1), &["cal", "cal1", "cal", "cal2"]);
+  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, Some(&path1), &["cal", "cal1", "cal", "cal2"]);
   assert!(filtered);
 }
 
 #[test]
 fn test_cal_second() {
   let path2 = PathBuf::from("test/cal2/event2.ics");
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, Some(path2), &["cal", "cal1", "cal", "cal2"]);
+  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, Some(&path2), &["cal", "cal1", "cal", "cal2"]);
   assert!(filtered);
 }
 
 #[test]
 fn test_cal_negative() {
   let path3 = PathBuf::from("test/cal3/event3.ics");
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, Some(path3), &["cal", "cal1", "cal", "cal2"]);
+  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, Some(&path3), &["cal", "cal1", "cal", "cal2"]);
   assert!(!filtered);
 }

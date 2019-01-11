@@ -226,9 +226,9 @@ pub fn setup() {
 #[cfg(test)]
 use icalwrap::{IcalVCalendar,IcalVEvent};
 #[cfg(test)]
-use std::path::PathBuf;
+use std::path::Path;
 #[cfg(test)]
-pub fn get_test_event(str: &str, path: Option<PathBuf>) -> IcalVEvent {
+pub fn get_test_event(str: &str, path: Option<&Path>) -> IcalVEvent {
   IcalVCalendar::from_str(str, path)
     .map(|cal| cal.get_principal_event())
     .unwrap()

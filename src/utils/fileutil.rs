@@ -76,7 +76,7 @@ pub fn read_calendar_from_path(path: &Path) -> Result<IcalVCalendar, String> {
     Ok(content) => content,
     Err(error) => return Err(format!("{} {:?}", error, path))
   };
-  IcalVCalendar::from_str(&content, Some(path.to_path_buf()))
+  IcalVCalendar::from_str(&content, Some(path))
 }
 
 pub fn read_calendar_from_file(filepath: &str) -> Result<IcalVCalendar, String> {

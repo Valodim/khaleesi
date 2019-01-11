@@ -1,8 +1,8 @@
 use super::*;
 use testdata;
-use std::path::PathBuf;
+use std::path::Path;
 
-pub fn test_filter_event(event_str: &str, path: Option<PathBuf>, args: &[&str]) -> bool {
+pub fn test_filter_event(event_str: &str, path: Option<&Path>, args: &[&str]) -> bool {
   let event = testdata::get_test_event(event_str, path);
 
   let args: Vec<String> = args.into_iter().map(|x| x.to_string()).collect();

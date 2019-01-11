@@ -23,7 +23,7 @@ pub fn shortprint_file(filepath: &Path) {
 pub fn prettyprint_file(filepath: &Path) {
   match utils::read_file_to_string(filepath) {
     Ok(content) => {
-      let cal = IcalVCalendar::from_str(&content, Some(filepath.to_path_buf())).unwrap();
+      let cal = IcalVCalendar::from_str(&content, Some(filepath)).unwrap();
       prettyprint_comp(&cal);
     },
     Err(error) => print!("{}", error)
