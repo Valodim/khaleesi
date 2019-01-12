@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local};
 use std::ffi::{CStr, CString};
 use std::path::{PathBuf,Path};
 use std::rc::Rc;
@@ -10,7 +10,7 @@ use ical;
 pub struct IcalVCalendar {
   comp: Rc<IcalComponentOwner>,
   path: Option<PathBuf>,
-  instance_timestamp: Option<DateTime<Utc>>,
+  instance_timestamp: Option<DateTime<Local>>,
 }
 
 pub struct IcalEventIter<'a> {
@@ -57,7 +57,7 @@ impl IcalVCalendar {
     }
   }
 
-  pub fn with_internal_timestamp(mut self, datetime: DateTime<Utc>) -> IcalVCalendar {
+  pub fn with_internal_timestamp(mut self, datetime: DateTime<Local>) -> IcalVCalendar {
     self.instance_timestamp = Some(datetime);
     self
   }
@@ -321,7 +321,7 @@ impl Drop for IcalComponentOwner {
 mod tests {
   use super::*;
   use testdata;
-  use chrono::{Local, TimeZone};
+  use chrono::{Utc, Local, TimeZone};
 
   #[test]
   fn test_from_str_empty() {
@@ -415,7 +415,7 @@ mod tests {
   fn test_with_internal_timestamp() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
-    let timestamp = Utc.ymd(2018, 1, 1).and_hms(11, 30, 20);
+    let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
     let new_cal = cal.with_internal_timestamp(timestamp);
 
     let event = new_cal.get_principal_event();

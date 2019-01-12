@@ -6,13 +6,13 @@ use icalwrap::IcalVEvent;
 
 pub struct KhLine {
   path: PathBuf,
-  time: DateTime<Local>,
+  time: Option<DateTime<Local>>,
 }
 
 impl KhLine {
   pub fn from(event: &IcalVEvent) -> Option<KhLine> {
-    let time = event.get_dtstart()?;
     let path = event.get_parent()?.get_path()?.to_path_buf();
+    let time = event.get_dtstart();
 
     Some(KhLine{ path, time })
   }
@@ -23,11 +23,16 @@ impl KhLine {
 }
 
 impl fmt::Display for KhLine {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      let time_string = format!("{:010}", self.time.timestamp());
-      let path_string = self.path.to_string_lossy();
-      write!(f, "{} {}", time_string, path_string)
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let path_string = self.path.to_string_lossy();
+    match self.time {
+      Some(time) => {
+        let time_string = format!("{:010}", time.timestamp());
+        write!(f, "{} {}", time_string, path_string)
+      }
+      None => write!(f, "{}", path_string)
     }
+  }
 }
 
 #[cfg(test)]

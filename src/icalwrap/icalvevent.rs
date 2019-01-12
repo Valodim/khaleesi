@@ -8,7 +8,7 @@ use ical;
 pub struct IcalVEvent {
   ptr: *mut ical::icalcomponent,
   parent: Option<IcalVCalendar>,
-  instance_timestamp: Option<DateTime<Utc>>,
+  instance_timestamp: Option<DateTime<Local>>,
 }
 
 impl Drop for IcalVEvent {
@@ -123,7 +123,7 @@ impl IcalVEvent {
     result
   }
 
-  pub fn with_internal_timestamp(&self, datetime: DateTime<Utc>) -> IcalVEvent {
+  pub fn with_internal_timestamp(&self, datetime: DateTime<Local>) -> IcalVEvent {
     IcalVEvent {
       ptr: self.ptr,
       parent: self.parent.as_ref().map(|parent| parent.shallow_copy()),
@@ -132,7 +132,9 @@ impl IcalVEvent {
   }
 
   pub fn get_recur_instances(&self) -> impl Iterator<Item = IcalVEvent> + '_ {
-    self.get_recur_datetimes().into_iter().map(move |rec| self.with_internal_timestamp(rec))
+    self.get_recur_datetimes().into_iter()
+      .map(|recur_utc| recur_utc.with_timezone(&Local))
+      .map(move |recur_local| self.with_internal_timestamp(recur_local))
   }
 
   pub fn get_parent(&self) -> Option<&IcalVCalendar> {

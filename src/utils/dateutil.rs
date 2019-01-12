@@ -36,10 +36,11 @@ pub fn week_from_str_end(date_str: &str) -> Result<Date<Local>,String> {
   Err("Could not parse '{}' as week".to_string())
 }
 
-pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Utc>> {
+pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Local>> {
   let timestamp_i64 = timestamp.parse::<i64>().ok()?;
   let naive_datetime = NaiveDateTime::from_timestamp_opt(timestamp_i64, 0)?;
-  Some(DateTime::from_utc(naive_datetime, Utc))
+  let utc_time: DateTime<Utc> = DateTime::from_utc(naive_datetime, Utc);
+  Some(utc_time.with_timezone(&Local))
 }
 
 #[cfg(test)]
