@@ -29,7 +29,7 @@ fn write_stdin_to_cursorfile() {
     return
   };
 
-  cursorfile::write_cursorfile(&lines[0]);
+  cursorfile::write_cursorfile(&lines[0]).unwrap();
 }
 
 fn write_cursorfile_to_stdout() {
