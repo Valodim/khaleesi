@@ -168,6 +168,16 @@ mod tests {
   }
 
   #[test]
+  fn test_matches() {
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
+
+    let khline = KhLine::from(&cal);
+
+    assert!(khline.matches(&cal.get_principal_event()));
+  }
+
+  #[test]
   fn test_to_event_timestamp() {
     let testdir = prepare_testdir("testdir");
 
@@ -180,7 +190,6 @@ mod tests {
     );
     assert_eq!(12345, event.get_dtstart().unwrap().timestamp());
   }
-
 
   #[test]
   fn test_to_event_no_timestamp() {
