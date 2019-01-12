@@ -35,8 +35,6 @@ mod tests {
   use predicates::prelude::*;
   use itertools::Itertools;
 
-  //use testdata;
-
   #[test]
   fn read_seqfile_test() {
     let testdir = prepare_testdir("testdir_with_seq");
