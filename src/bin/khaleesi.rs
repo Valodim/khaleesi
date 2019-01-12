@@ -169,6 +169,7 @@ mod tests {
   use self::assert_fs::TempDir;
 
   use super::*;
+  use khaleesi::defaults;
 
   fn path_to(artifact: &str) -> PathBuf {
     [env!("CARGO_MANIFEST_DIR"), "testdata", artifact].iter().collect()
@@ -181,7 +182,7 @@ mod tests {
   }
 
   fn run(testdir: &TempDir, args: &[&str], config: Option<Config>) {
-    env::set_current_dir(testdir).unwrap();
+    defaults::set_khaleesi_dir(testdir.path());
 
     let config = config.unwrap_or_default();
     let args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
