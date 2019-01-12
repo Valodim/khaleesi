@@ -85,4 +85,16 @@ mod tests {
     let khline = KhLine::from(&cal.get_principal_event());
     assert_eq!(String::from("1182988800 test/path"), khline.unwrap().to_string());
   }
+
+//  #[test]
+//  fn read_khaleesi_line_test() {
+//    let _testdir = prepare_testdir("testdir");
+//    let simple_khline = ".khaleesi/cal/twodaysacrossbuckets.ics";
+//    let calendar = read_khaleesi_line(simple_khline).unwrap();
+//    assert_eq!(simple_khline, calendar.get_path_as_string().unwrap());
+//
+//    let khline_with_timestamp = "1544740200 .khaleesi/cal/twodaysacrossbuckets.ics";
+//    let calendar = read_khaleesi_line(khline_with_timestamp).unwrap();
+//    assert_eq!(khline_with_timestamp, calendar.get_principal_event().get_khaleesi_line().unwrap());
+//  }
 }
