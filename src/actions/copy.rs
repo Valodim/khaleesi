@@ -2,16 +2,9 @@ use khline::KhLine;
 use utils::fileutil;
 use utils::misc;
 
-pub fn do_copy(lines: &mut Iterator<Item = String>, _args: &[String]) {
+pub fn do_copy(khline: &KhLine, _args: &[String]) {
 
-  let lines = lines.collect::<Vec<String>>();
-  if lines.len() > 1 {
-    println!("copy only one event!");
-    return;
-  };
-
-  let khline = lines[0].parse::<KhLine>();
-  let cal = match khline.and_then(|khline| khline.to_cal()) {
+  let cal = match khline.to_cal() {
     Ok(calendar) => calendar,
     Err(error) => {
       error!("{}", error);

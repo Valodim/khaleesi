@@ -1,7 +1,5 @@
 extern crate atty;
 
-use itertools::Itertools;
-
 use cursorfile;
 use utils::fileutil;
 
@@ -19,7 +17,7 @@ pub fn do_cursor(_args: &[String]) {
 
 fn write_stdin_to_cursorfile() {
   let lines = match fileutil::read_lines_from_stdin() {
-    Ok(input) => input.collect::<Vec<String>>(),
+    Ok(input) => input,
     Err(error) => {
       error!("Error reading from stdin: {}", error);
       return

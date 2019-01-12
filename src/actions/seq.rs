@@ -1,7 +1,5 @@
 extern crate atty;
 
-use itertools::Itertools;
-
 use seqfile;
 use utils::fileutil;
 
@@ -20,7 +18,7 @@ pub fn do_seq(_args: &[String]) {
 fn write_stdin_to_seqfile() {
   let mut lines;
   match fileutil::read_lines_from_stdin() {
-    Ok(mut input) => lines = input.join("\n"),
+    Ok(input) => lines = input.join("\n"),
     Err(error) => {
       error!("Error reading from stdin: {}", error);
       return

@@ -46,15 +46,11 @@ pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = 
   }
 }
 
-pub fn read_lines_from_stdin() -> io::Result<impl Iterator<Item = String>> {
+pub fn read_lines_from_stdin() -> Result<Vec<String>, io::Error> {
   let stdin = io::stdin();
-  let handle = stdin.lock();
+  let lines = stdin.lock().lines();
 
-  let lines: Result<Vec<String>, io::Error> = handle.lines().collect();
-  match lines {
-    Ok(result) => Ok(result.into_iter()),
-    Err(error) => Err(error)
-  }
+  lines.collect()
 }
 
 pub fn read_file_to_string(path: &Path) -> Result<String, String> {

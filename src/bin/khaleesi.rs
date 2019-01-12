@@ -9,7 +9,9 @@ use khaleesi::config::Config;
 use khaleesi::defaults::*;
 use khaleesi::actions::*;
 use khaleesi::seqfile::read_seqfile;
-use khaleesi::utils::fileutil as utils;
+use khaleesi::cursorfile::read_cursorfile;
+use khaleesi::utils::fileutil;
+use khaleesi::khline::KhLine;
 
 use std::env;
 use std::path::{Path,PathBuf};
@@ -72,26 +74,26 @@ fn action_cursor(args: &[String]) {
 
 fn action_list(args: &[String]) {
   //lists from sequence file or stdin
-  if let Some(mut input) = default_input() {
+  if let Some(mut input) = default_input_multiple() {
     list::list_by_args(&mut input, &args);
   }
 }
 
 fn action_modify(args: &[String]) {
-  if let Some(mut input) = default_input() {
+  if let Some(mut input) = default_input_multiple() {
     modify::do_modify(&mut input, &args);
   }
 }
 
 fn action_show(args: &[String]) {
-  if let Some(mut input) = default_input() {
+  if let Some(mut input) = default_input_multiple() {
     show::do_show(&mut input, &args);
   }
 }
 
 fn action_edit(args: &[String]) {
-  if let Some(mut input) = default_input() {
-    edit::do_edit(&mut input, &args);
+  if let Some(input) = default_input_single() {
+    edit::do_edit(&input, &args);
   }
 }
 
@@ -102,13 +104,13 @@ fn action_select(args: &[String]) {
 
 fn action_agenda(config: &Config, args: &[String]) {
   if args.is_empty() {
-    if let Some(mut input) = default_input() {
+    if let Some(mut input) = default_input_multiple() {
       agenda::show_events(&config, &mut input);
     }
   } else {
     let file = &args[0];
     let filepath = Path::new(file);
-    agenda::show_events(&config, &mut utils::read_lines_from_file(filepath).unwrap());
+    agenda::show_events(&config, &mut fileutil::read_lines_from_file(filepath).unwrap());
   }
 }
 
@@ -119,7 +121,7 @@ fn action_unroll(args: &[String]) {
 }
 
 fn action_prettyprint(_args: &[String]) {
-  if let Some(mut input) = default_input() {
+  if let Some(mut input) = default_input_multiple() {
     prettyprint::prettyprint(&mut input);
   }
 }
@@ -138,21 +140,21 @@ fn action_index(mut args: &[String]) {
 }
 
 fn action_copy(args: &[String]) {
-  if let Some(mut input) = default_input() {
-    copy::do_copy(&mut input, &args);
+  if let Some(input) = default_input_single() {
+    copy::do_copy(&input, &args);
   }
 }
 
 fn action_new(args: &[String]) {
-  if let Some(mut input) = default_input() {
+  if let Some(mut input) = default_input_multiple() {
     new::do_new(&mut input, &args);
   }
 }
 
-fn default_input() -> Option<Box<dyn Iterator<Item = String>>> {
+fn default_input_multiple() -> Option<Box<dyn Iterator<Item = String>>> {
   if atty::isnt(atty::Stream::Stdin) {
-    debug!("stdin");
-    Some(Box::new(utils::read_lines_from_stdin().unwrap()))
+    debug!("Taking input from Stdin");
+    Some(Box::new(fileutil::read_lines_from_stdin().unwrap().into_iter()))
   } else {
     match read_seqfile() {
       Ok(sequence) => Some(Box::new(sequence)),
@@ -161,7 +163,34 @@ fn default_input() -> Option<Box<dyn Iterator<Item = String>>> {
         None
       }
     }
+  }
+}
 
+fn default_input_single() -> Option<KhLine> {
+  if atty::isnt(atty::Stream::Stdin) {
+    debug!("Taking input from Stdin");
+
+    let lines = match fileutil::read_lines_from_stdin() {
+      Ok(lines) => lines,
+      Err(error) => {
+        error!("{}", error);
+        return None;
+      }
+    };
+    if lines.len() > 1 {
+      error!("too many lines in cursorfile");
+      None
+    } else {
+      lines[0].parse::<KhLine>().ok()
+    }
+  } else {
+    match read_cursorfile() {
+      Ok(cursor) => Some(cursor),
+      Err(err) => {
+        error!("{}", err);
+        None
+      }
+    }
   }
 }
 

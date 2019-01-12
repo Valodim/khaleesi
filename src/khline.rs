@@ -9,7 +9,7 @@ use defaults;
 
 #[derive(PartialEq,Eq)]
 pub struct KhLine {
-  path: PathBuf,
+  pub path: PathBuf,
   time: Option<DateTime<Local>>,
 }
 
