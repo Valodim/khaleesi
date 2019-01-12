@@ -90,26 +90,107 @@ impl FromStr for KhLine {
 mod tests {
   use super::*;
 
+  use assert_fs::prelude::*;
+
   use testdata;
+  use testutils::*;
   use icalwrap::IcalVCalendar;
 
   #[test]
-  fn get_khaleesi_line_test() {
+  fn test_parse_absolute() {
+    let khline_str = "1182988800 /x/y/z.ics";
+
+    let khline = khline_str.parse::<KhLine>().unwrap();
+
+    assert_eq!(PathBuf::from("/x/y/z.ics"), khline.path);
+    assert_eq!(1182988800, khline.time.unwrap().timestamp());
+    assert_eq!(khline_str, khline.to_string());
+  }
+
+  #[test]
+  fn test_parse_absolute_no_timestamp() {
+    let khline_str = "/x/y/z.ics";
+
+    let khline = khline_str.parse::<KhLine>().unwrap();
+
+    assert_eq!(PathBuf::from("/x/y/z.ics"), khline.path);
+    assert_eq!(None, khline.time);
+    assert_eq!(khline_str, khline.to_string());
+  }
+
+  #[test]
+  fn test_parse_relative_no_timestamp() {
+    let testdir = prepare_testdir_empty();
+    let khline_str = "x/y.ics";
+
+    let khline = khline_str.parse::<KhLine>().unwrap();
+
+    assert_eq!(testdir.child(".khaleesi/cal/x/y.ics").path(), khline.path);
+    assert_eq!(None, khline.time);
+    assert_eq!(khline_str, khline.to_string());
+  }
+
+  #[test]
+  fn test_parse_relative_timestamp() {
+    let testdir = prepare_testdir_empty();
+    let khline_str = "1182988800 x/y.ics";
+
+    let khline = khline_str.parse::<KhLine>().unwrap();
+
+    assert_eq!(testdir.child(".khaleesi/cal/x/y.ics").path(), khline.path);
+    assert_eq!(1182988800, khline.time.unwrap().timestamp());
+    assert_eq!(khline_str, khline.to_string());
+  }
+
+  #[test]
+  fn test_khline_from_calendar() {
     let path = PathBuf::from("test/path");
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
+
     let khline = KhLine::from(&cal.get_principal_event());
+
     assert_eq!(String::from("1182988800 test/path"), khline.to_string());
   }
 
-//  #[test]
-//  fn read_khaleesi_line_test() {
-//    let _testdir = prepare_testdir("testdir");
-//    let simple_khline = ".khaleesi/cal/twodaysacrossbuckets.ics";
-//    let calendar = read_khaleesi_line(simple_khline).unwrap();
-//    assert_eq!(simple_khline, calendar.get_path_as_string().unwrap());
-//
-//    let khline_with_timestamp = "1544740200 .khaleesi/cal/twodaysacrossbuckets.ics";
-//    let calendar = read_khaleesi_line(khline_with_timestamp).unwrap();
-//    assert_eq!(khline_with_timestamp, calendar.get_principal_event().get_khaleesi_line().unwrap());
-//  }
+  #[test]
+  fn test_khline_from_event() {
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
+
+    let khline = KhLine::from(&cal);
+
+    assert_eq!(String::from("1182988800 test/path"), khline.to_string());
+  }
+
+  #[test]
+  fn test_to_event_timestamp() {
+    let testdir = prepare_testdir("testdir");
+
+    let khline = "12345 twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
+    let event = khline.to_event().unwrap();
+
+    assert_eq!(
+      testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").path(),
+      event.get_parent().unwrap().get_path().unwrap()
+    );
+    assert_eq!(12345, event.get_dtstart().unwrap().timestamp());
+  }
+
+
+  #[test]
+  fn test_to_event_no_timestamp() {
+    let testdir = prepare_testdir("testdir");
+
+    let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
+    let event = khline.to_event().unwrap();
+
+    assert_eq!(
+      testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").path(),
+      event.get_parent().unwrap().get_path().unwrap()
+    );
+    assert_eq!(
+      Utc.ymd(2018, 12, 13).and_hms(22, 30, 00),
+      event.get_dtstart().unwrap().with_timezone(&Utc)
+    );
+  }
 }
