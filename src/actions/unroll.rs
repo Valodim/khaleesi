@@ -3,7 +3,10 @@ use std::path::Path;
 use khline::KhLine;
 
 pub fn do_unroll(filepath: &Path) {
-  let cal = filepath.to_str().unwrap().parse::<KhLine>().unwrap().to_cal().unwrap();
+  let cal = filepath.to_str().ok_or_else(|| "str to path failed".to_string())
+    .and_then(|path| path.parse::<KhLine>())
+    .and_then(|khline| khline.to_cal())
+    .unwrap();
   for event in cal.events_iter() {
     if event.has_recur() {
       let recurs = event.get_recur_datetimes();
