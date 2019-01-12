@@ -1,6 +1,7 @@
 pub mod actions;
 pub mod khline;
 pub mod config;
+pub mod cursorfile;
 pub mod defaults;
 pub mod icalwrap;
 pub mod selectors;
