@@ -3,6 +3,7 @@ use std::path::PathBuf;
 pub static DATADIR: &str = ".khaleesi";
 pub static INDEXDIR: &str = "index";
 pub static SEQFILE: &str  = "seq";
+pub static CURSORFILE: &str  = "cursor";
 pub static CALDIR: &str  = "cal";
 pub static BACKUPDIR: &str  = "backup";
 
@@ -12,6 +13,10 @@ pub fn get_datafile(filename: &str) -> PathBuf {
 
 pub fn get_seqfile() -> PathBuf {
   [DATADIR, SEQFILE].iter().collect()
+}
+
+pub fn get_cursorfile() -> PathBuf {
+  [DATADIR, CURSORFILE].iter().collect()
 }
 
 pub fn get_configfile() -> PathBuf {
