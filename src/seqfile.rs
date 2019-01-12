@@ -46,4 +46,13 @@ mod tests {
     let predicate = predicate::str::similar(seqfile_read);
     testdir.child(".khaleesi/seq").assert(predicate);
   }
+
+  #[test]
+  fn write_to_seqfile_test() {
+    let testdir = prepare_testdir("testdir");
+    let teststr = "Teststr äöüß\n";
+
+    write_to_seqfile(teststr);
+    testdir.child(".khaleesi/seq").assert(teststr);
+  }
 }
