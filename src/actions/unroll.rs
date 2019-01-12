@@ -1,9 +1,9 @@
 use std::path::Path;
 
-use utils::fileutil as utils;
+use khline::KhLine;
 
 pub fn do_unroll(filepath: &Path) {
-  let cal = utils::read_khaleesi_line(filepath.to_str().unwrap()).unwrap();
+  let cal = filepath.to_str().unwrap().parse::<KhLine>().unwrap().to_cal().unwrap();
   for event in cal.events_iter() {
     if event.has_recur() {
       let recurs = event.get_recur_datetimes();
