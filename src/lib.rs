@@ -16,7 +16,6 @@ pub mod select;
 pub mod selectors;
 pub mod seq;
 pub mod show;
-pub mod sort;
 pub mod unroll;
 pub mod utils;
 #[cfg(test)]

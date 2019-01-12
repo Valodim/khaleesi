@@ -19,7 +19,6 @@ use khaleesi::prettyprint;
 use khaleesi::select;
 use khaleesi::seq;
 use khaleesi::show;
-use khaleesi::sort;
 use khaleesi::unroll;
 use khaleesi::utils::fileutil as utils;
 
@@ -62,7 +61,6 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) {
       "seq" => action_sequence(&args[1..]),
       "short" => action_prettyprint_all(&args[1..]),
       "show" => action_show(&args[1..]),
-      "sort" => action_sort(&args[1..]),
       "unroll" => action_unroll(&args[1..]),
       _  => print_usage(&args[0])
     }
@@ -71,7 +69,7 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) {
 }
 
 fn print_usage(name: &str) {
-  error!("Usage: {} index|select|list|agenda|copy|new|edit|show|cal|sort|dbg|short", name)
+  error!("Usage: {} index|select|list|agenda|copy|new|edit|show|cal|dbg|short", name)
 }
 
 fn action_sequence(args: &[String]) {
@@ -106,19 +104,6 @@ fn action_edit(args: &[String]) {
 fn action_select(args: &[String]) {
   //selects from index
   select::select_by_args(args);
-}
-
-fn action_sort(args: &[String]) {
-  if args.is_empty() {
-    if let Some(mut input) = default_input() {
-        sort::sort_filenames_by_dtstart(&mut input)
-    }
-  } else {
-    let file = &args[0];
-    let filepath = Path::new(file);
-    let mut lines = utils::read_lines_from_file(filepath).unwrap();
-    sort::sort_filenames_by_dtstart(&mut lines);
-  }
 }
 
 fn action_agenda(config: &Config, args: &[String]) {
