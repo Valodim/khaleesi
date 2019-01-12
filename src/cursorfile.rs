@@ -6,18 +6,19 @@ use defaults::*;
 use khline::KhLine;
 use utils::fileutil;
 
-pub fn write_cursorfile(lines: &str) {
+pub fn write_cursorfile(lines: &str) -> Result<(), String> {
   let tmpfilename = get_datafile("tmpcursor");
 
   if let Err(error) = fileutil::write_file(&tmpfilename, lines) {
-    error!("Could not write cursorfile: {}", error);
-    return
+    return Err(format!("Could not write cursorfile: {}", error));
   }
 
   let cursorfile = get_cursorfile();
   if let Err(error) = rename(tmpfilename, cursorfile) {
-    error!("{}", error)
+    return Err(format!("{}", error));
   }
+
+  Ok(())
 }
 
 pub fn read_cursorfile() -> Result<KhLine, String> {
@@ -38,12 +39,15 @@ pub fn read_cursorfile() -> Result<KhLine, String> {
 mod tests {
   use super::*;
 
-  use testutils::prepare_testdir;
+  use std::fs;
+
+  use testutils::*;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
+  use utils::fileutil;
 
   #[test]
-  fn read_cursorfile_test() {
+  fn read_cursorfile_ok() {
     let testdir = prepare_testdir("testdir_with_cursor");
     let khline = read_cursorfile().unwrap();
     let mut khline_string = khline.to_string();
@@ -54,11 +58,42 @@ mod tests {
   }
 
   #[test]
-  fn write_cursorfile_test() {
+  fn read_cursorfile_empty() {
+    let _testdir = prepare_testdir("testdir");
+
+    let cursorfile = read_cursorfile();
+
+    assert!(cursorfile.is_err());
+  }
+
+  #[test]
+  fn read_cursorfile_broken() {
+    let testdir = prepare_testdir("testdir_with_cursor");
+
+    fileutil::append_file(testdir.child(".khaleesi/cursor").path(), "\nx").unwrap();
+    let cursorfile = read_cursorfile();
+
+    assert!(cursorfile.is_err());
+  }
+
+  #[test]
+  fn write_cursorfile_ok() {
     let testdir = prepare_testdir("testdir");
     let teststr = "Teststr äöüß\n";
 
-    write_cursorfile(teststr);
+    let result = write_cursorfile(teststr);
     testdir.child(".khaleesi/cursor").assert(teststr);
+
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn write_cursorfile_failed() {
+    let testdir = prepare_testdir("testdir");
+
+    fs::create_dir(testdir.child(".khaleesi/cursor").path()).unwrap();
+    let result = write_cursorfile("abc");
+
+    assert!(result.is_err());
   }
 }
