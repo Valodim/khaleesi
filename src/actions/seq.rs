@@ -1,11 +1,9 @@
 extern crate atty;
 
 use itertools::Itertools;
-use std::fs::rename;
-use std::io;
 
-use defaults::*;
-use utils::fileutil as utils;
+use seqfile;
+use utils::fileutil;
 
 pub fn do_seq(_args: &[String]) {
   if atty::isnt(atty::Stream::Stdin) {
@@ -20,11 +18,8 @@ pub fn do_seq(_args: &[String]) {
 }
 
 fn write_stdin_to_seqfile() {
-  let tmpfilename = get_datafile("tmpseq");
-
-  let seqfile = get_seqfile();
   let mut lines;
-  match utils::read_lines_from_stdin() {
+  match fileutil::read_lines_from_stdin() {
     Ok(mut input) => lines = input.join("\n"),
     Err(error) => {
       error!("Error reading from stdin: {}", error);
@@ -32,24 +27,12 @@ fn write_stdin_to_seqfile() {
     }
   }
   lines.push_str("\n");
-  if let Err(error) = utils::write_file(&tmpfilename, &lines) {
-    error!("Could not write seqfile: {}", error);
-    return
-  }
 
-  if let Err(error) = rename(tmpfilename, seqfile) {
-    error!("{}", error)
-  }
-}
-
-pub fn read_seqfile() -> io::Result<impl Iterator<Item = String>> {
-  let seqfile = get_seqfile();
-  debug!("Reading sequence file: {}", seqfile.to_string_lossy());
-  utils::read_lines_from_file(&seqfile)
+  seqfile::write_to_seqfile(&lines);
 }
 
 fn write_seqfile_to_stdout() {
-  if let Ok(sequence) = read_seqfile() {
+  if let Ok(sequence) = seqfile::read_seqfile() {
     for line in sequence {
       println!("{}", line);
     }

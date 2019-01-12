@@ -4,6 +4,7 @@ pub mod config;
 pub mod defaults;
 pub mod icalwrap;
 pub mod selectors;
+pub mod seqfile;
 pub mod utils;
 #[cfg(test)]
 pub mod testutils;

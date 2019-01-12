@@ -8,6 +8,7 @@ extern crate log;
 use khaleesi::config::Config;
 use khaleesi::defaults::*;
 use khaleesi::actions::*;
+use khaleesi::seqfile::read_seqfile;
 use khaleesi::utils::fileutil as utils;
 
 use std::env;
@@ -148,7 +149,7 @@ fn default_input() -> Option<Box<dyn Iterator<Item = String>>> {
     debug!("stdin");
     Some(Box::new(utils::read_lines_from_stdin().unwrap()))
   } else {
-    match seq::read_seqfile() {
+    match read_seqfile() {
       Ok(sequence) => Some(Box::new(sequence)),
       Err(err) => {
         error!("{}", err);
