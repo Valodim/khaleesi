@@ -15,6 +15,8 @@ pub mod testdata;
 extern crate tempfile;
 #[cfg(test)]
 extern crate assert_fs;
+#[cfg(test)]
+extern crate predicates;
 
 extern crate chrono;
 extern crate fs2;
