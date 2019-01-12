@@ -4,16 +4,21 @@ use utils::fileutil;
 pub fn prettyprint(lines: &mut Iterator<Item = String>) {
   let cals = fileutil::read_calendars_from_files(lines).unwrap();
   for cal in cals {
-    prettyprint_comp(&cal);
+    let event = cal.get_principal_event();
+    prettyprint_comp(&event, cal.get_path_as_string());
   }
 }
 
-pub fn prettyprint_comp(cal: &IcalVCalendar) {
+pub fn prettyprint_comp(cal: &IcalComponent, path: Option<String>) {
   let properties = cal.get_properties_all();
-  println!("num: {}", properties.len());
+  if let Some(path) = path {
+    debug!("path: {}", path);
+  }
+  debug!("property count: {}", properties.len());
   for property in properties {
     prettyprint_prop(&property);
   }
+  println!();
 }
 
 fn prettyprint_prop(property: &IcalProperty) {

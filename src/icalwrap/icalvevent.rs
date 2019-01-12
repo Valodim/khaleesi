@@ -142,7 +142,7 @@ impl IcalVEvent {
   pub fn get_khaleesi_line(&self) -> Option<String> {
     let dtstart = self.get_dtstart()?.timestamp();
     let dtstart_string = format!("{:010}", dtstart);
-    let path_string = self.parent.as_ref()?.get_path_as_string();
+    let path_string = self.parent.as_ref()?.get_path_as_string()?;
     Some([dtstart_string, path_string].join(" "))
   }
 

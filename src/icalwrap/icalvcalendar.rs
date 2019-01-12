@@ -108,7 +108,7 @@ impl IcalVCalendar {
     {
       let events = self.events_iter();
       if events.unique_uid_count() > 1 {
-        return Err(format!("More than one event in file: {}", self.get_path_as_string()));
+        return Err(format!("More than one event in file: {}", self.get_path_as_string().unwrap_or_else(|| "".to_string())));
       }
       let events = self.events_iter();
       let uid_cstr = CString::new(uid).unwrap();
@@ -184,8 +184,8 @@ impl IcalVCalendar {
     }
   }
 
-  pub fn get_path_as_string(&self) -> String {
-    format!("{}", self.path.as_ref().unwrap().display())
+  pub fn get_path_as_string(&self) -> Option<String> {
+    self.path.as_ref().map(|path| format!("{}", path.display()))
   }
 
   pub fn get_path(&self) -> Option<&PathBuf> {
@@ -209,7 +209,7 @@ impl IcalVCalendar {
       )
     };
     if self.events_iter().unique_uid_count() > 1 {
-      warn!("More than one event in file: {}", self.get_path_as_string())
+      warn!("More than one event in file: {}", self.get_path_as_string().unwrap_or_else(|| "".to_string()))
     }
     IcalVEvent::from_ptr_with_parent(event, self)
   }
