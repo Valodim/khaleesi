@@ -13,6 +13,17 @@ pub struct KhLine {
 }
 
 impl KhLine {
+  fn new(path: &Path, time: Option<DateTime<Local>>) -> Self {
+    let path = if path.is_relative() {
+      let mut fullpath = defaults::get_caldir();
+      fullpath.push(path);
+      fullpath
+    } else {
+      path.to_path_buf()
+    };
+    Self { path, time }
+  }
+
   pub fn from(event: &IcalVEvent) -> Option<KhLine> {
     let path = event.get_parent()?.get_path()?.to_path_buf();
     let time = event.get_dtstart();
@@ -63,10 +74,10 @@ impl FromStr for KhLine {
     let parts: Vec<&str> = s.splitn(2, ' ').collect();
     if let Some(time) = dateutil::datetime_from_timestamp(parts[0]) {
       let path = PathBuf::from(parts[1]);
-      Ok(Self{ path, time: Some(time) })
+      Ok(Self::new(&path, Some(time)))
     } else {
       let path = PathBuf::from(parts[0]);
-      Ok(Self{ path, time: None })
+      Ok(Self::new(&path, None))
     }
   }
 }
