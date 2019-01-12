@@ -10,7 +10,8 @@ pub fn do_copy(lines: &mut Iterator<Item = String>, _args: &[String]) {
     return;
   };
 
-  let cal = match fileutil::read_khaleesi_line(&lines[0]) {
+  let khline = lines[0].parse::<KhLine>();
+  let cal = match khline.and_then(|khline| khline.to_cal()) {
     Ok(calendar) => calendar,
     Err(error) => {
       error!("{}", error);

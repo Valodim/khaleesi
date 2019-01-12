@@ -57,9 +57,10 @@ pub fn select_by_args(args: &[String]) {
   let cals = buckets.map(|bucket| utils::read_lines_from_file(&bucket))
     .filter_map(|lines| lines.ok())
     .flatten()
-    .map(|line| utils::read_khaleesi_line(&line))
+    .map(|line| line.parse::<KhLine>())
     .filter_map(|cal| cal.ok())
-    .map(|cal| cal.get_principal_event())
+    .map(|khline| khline.to_event())
+    .flatten()
     ;
 
   let mut lines: Vec<String> = cals

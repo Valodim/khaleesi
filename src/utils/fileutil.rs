@@ -4,8 +4,8 @@ use std::path::{Path, PathBuf};
 use std::{fs, io};
 use std::fs::OpenOptions;
 
-use utils::dateutil;
 use icalwrap::IcalVCalendar;
+use khline::KhLine;
 
 pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
   use walkdir::WalkDir;
@@ -80,21 +80,11 @@ fn read_calendar_from_path(path: &Path) -> Result<IcalVCalendar, String> {
 }
 
 pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<Vec<IcalVCalendar>, String> {
-  files.map(|file| read_khaleesi_line(&file)).collect()
-}
-
-pub fn read_khaleesi_line(kline: &str) -> Result<IcalVCalendar, String> {
-  let parts: Vec<&str> = kline.splitn(2, ' ').collect();
-  if let Some(timestamp) = dateutil::datetime_from_timestamp(parts[0]) {
-    let path = Path::new(parts[1]);
-    let calendar = read_calendar_from_path(path)?;
-    let calendar = calendar.with_internal_timestamp(timestamp);
-    Ok(calendar)
-  } else {
-    let path = Path::new(parts[0]);
-    let calendar = read_calendar_from_path(path)?;
-    Ok(calendar)
-  }
+  files
+    .map(|line| line.parse::<KhLine>())
+    .flatten()
+    .map(|khline| khline.to_cal())
+    .collect()
 }
 
 #[cfg(test)]

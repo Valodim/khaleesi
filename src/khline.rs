@@ -1,8 +1,10 @@
 use std::fmt;
+use std::str::FromStr;
 use std::path::PathBuf;
 use chrono::prelude::*;
 
-use icalwrap::IcalVEvent;
+use icalwrap::{IcalVCalendar,IcalVEvent};
+use utils::{fileutil,dateutil};
 
 pub struct KhLine {
   path: PathBuf,
@@ -20,6 +22,18 @@ impl KhLine {
   pub fn to_string(&self) -> String {
     format!("{}", self)
   }
+
+  pub fn to_cal(&self) -> Result<IcalVCalendar, String> {
+    let mut calendar = fileutil::read_calendar_from_path(&self.path)?;
+    if let Some(time) = self.time {
+      calendar = calendar.with_internal_timestamp(time);
+    }
+    Ok(calendar)
+  }
+
+  pub fn to_event(&self) -> Result<IcalVEvent, String> {
+    self.to_cal().map(|cal| cal.get_principal_event())
+  }
 }
 
 impl fmt::Display for KhLine {
@@ -31,6 +45,21 @@ impl fmt::Display for KhLine {
         write!(f, "{} {}", time_string, path_string)
       }
       None => write!(f, "{}", path_string)
+    }
+  }
+}
+
+impl FromStr for KhLine {
+  type Err = String;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    let parts: Vec<&str> = s.splitn(2, ' ').collect();
+    if let Some(time) = dateutil::datetime_from_timestamp(parts[0]) {
+      let path = PathBuf::from(parts[1]);
+      Ok(Self{ path, time: Some(time) })
+    } else {
+      let path = PathBuf::from(parts[0]);
+      Ok(Self{ path, time: None })
     }
   }
 }
