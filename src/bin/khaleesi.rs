@@ -5,21 +5,9 @@ extern crate stderrlog;
 #[macro_use]
 extern crate log;
 
-use khaleesi::agenda;
-use khaleesi::cal;
-use khaleesi::copy;
 use khaleesi::config::Config;
 use khaleesi::defaults::*;
-use khaleesi::edit;
-use khaleesi::index;
-use khaleesi::list;
-use khaleesi::modify;
-use khaleesi::new;
-use khaleesi::prettyprint;
-use khaleesi::select;
-use khaleesi::seq;
-use khaleesi::show;
-use khaleesi::unroll;
+use khaleesi::actions::*;
 use khaleesi::utils::fileutil as utils;
 
 use std::env;

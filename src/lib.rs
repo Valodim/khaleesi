@@ -1,22 +1,8 @@
-pub mod agenda;
-pub mod bucketable;
-pub mod cal;
-pub mod copy;
+pub mod actions;
 pub mod config;
 pub mod defaults;
-pub mod edit;
 pub mod icalwrap;
-pub mod index;
-pub mod indextime;
-pub mod list;
-pub mod modify;
-pub mod new;
-pub mod prettyprint;
-pub mod select;
 pub mod selectors;
-pub mod seq;
-pub mod show;
-pub mod unroll;
 pub mod utils;
 #[cfg(test)]
 pub mod testutils;

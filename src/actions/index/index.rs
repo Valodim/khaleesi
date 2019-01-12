@@ -7,15 +7,15 @@ use std::time::SystemTime;
 use walkdir::DirEntry;
 
 use defaults::*;
-use indextime;
+use super::indextime;
 use utils::fileutil;
 use utils::lock;
 use utils::misc;
 
 
 fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &IcalVCalendar) {
-  use bucketable::Bucketable;
-  use bucketable::Merge;
+  use super::bucketable::Bucketable;
+  use super::bucketable::Merge;
 
   match cal.get_buckets() {
     Ok(cal_buckets) => buckets.merge(cal_buckets),
@@ -102,7 +102,7 @@ fn read_buckets(ics_files: impl Iterator<Item = PathBuf>) -> HashMap<String, Vec
 
   let mut total_files = 0;
   for file in ics_files {
-    trace!("File: {:?}", file);
+    debug!("Indexing file: {:?}", file);
     match fileutil::read_file_to_string(&file) {
       Ok(content) => {
         total_files += 1;
