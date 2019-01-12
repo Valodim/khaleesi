@@ -59,7 +59,8 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) {
       "modify" => action_modify(&args[1..]),
       "select" => action_select(&args[1..]),
       "seq" => action_sequence(&args[1..]),
-      "short" => action_prettyprint_all(&args[1..]),
+      "pretty" => action_prettyprint(&args[1..]),
+      "short" => action_shortprint(&args[1..]),
       "show" => action_show(&args[1..]),
       "unroll" => action_unroll(&args[1..]),
       _  => print_usage(&args[0])
@@ -124,10 +125,16 @@ fn action_unroll(args: &[String]) {
   unroll::do_unroll(filepath)
 }
 
-fn action_prettyprint_all(args: &[String]) {
-  let file = &args[0];
-  let filepath = Path::new(file);
-  prettyprint::shortprint_dir(filepath)
+fn action_shortprint(_args: &[String]) {
+  if let Some(mut input) = default_input() {
+    prettyprint::shortprint(&mut input);
+  }
+}
+
+fn action_prettyprint(_args: &[String]) {
+  if let Some(mut input) = default_input() {
+    prettyprint::prettyprint(&mut input);
+  }
 }
 
 fn action_index(mut args: &[String]) {

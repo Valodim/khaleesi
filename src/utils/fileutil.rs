@@ -79,11 +79,6 @@ pub fn read_calendar_from_path(path: &Path) -> Result<IcalVCalendar, String> {
   IcalVCalendar::from_str(&content, Some(path))
 }
 
-pub fn read_calendar_from_file(filepath: &str) -> Result<IcalVCalendar, String> {
-  let path = Path::new(filepath);
-  read_calendar_from_path(path)
-}
-
 pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<Vec<IcalVCalendar>, String> {
   files.map(|file| read_khaleesi_line(&file)).collect()
 }
@@ -99,14 +94,6 @@ pub fn read_khaleesi_line(kline: &str) -> Result<IcalVCalendar, String> {
     let path = Path::new(parts[0]);
     let calendar = read_calendar_from_path(path)?;
     Ok(calendar)
-  }
-}
-
-pub fn print_cals(cals: impl Iterator<Item = IcalVCalendar>) {
-  for cal in cals {
-    if let Some(line) = cal.get_principal_event().get_khaleesi_line() {
-      println!("{}", line);
-    }
   }
 }
 

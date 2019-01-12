@@ -1,34 +1,20 @@
-use std::path::{Path};
-
 use icalwrap::{IcalComponent,IcalVCalendar,IcalProperty};
-use utils::fileutil as utils;
+use utils::fileutil;
 
-pub fn shortprint_dir(dir: &Path) {
-  for filepath in utils::file_iter(dir) {
-    shortprint_file(&filepath);
+pub fn shortprint(lines: &mut Iterator<Item = String>) {
+  let cals = fileutil::read_calendars_from_files(lines).unwrap();
+  for cal in cals {
+    shortprint_comp(&cal);
   }
 }
 
-pub fn shortprint_file(filepath: &Path) {
-  match utils::read_file_to_string(filepath) {
-    Ok(content) => {
-      let cal = IcalVCalendar::from_str(&content, None);
-      let inner = cal.unwrap();
-      shortprint_comp(&inner);
-    },
-    Err(error) => print!("{}", error)
+pub fn prettyprint(lines: &mut Iterator<Item = String>) {
+  let cals = fileutil::read_calendars_from_files(lines).unwrap();
+  for cal in cals {
+    prettyprint_comp(&cal);
   }
 }
 
-pub fn prettyprint_file(filepath: &Path) {
-  match utils::read_file_to_string(filepath) {
-    Ok(content) => {
-      let cal = IcalVCalendar::from_str(&content, Some(filepath)).unwrap();
-      prettyprint_comp(&cal);
-    },
-    Err(error) => print!("{}", error)
-  }
-}
 
 pub fn shortprint_comp(cal: &IcalVCalendar) {
   let event = cal.events_iter().next().expect("No event in VCalendar!");
