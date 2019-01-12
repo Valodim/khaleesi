@@ -16,9 +16,7 @@ pub struct KhLine {
 impl KhLine {
   fn new(path: &Path, time: Option<DateTime<Local>>) -> Self {
     let path = if path.is_relative() {
-      let mut fullpath = defaults::get_caldir();
-      fullpath.push(path);
-      fullpath
+      defaults::get_caldir().join(path)
     } else {
       path.to_path_buf()
     };
