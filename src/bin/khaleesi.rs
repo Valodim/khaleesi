@@ -194,7 +194,7 @@ mod tests {
 
     run(&testdir, &["index"], None);
 
-    testdir.child(".khaleesi/index/2018-W50").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics\n");
-    testdir.child(".khaleesi/index/2018-W51").assert("1544740200 .khaleesi/cal/twodaysacrossbuckets.ics\n");
+    testdir.child(".khaleesi/index/2018-W50").assert("1544740200 twodaysacrossbuckets.ics\n");
+    testdir.child(".khaleesi/index/2018-W51").assert("1544740200 twodaysacrossbuckets.ics\n");
   }
 }

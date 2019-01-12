@@ -1,10 +1,11 @@
 use std::fmt;
 use std::str::FromStr;
-use std::path::PathBuf;
+use std::path::{PathBuf,Path};
 use chrono::prelude::*;
 
 use icalwrap::{IcalVCalendar,IcalVEvent};
 use utils::{fileutil,dateutil};
+use defaults;
 
 pub struct KhLine {
   path: PathBuf,
@@ -34,11 +35,17 @@ impl KhLine {
   pub fn to_event(&self) -> Result<IcalVEvent, String> {
     self.to_cal().map(|cal| cal.get_principal_event())
   }
+
+  fn get_normalized_path(&self) -> &Path {
+    self.path
+      .strip_prefix(defaults::get_caldir())
+      .unwrap_or(&self.path)
+  }
 }
 
 impl fmt::Display for KhLine {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    let path_string = self.path.to_string_lossy();
+    let path_string = self.get_normalized_path().to_string_lossy();
     match self.time {
       Some(time) => {
         let time_string = format!("{:010}", time.timestamp());
