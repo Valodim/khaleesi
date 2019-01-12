@@ -41,15 +41,15 @@ fn main() {
   let args: Vec<String> = env::args().collect();
   let config = Config::read_config();
 
-  main_internal(&args[0], &args[1..], config);
+  main_internal(&args[0], &args[1..], &config);
 }
 
-fn main_internal(binary_name: &str, args: &[String], config: Config) {
+fn main_internal(binary_name: &str, args: &[String], config: &Config) {
   if args.is_empty() {
     print_usage(&binary_name)
   } else {
     match args[0].as_str() {
-      "agenda" => action_agenda(&config, &args[1..]),
+      "agenda" => action_agenda(config, &args[1..]),
       "cal" => cal::printcal(),
       "copy" => action_copy(&args[1..]),
       "new" => action_new(&args[1..]),
@@ -75,7 +75,7 @@ fn print_usage(name: &str) {
 }
 
 fn action_sequence(args: &[String]) {
-  seq::do_seq(args); 
+  seq::do_seq(args);
 }
 
 fn action_list(args: &[String]) {
@@ -211,7 +211,7 @@ mod tests {
 
     let config = config.unwrap_or_default();
     let args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
-    main_internal("khaleesi", &args, config)
+    main_internal("khaleesi", &args, &config)
   }
 
   #[test]
