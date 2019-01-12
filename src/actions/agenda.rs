@@ -10,10 +10,10 @@ use khline::KhLine;
 
 pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
   let cursor = cursorfile::read_cursorfile().ok();
-  show_events_cursor(config, lines, cursor)
+  show_events_cursor(config, lines, cursor.as_ref())
 }
 
-pub fn show_events_cursor(config: &Config, lines: &mut Iterator<Item = String>, cursor: Option<KhLine>) {
+pub fn show_events_cursor(config: &Config, lines: &mut Iterator<Item = String>, cursor: Option<&KhLine>) {
   let cals = utils::read_calendars_from_files(lines).unwrap();
 
   let mut not_over_yet: Vec<(usize, &IcalVCalendar, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
@@ -40,7 +40,7 @@ pub fn show_events_cursor(config: &Config, lines: &mut Iterator<Item = String>, 
     maybe_print_date_line_header(&config, cur_day, start_day, &mut last_printed_day);
 
     not_over_yet.retain( |(index, _, event, cal_config)| {
-      let is_cursor = cursor.as_ref().map(|c| c.matches(&event)).unwrap_or(false);
+      let is_cursor = cursor.map(|c| c.matches(&event)).unwrap_or(false);
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
       print_event_line(*cal_config, *index, &event, cur_day, is_cursor);
       event.continues_after(cur_day)
@@ -48,7 +48,7 @@ pub fn show_events_cursor(config: &Config, lines: &mut Iterator<Item = String>, 
 
     let relevant_events = cals_iter.peeking_take_while(|(_,_,event,_)| event.starts_on(cur_day));
     for (i, cal, event, cal_config) in relevant_events {
-      let is_cursor = cursor.as_ref().map(|c| c.matches(&event)).unwrap_or(false);
+      let is_cursor = cursor.map(|c| c.matches(&event)).unwrap_or(false);
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
       print_event_line(cal_config, i, &event, cur_day, is_cursor);
       if event.continues_after(cur_day) {
