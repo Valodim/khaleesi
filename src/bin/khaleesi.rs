@@ -60,7 +60,6 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) {
       "select" => action_select(&args[1..]),
       "seq" => action_sequence(&args[1..]),
       "pretty" => action_prettyprint(&args[1..]),
-      "short" => action_shortprint(&args[1..]),
       "show" => action_show(&args[1..]),
       "unroll" => action_unroll(&args[1..]),
       _  => print_usage(&args[0])
@@ -70,7 +69,7 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) {
 }
 
 fn print_usage(name: &str) {
-  error!("Usage: {} index|select|list|agenda|copy|new|edit|show|cal|dbg|short", name)
+  error!("Usage: {} index|select|list|agenda|copy|new|edit|show|cal|dbg", name)
 }
 
 fn action_sequence(args: &[String]) {
@@ -123,12 +122,6 @@ fn action_unroll(args: &[String]) {
   let file = &args[0];
   let filepath = Path::new(file);
   unroll::do_unroll(filepath)
-}
-
-fn action_shortprint(_args: &[String]) {
-  if let Some(mut input) = default_input() {
-    prettyprint::shortprint(&mut input);
-  }
 }
 
 fn action_prettyprint(_args: &[String]) {
