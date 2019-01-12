@@ -3,7 +3,7 @@ use std::path::Path;
 use utils::fileutil as utils;
 
 pub fn do_unroll(filepath: &Path) {
-  let cal = utils::read_calendar_from_path(filepath).unwrap();
+  let cal = utils::read_khaleesi_line(filepath.to_str().unwrap()).unwrap();
   for event in cal.events_iter() {
     if event.has_recur() {
       let recurs = event.get_recur_datetimes();
