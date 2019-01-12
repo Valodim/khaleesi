@@ -1,4 +1,5 @@
 pub mod actions;
+pub mod khline;
 pub mod config;
 pub mod defaults;
 pub mod icalwrap;

@@ -1,3 +1,4 @@
+use khline::KhLine;
 use utils::fileutil;
 use utils::misc;
 
@@ -33,5 +34,5 @@ pub fn do_copy(lines: &mut Iterator<Item = String>, _args: &[String]) {
     },
   }
 
-  println!("{}", new_cal.get_principal_event().get_khaleesi_line().unwrap());
+  println!("{}", KhLine::from(&new_cal.get_principal_event()).unwrap());
 }

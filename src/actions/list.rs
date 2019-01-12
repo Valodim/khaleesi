@@ -1,5 +1,6 @@
 use selectors::SelectFilters;
-use utils::fileutil as utils;
+use utils::fileutil;
+use khline::KhLine;
 
 pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   let filters = match SelectFilters::parse_from_args_with_range(args) {
@@ -7,7 +8,7 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
     Ok(parsed_filters) => parsed_filters,
   };
 
-  let cals = utils::read_calendars_from_files(filenames).unwrap();
+  let cals = fileutil::read_calendars_from_files(filenames).unwrap();
 
   let events = cals.into_iter()
     .map(|cal| cal.get_principal_event())
@@ -15,8 +16,8 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
     .filter(|(index, event)| filters.is_selected_index(*index, event));
 
   for (_, event) in events {
-    if let Some(line) = event.get_khaleesi_line() {
-      println!("{}", line);
+    if let Some(khline) = KhLine::from(&event) {
+      println!("{}", khline);
     }
   }
 }

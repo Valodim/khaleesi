@@ -370,14 +370,6 @@ mod tests {
   }
 
   #[test]
-  fn get_khaleesi_line_test() {
-    let path = PathBuf::from("test/path");
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
-    let event = cal.get_principal_event();
-    assert_eq!(String::from("1182988800 test/path"), event.get_khaleesi_line().unwrap())
-  }
-
-  #[test]
   fn get_calendar_name_test() {
     let path = PathBuf::from("calname/event");
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();

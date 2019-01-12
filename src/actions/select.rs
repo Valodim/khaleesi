@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use defaults;
 use selectors::{SelectFilters,daterange::SelectFilterFrom,daterange::SelectFilterTo};
 use utils::fileutil as utils;
+use khline::KhLine;
 
 impl SelectFilters {
   fn predicate_path_skip_while(&self) -> impl Fn(&PathBuf) -> bool + '_ {
@@ -63,8 +64,9 @@ pub fn select_by_args(args: &[String]) {
 
   let mut lines: Vec<String> = cals
     .filter(|event| filters.is_selected(event))
-    .map(|event| event.get_khaleesi_line())
+    .map(|event| KhLine::from(&event))
     .flatten()
+    .map(|khline| khline.to_string())
     .collect();
 
   lines.sort_unstable();

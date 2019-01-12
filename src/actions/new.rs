@@ -1,7 +1,8 @@
+use defaults;
+use icalwrap::IcalVCalendar;
+use khline::KhLine;
 use utils::fileutil;
 use utils::misc;
-use icalwrap::IcalVCalendar;
-use defaults;
 
 pub fn do_new(_lines: &mut Iterator<Item = String>, _args: &[String]) {
 
@@ -24,7 +25,8 @@ pub fn do_new(_lines: &mut Iterator<Item = String>, _args: &[String]) {
     },
   }
 
-  println!("{}", new_cal.get_principal_event().get_khaleesi_line().unwrap());
+  let khline = KhLine::from(&new_cal.get_principal_event());
+  println!("{}", khline.unwrap());
 }
 
 static TEMPLATE_EVENT: &str = indoc!("

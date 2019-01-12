@@ -4,6 +4,7 @@ use std::{hash, cmp};
 
 use icalwrap::{IcalVEvent, IcalVCalendar};
 use utils::misc;
+use khline::KhLine;
 
 pub trait Bucketable {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String>;
@@ -34,11 +35,13 @@ impl Bucketable for IcalVEvent {
     }
 
     let buckets = Self::buckets_for_interval(start_date, end_date);
+    let khline = KhLine::from(self)
+      .ok_or_else(|| format!("Failed to build khline in {}", self.get_uid()))?;
     for bucketid in buckets {
       result
         .entry(bucketid)
-        .and_modify(|items| items.push(self.get_khaleesi_line().unwrap()))
-        .or_insert_with(|| vec!(self.get_khaleesi_line().unwrap()));
+        .and_modify(|items| items.push(khline.to_string()))
+        .or_insert_with(|| vec!(khline.to_string()));
     }
 
     if self.has_recur() {
