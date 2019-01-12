@@ -66,7 +66,6 @@ pub fn select_by_args(args: &[String]) {
   let mut lines: Vec<String> = cals
     .filter(|event| filters.is_selected(event))
     .map(|event| KhLine::from(&event))
-    .flatten()
     .map(|khline| khline.to_string())
     .collect();
 

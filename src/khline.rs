@@ -24,17 +24,6 @@ impl KhLine {
     Self { path, time }
   }
 
-  pub fn from(event: &IcalVEvent) -> Option<KhLine> {
-    let path = event.get_parent()?.get_path()?.to_path_buf();
-    let time = event.get_dtstart();
-
-    Some(KhLine{ path, time })
-  }
-
-  pub fn to_string(&self) -> String {
-    format!("{}", self)
-  }
-
   pub fn to_cal(&self) -> Result<IcalVCalendar, String> {
     let mut calendar = fileutil::read_calendar_from_path(&self.path)?;
     if let Some(time) = self.time {
@@ -51,6 +40,21 @@ impl KhLine {
     self.path
       .strip_prefix(defaults::get_caldir())
       .unwrap_or(&self.path)
+  }
+}
+
+impl From<&IcalVEvent> for KhLine {
+  fn from(event: &IcalVEvent) -> Self {
+    let path = event.get_parent().unwrap().get_path().unwrap().to_path_buf();
+    let time = event.get_dtstart();
+
+    KhLine{ path, time }
+  }
+}
+
+impl From<&IcalVCalendar> for KhLine {
+  fn from(cal: &IcalVCalendar) -> Self {
+    KhLine::from(&cal.get_principal_event())
   }
 }
 
@@ -94,7 +98,7 @@ mod tests {
     let path = PathBuf::from("test/path");
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
     let khline = KhLine::from(&cal.get_principal_event());
-    assert_eq!(String::from("1182988800 test/path"), khline.unwrap().to_string());
+    assert_eq!(String::from("1182988800 test/path"), khline.to_string());
   }
 
 //  #[test]

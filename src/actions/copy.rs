@@ -35,5 +35,5 @@ pub fn do_copy(lines: &mut Iterator<Item = String>, _args: &[String]) {
     },
   }
 
-  println!("{}", KhLine::from(&new_cal.get_principal_event()).unwrap());
+  println!("{}", KhLine::from(&new_cal));
 }

@@ -25,8 +25,8 @@ pub fn do_new(_lines: &mut Iterator<Item = String>, _args: &[String]) {
     },
   }
 
-  let khline = KhLine::from(&new_cal.get_principal_event());
-  println!("{}", khline.unwrap());
+  let khline = KhLine::from(&new_cal);
+  println!("{}", khline);
 }
 
 static TEMPLATE_EVENT: &str = indoc!("

@@ -16,9 +16,7 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
     .filter(|(index, event)| filters.is_selected_index(*index, event));
 
   for (_, event) in events {
-    if let Some(khline) = KhLine::from(&event) {
-      println!("{}", khline);
-    }
+    println!("{}", KhLine::from(&event));
   }
 }
 

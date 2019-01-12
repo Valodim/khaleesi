@@ -35,8 +35,7 @@ impl Bucketable for IcalVEvent {
     }
 
     let buckets = Self::buckets_for_interval(start_date, end_date);
-    let khline = KhLine::from(self)
-      .ok_or_else(|| format!("Failed to build khline in {}", self.get_uid()))?;
+    let khline = KhLine::from(self);
     for bucketid in buckets {
       result
         .entry(bucketid)
