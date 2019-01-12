@@ -1,5 +1,5 @@
-pub mod index;
+pub mod action;
 mod indextime;
 mod bucketable;
 
-pub use self::index::index_dir;
+pub use self::action::index_dir;
