@@ -2,13 +2,13 @@ use std::env;
 use std::fs;
 use std::process::Command;
 
-use utils::misc;
+use utils::dateutil;
 
 pub fn do_edit(filenames: &mut Iterator<Item = String>, _args: &[String]) {
 
   let mut paths: Vec<String> = filenames.map( |line| {
     let parts: Vec<&str> = line.splitn(2, ' ').collect();
-    match misc::datetime_from_timestamp(parts[0]) {
+    match dateutil::datetime_from_timestamp(parts[0]) {
       Some(_) => parts[1].to_string(),
       None => parts[0].to_string(),
     }

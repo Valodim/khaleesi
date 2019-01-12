@@ -1,10 +1,10 @@
-use super::misc;
 use std::io::prelude::*;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::{fs, io};
 use std::fs::OpenOptions;
 
+use utils::dateutil;
 use icalwrap::IcalVCalendar;
 
 pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
@@ -85,7 +85,7 @@ pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<
 
 pub fn read_khaleesi_line(kline: &str) -> Result<IcalVCalendar, String> {
   let parts: Vec<&str> = kline.splitn(2, ' ').collect();
-  if let Some(timestamp) = misc::datetime_from_timestamp(parts[0]) {
+  if let Some(timestamp) = dateutil::datetime_from_timestamp(parts[0]) {
     let path = Path::new(parts[1]);
     let calendar = read_calendar_from_path(path)?;
     let calendar = calendar.with_internal_timestamp(timestamp);

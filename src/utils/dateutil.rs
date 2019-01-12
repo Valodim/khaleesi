@@ -36,57 +36,76 @@ pub fn week_from_str_end(date_str: &str) -> Result<Date<Local>,String> {
   Err("Could not parse '{}' as week".to_string())
 }
 
-#[test]
-fn test_date_from_str() {
-  let date = date_from_str("2018-12-10").unwrap();
-  assert_eq!("2018-12-10", format!("{}", date.format("%F")));
-  let date = date_from_str("today").unwrap();
-  assert_eq!(Local::now().date(), date);
-  let date = date_from_str("now").unwrap();
-  assert_eq!(Local::now().date(), date);
+pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Utc>> {
+  let timestamp_i64 = timestamp.parse::<i64>().ok()?;
+  let naive_datetime = NaiveDateTime::from_timestamp_opt(timestamp_i64, 0)?;
+  Some(DateTime::from_utc(naive_datetime, Utc))
 }
 
-#[test]
-#[should_panic]
-fn test_date_from_str_negative() {
-  date_from_str("2018-02-30").unwrap();
-}
+#[cfg(test)]
+mod tests {
+  use super::*;
 
-#[test]
-fn test_week_from_str_begin() {
-  let date = week_from_str_begin("2018-W50").unwrap();
-  assert_eq!("2018-12-10", format!("{}", date.format("%F")));
-  let date = week_from_str_begin("W50").unwrap();
-  assert_eq!("2019-12-09", format!("{}", date.format("%F")));
-}
+  #[test]
+  fn test_date_from_str() {
+    let date = date_from_str("2018-12-10").unwrap();
+    assert_eq!("2018-12-10", format!("{}", date.format("%F")));
+    let date = date_from_str("today").unwrap();
+    assert_eq!(Local::now().date(), date);
+    let date = date_from_str("now").unwrap();
+    assert_eq!(Local::now().date(), date);
+  }
 
-#[test]
-fn test_week_from_str_begin_current_year() {
-  // TODO test must be adapted once a year. hum.
-  let date = week_from_str_begin("W50").unwrap();
-  assert_eq!("2019-12-09", format!("{}", date.format("%F")));
-}
+  #[test]
+  #[should_panic]
+  fn test_date_from_str_negative() {
+    date_from_str("2018-02-30").unwrap();
+  }
 
-#[test]
-#[should_panic]
-fn test_week_from_str_begin_neg() {
-  week_from_str_begin("nonsense").unwrap();
-}
+  #[test]
+  fn test_week_from_str_begin() {
+    let date = week_from_str_begin("2018-W50").unwrap();
+    assert_eq!("2018-12-10", format!("{}", date.format("%F")));
+    let date = week_from_str_begin("W50").unwrap();
+    assert_eq!("2019-12-09", format!("{}", date.format("%F")));
+  }
 
-#[test]
-fn test_week_from_str_end() {
-  let date = week_from_str_end("W50").unwrap();
-  assert_eq!("2019-12-15", format!("{}", date.format("%F")));
-}
-#[test]
-fn test_week_from_str_end_current_year() {
-  // TODO test must be adapted once a year. hum.
-  let date = week_from_str_end("W50").unwrap();
-  assert_eq!("2019-12-15", format!("{}", date.format("%F")));
-}
+  #[test]
+  fn test_week_from_str_begin_current_year() {
+    // TODO test must be adapted once a year. hum.
+    let date = week_from_str_begin("W50").unwrap();
+    assert_eq!("2019-12-09", format!("{}", date.format("%F")));
+  }
 
-#[test]
-#[should_panic]
-fn test_week_from_str_end_neg() {
-  week_from_str_end("nonsense").unwrap();
+  #[test]
+  #[should_panic]
+  fn test_week_from_str_begin_neg() {
+    week_from_str_begin("nonsense").unwrap();
+  }
+
+  #[test]
+  fn test_week_from_str_end() {
+    let date = week_from_str_end("W50").unwrap();
+    assert_eq!("2019-12-15", format!("{}", date.format("%F")));
+  }
+  #[test]
+  fn test_week_from_str_end_current_year() {
+    // TODO test must be adapted once a year. hum.
+    let date = week_from_str_end("W50").unwrap();
+    assert_eq!("2019-12-15", format!("{}", date.format("%F")));
+  }
+
+  #[test]
+  #[should_panic]
+  fn test_week_from_str_end_neg() {
+    week_from_str_end("nonsense").unwrap();
+  }
+
+  #[test]
+  fn test_datetime_from_timestamp() {
+    let timestamp = "1547234687";
+    let dt_from_ts = datetime_from_timestamp(timestamp).unwrap();
+    let dt = Utc.ymd(2019, 01, 11).and_hms(19, 24, 47);
+    assert_eq!(dt, dt_from_ts);
+  }
 }

@@ -15,12 +15,6 @@ pub fn joinlines(first: &str, second: &str) -> String {
     .join("\n")
 }
 
-pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Utc>> {
-  let timestamp_i64 = timestamp.parse::<i64>().ok()?;
-  let naive_datetime = NaiveDateTime::from_timestamp_opt(timestamp_i64, 0)?;
-  Some(DateTime::from_utc(naive_datetime, Utc))
-}
-
 pub fn format_duration(duration: &time::Duration) -> impl Display {
   //TODO replace this with duration.as_millis() when it becomes stable
   duration.as_secs() * 1000 + u64::from(duration.subsec_millis())
@@ -46,14 +40,6 @@ mod tests {
     let mut uid = make_new_uid();
     assert_eq!(45, uid.len());
     assert_eq!("@khaleesi".to_string(), uid.split_off(36));
-  }
-
-  #[test]
-  fn test_datetime_from_timestamp() {
-    let timestamp = "1547234687";
-    let dt_from_ts = datetime_from_timestamp(timestamp).unwrap();
-    let dt = Utc.ymd(2019, 01, 11).and_hms(19, 24, 47);
-    assert_eq!(dt, dt_from_ts);
   }
 
   #[test]
