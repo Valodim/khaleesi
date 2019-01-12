@@ -1,6 +1,7 @@
 pub mod agenda;
 pub mod cal;
 pub mod copy;
+pub mod cursor;
 pub mod edit;
 pub mod index;
 pub mod list;

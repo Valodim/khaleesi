@@ -40,6 +40,7 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) {
       "agenda" => action_agenda(config, &args[1..]),
       "cal" => cal::printcal(),
       "copy" => action_copy(&args[1..]),
+      "cursor" => action_cursor(&args[1..]),
       "new" => action_new(&args[1..]),
       "dbg" => cal::dbg(),
       "edit" => action_edit(&args[1..]),
@@ -63,6 +64,10 @@ fn print_usage(name: &str) {
 
 fn action_sequence(args: &[String]) {
   seq::do_seq(args);
+}
+
+fn action_cursor(args: &[String]) {
+  cursor::do_cursor(args);
 }
 
 fn action_list(args: &[String]) {
