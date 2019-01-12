@@ -7,6 +7,7 @@ use icalwrap::{IcalVCalendar,IcalVEvent};
 use utils::{fileutil,dateutil};
 use defaults;
 
+#[derive(PartialEq,Eq)]
 pub struct KhLine {
   path: PathBuf,
   time: Option<DateTime<Local>>,
@@ -34,6 +35,10 @@ impl KhLine {
 
   pub fn to_event(&self) -> Result<IcalVEvent, String> {
     self.to_cal().map(|cal| cal.get_principal_event())
+  }
+
+  pub fn matches(&self, event: &IcalVEvent) -> bool {
+    self == &KhLine::from(event)
   }
 
   fn get_normalized_path(&self) -> &Path {

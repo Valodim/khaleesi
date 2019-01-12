@@ -2,11 +2,18 @@ use chrono::{Datelike, TimeZone, Local, Date};
 use itertools::Itertools;
 use yansi::{Style};
 
+use cursorfile;
 use icalwrap::*;
 use utils::fileutil as utils;
 use config::{Config,CalendarConfig};
+use khline::KhLine;
 
 pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
+  let cursor = cursorfile::read_cursorfile().ok();
+  show_events_cursor(config, lines, cursor)
+}
+
+pub fn show_events_cursor(config: &Config, lines: &mut Iterator<Item = String>, cursor: Option<KhLine>) {
   let cals = utils::read_calendars_from_files(lines).unwrap();
 
   let mut not_over_yet: Vec<(usize, &IcalVCalendar, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
@@ -33,15 +40,17 @@ pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
     maybe_print_date_line_header(&config, cur_day, start_day, &mut last_printed_day);
 
     not_over_yet.retain( |(index, _, event, cal_config)| {
+      let is_cursor = cursor.as_ref().map(|c| c.matches(&event)).unwrap_or(false);
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
-      print_event_line(*cal_config, *index, &event, cur_day);
+      print_event_line(*cal_config, *index, &event, cur_day, is_cursor);
       event.continues_after(cur_day)
     });
 
     let relevant_events = cals_iter.peeking_take_while(|(_,_,event,_)| event.starts_on(cur_day));
     for (i, cal, event, cal_config) in relevant_events {
+      let is_cursor = cursor.as_ref().map(|c| c.matches(&event)).unwrap_or(false);
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
-      print_event_line(cal_config, i, &event, cur_day);
+      print_event_line(cal_config, i, &event, cur_day, is_cursor);
       if event.continues_after(cur_day) {
         not_over_yet.push((i, cal, event, cal_config));
       }
@@ -79,25 +88,39 @@ fn print_date_line(date: Date<Local>) {
   println!("{}, {}", style_heading.paint(date.format("%Y-%m-%d")), date.format("%A"));
 }
 
-fn print_event_line(config: Option<&CalendarConfig>, index: usize, event: &IcalVEvent, date: Date<Local>) {
-  match event_line(config, &event, date) {
+fn print_event_line(
+  config: Option<&CalendarConfig>,
+  index: usize,
+  event: &IcalVEvent,
+  date: Date<Local>,
+  is_cursor: bool
+) {
+  match event_line(config, &event, date, is_cursor) {
     Ok(line) => println!("{:4}  {}", index, line),
     Err(error) => warn!("{} in {}", error, event.get_uid())
   }
 }
 
-pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: Date<Local>) -> Result<String, String> {
+pub fn event_line(
+  config: Option<&CalendarConfig>,
+  event: &IcalVEvent,
+  cur_day: Date<Local>,
+  is_cursor: bool
+) -> Result<String, String> {
   if !event.relevant_on(cur_day) {
     return Err(format!("event is not relevant for {:?}", cur_day));
   }
 
+  let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
+  if let Some(config) = config {
+    let calendar_style = config.get_style_for_calendar();
+    summary = calendar_style.paint(summary).to_string();
+  }
+
+  let cursor_icon = if is_cursor { ">" } else { "" };
+
   if event.is_allday() {
-    let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
-    if let Some(config) = config {
-      let calendar_style = config.get_style_for_calendar();
-      summary = calendar_style.paint(summary).to_string();
-    }
-    Ok(format!("             {}", summary))
+    Ok(format!("{:3}             {}", cursor_icon, summary))
   } else {
     let mut time_sep = " ";
     let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?;
@@ -116,14 +139,7 @@ pub fn event_line(config: Option<&CalendarConfig>, event: &IcalVEvent, cur_day: 
       format!("{}", dtend.format("%H:%M"))
     };
 
-    let mut summary = event.get_summary().ok_or("Invalid SUMMARY")?;
-
-    if let Some(config) = config {
-      let calendar_style = config.get_style_for_calendar();
-      summary = calendar_style.paint(summary).to_string();
-    }
-
-    Ok(format!("{:5}{}{:5}  {}", start_string, time_sep, end_string, summary))
+    Ok(format!("{:3}{:5}{}{:5}  {}", cursor_icon, start_string, time_sep, end_string, summary))
   }
 }
 
@@ -185,7 +201,7 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
     let date = Local.ymd(1998, 1, 1);
-    let event_line = event_line(None, &event, date);
+    let event_line = event_line(None, &event, date, false);
     assert!(event_line.is_err())
   }
 
@@ -195,8 +211,18 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
     let date = Local.ymd(1997, 3, 24);
-    let event_line = event_line(None, &event, date).unwrap();
-    assert_eq!("12:30-21:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
+    let event_line = event_line(None, &event, date, false).unwrap();
+    assert_eq!("   12:30-21:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
+  }
+
+  #[test]
+  fn test_event_line_cursor() {
+    testdata::setup();
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    let event = cal.get_principal_event();
+    let date = Local.ymd(1997, 3, 24);
+    let event_line = event_line(None, &event, date, true).unwrap();
+    assert_eq!(">  12:30-21:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
   }
 
   #[test]
@@ -207,12 +233,12 @@ mod tests {
     let begin = Local.ymd(2007, 6, 28);
     let middle = Local.ymd(2007, 6, 30);
     let end = Local.ymd(2007, 7, 9);
-    let event_line_begin = event_line(None, &event, begin).unwrap();
-    let event_line_middle = event_line(None, &event, middle).unwrap();
-    let event_line_end = event_line(None, &event, end).unwrap();
-    assert_eq!("13:29-       Festival International de Jazz de Montreal".to_string(), event_line_begin);
-    assert_eq!("             Festival International de Jazz de Montreal".to_string(), event_line_middle);
-    assert_eq!("     -07:29  Festival International de Jazz de Montreal".to_string(), event_line_end);
+    let event_line_begin = event_line(None, &event, begin, false).unwrap();
+    let event_line_middle = event_line(None, &event, middle, false).unwrap();
+    let event_line_end = event_line(None, &event, end, false).unwrap();
+    assert_eq!("   13:29-       Festival International de Jazz de Montreal".to_string(), event_line_begin);
+    assert_eq!("                Festival International de Jazz de Montreal".to_string(), event_line_middle);
+    assert_eq!("        -07:29  Festival International de Jazz de Montreal".to_string(), event_line_end);
   }
 
   #[test]
@@ -220,7 +246,7 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
     let event = cal.get_principal_event();
     let date = Local.ymd(2007, 6, 28);
-    let event_line = event_line(None, &event, date).unwrap();
-    assert_eq!("             Festival International de Jazz de Montreal".to_string(), event_line)
+    let event_line = event_line(None, &event, date, false).unwrap();
+    assert_eq!("                Festival International de Jazz de Montreal".to_string(), event_line)
   }
 }
