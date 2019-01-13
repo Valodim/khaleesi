@@ -12,8 +12,7 @@ pub fn do_copy(_args: &[String]) -> Result<(), String> {
 
 fn copy_internal(khline: &KhLine, uid: &str) -> Result<KhLine, String> {
   let cal = khline.to_cal()?;
-  let new_cal = cal.with_uid(uid)?;
-  let new_cal = new_cal.with_dtstamp_now();
+  let new_cal = cal.with_uid(uid)?.with_dtstamp_now();
 
   fileutil::write_cal(&new_cal)?;
 
