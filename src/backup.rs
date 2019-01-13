@@ -2,25 +2,22 @@ use std::fs;
 use chrono::Local;
 use std::path::{Path,PathBuf};
 
-use icalwrap::IcalVEvent;
-use khline::KhLine;
 use defaults;
+use khline::KhLine;
 
-impl IcalVEvent {
-  pub fn backup(&self) -> Result<PathBuf, String> {
-    let khline = KhLine::from(self);
-    
-    let backupdir = defaults::get_backupdir();
-    let backup_path = backupdir.join(with_timestamp(khline.get_normalized_path()));
-    if backup_path == khline.path {
-      Err("backup dir same as source dir".to_string())
-    } else {
-      match prepare_backup_dir(&backupdir)
-        .and_then(|_| fs::copy(khline.path, backup_path.clone())) {
-        Ok(_) => Ok(backup_path),
-        Err(err) => Err(format!("{}", err)),
+pub fn backup(khline: &KhLine) -> Result<PathBuf, String> {
+  let backupdir = defaults::get_backupdir();
+  let backup_path = backupdir.join(with_timestamp(khline.get_normalized_path()));
+
+  if backup_path == khline.path {
+    Err("backup dir same as source dir".to_string())
+  } else {
+    let backup_path_parent = backup_path.parent().unwrap();
+    match prepare_backup_dir(&backup_path_parent)
+      .and_then(|_| fs::copy(&khline.path, backup_path.clone())) {
+        Ok(_) => Ok(backup_path.clone()),
+        Err(err) => Err(err.to_string()),
       }
-    }
   }
 }
 
@@ -36,7 +33,7 @@ fn with_timestamp(path: &Path) -> PathBuf {
 fn prepare_backup_dir(backupdir: &Path) -> Result<(), std::io::Error> {
   if !backupdir.exists() {
     info!("Creating backup directory: {}", backupdir.to_string_lossy());
-    fs::create_dir(&backupdir)?;
+    fs::create_dir_all(&backupdir)?;
   }
 
   Ok(())
@@ -55,9 +52,8 @@ mod tests {
     let testdir = prepare_testdir("testdir");
 
     let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
-    let event = khline.to_event().unwrap();
 
-    let new_path = event.backup().unwrap();
+    let new_path = backup(&khline).unwrap();
 
     testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").assert(predicate::path::exists());
     testdir.child(new_path.clone()).assert(predicate::path::exists());
