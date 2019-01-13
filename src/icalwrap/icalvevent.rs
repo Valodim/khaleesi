@@ -127,18 +127,15 @@ impl IcalVEvent {
   }
 
   pub fn is_recur_valid(&self) -> bool {
-    if self.instance_timestamp.is_none() {
-     return true;
-    }
-
-    let timestamp = self.instance_timestamp.unwrap();
-
-    if self.is_recur() {
+    if self.is_recur_master() {
+      return true;
+    } else if self.is_recur() {
+      let timestamp = self.instance_timestamp.unwrap();
       let recur_times = self.get_recur_datetimes();
       return recur_times.contains(&timestamp.with_timezone(&Utc));
+    } else {
+      self.instance_timestamp.is_none()
     }
-
-    self.get_dtstart() == Some(timestamp)
   }
 
   pub fn with_internal_timestamp(&self, datetime: DateTime<Local>) -> IcalVEvent {
@@ -350,7 +347,7 @@ mod tests {
   }
 
   #[test]
-  fn test_is_recur_valid_trivial() {
+  fn test_is_recur_valid_master() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let event = cal.get_principal_event();
 
@@ -387,5 +384,12 @@ mod tests {
     assert!(event.is_recur_valid());
   }
 
+  #[test]
+  fn test_is_recur_valid_nonrecur() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert!(event.is_recur_valid());
+  }
 
 }
