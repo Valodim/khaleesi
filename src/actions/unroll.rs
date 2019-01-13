@@ -16,7 +16,7 @@ fn do_unroll(filepath: &Path) {
     .and_then(|khline| khline.to_cal())
     .unwrap();
   for event in cal.events_iter() {
-    if event.has_recur() {
+    if event.is_recur_master() {
       let recurs = event.get_recur_datetimes();
       for datetime in recurs {
         println!("{} {}", datetime.timestamp(), cal.get_path_as_string().unwrap_or_else(|| "".to_string()));

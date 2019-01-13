@@ -43,7 +43,7 @@ impl Bucketable for IcalVEvent {
         .or_insert_with(|| vec!(khline.to_string()));
     }
 
-    if self.has_recur() {
+    if self.is_recur_master() {
       for instance in self.get_recur_instances() {
         let recur_buckets = instance.get_buckets()?;
         result.merge(recur_buckets)

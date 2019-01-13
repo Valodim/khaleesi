@@ -101,9 +101,12 @@ impl IcalVEvent {
     }
   }
 
-  pub fn has_recur(&self) -> bool {
+  pub fn is_recur_master(&self) -> bool {
+    self.is_recur() && self.instance_timestamp.is_none()
+  }
+
+  pub fn is_recur(&self) -> bool {
     !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
-    & self.instance_timestamp.is_none()
   }
 
   pub fn get_recur_datetimes(&self) -> Vec<DateTime<Utc>> {
@@ -121,6 +124,21 @@ impl IcalVEvent {
     }
 
     result
+  }
+
+  pub fn is_recur_valid(&self) -> bool {
+    if self.instance_timestamp.is_none() {
+     return true;
+    }
+
+    let timestamp = self.instance_timestamp.unwrap();
+
+    if self.is_recur() {
+      let recur_times = self.get_recur_datetimes();
+      return recur_times.contains(&timestamp.with_timezone(&Utc));
+    }
+
+    self.get_dtstart() == Some(timestamp)
   }
 
   pub fn with_internal_timestamp(&self, datetime: DateTime<Local>) -> IcalVEvent {
@@ -302,9 +320,23 @@ mod tests {
   }
 
   #[test]
-  fn has_recur_test() {
+  fn test_is_recur_master() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    assert!(cal.get_principal_event().has_recur());
+    assert!(cal.get_principal_event().is_recur_master());
+  }
+
+  #[test]
+  fn test_is_recur_master_instance() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_event();
+    let event = event.with_internal_timestamp(Local.ymd(2018, 01, 01).and_hms(0, 0, 0));
+    assert!(!event.is_recur_master());
+  }
+
+  #[test]
+  fn test_is_recur_master_invalid() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    assert!(!cal.get_principal_event().is_recur_master());
   }
 
   #[test]
@@ -315,6 +347,44 @@ mod tests {
     let mut recur_instances = event.get_recur_instances();
     assert_eq!(Utc.ymd(2018, 10, 11).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
     assert_eq!(Utc.ymd(2018, 10, 18).and_hms(0, 0, 0).with_timezone(&Local), recur_instances.next().unwrap().get_dtstart().unwrap());
+  }
+
+  #[test]
+  fn test_is_recur_valid_trivial() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert!(event.is_recur_valid());
+  }
+
+  #[test]
+  fn test_is_recur_valid_dtstart() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_event();
+
+    let event = event.with_internal_timestamp(event.get_dtstart().unwrap());
+
+    assert!(event.is_recur_valid());
+  }
+
+  #[test]
+  fn test_is_recur_valid_incorrect() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_event();
+
+    let event = event.with_internal_timestamp(Utc.ymd(2010, 01, 01).and_hms(0, 0, 0).with_timezone(&Local));
+
+    assert!(!event.is_recur_valid());
+  }
+
+  #[test]
+  fn test_is_recur_valid_other() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_event();
+
+    let event = event.with_internal_timestamp(Utc.ymd(2018, 10, 25).and_hms(0, 0, 0).with_timezone(&Local));
+
+    assert!(event.is_recur_valid());
   }
 
 
