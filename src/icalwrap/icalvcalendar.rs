@@ -62,6 +62,11 @@ impl IcalVCalendar {
     self
   }
 
+  pub fn with_path(mut self, path: &Path) -> IcalVCalendar {
+    self.path = Some(path.to_path_buf());
+    self
+  }
+
   pub fn from_str(str: &str, path: Option<&Path>) -> Result<Self, String> {
     unsafe {
       let c_str = CString::new(str).unwrap();
