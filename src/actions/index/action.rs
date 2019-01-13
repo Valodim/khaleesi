@@ -44,7 +44,7 @@ fn index_dir(dir: &Path, reindex: bool) -> Result<(), String> {
 
   let lock = lock::lock_file_exclusive(&get_indexlockfile());
   if lock.is_err() {
-    return Err(format!("Failed to obtain index lock!"));
+    return Err("Failed to obtain index lock!".to_string());
   }
 
   info!("Recursively indexing '.ics' files in directory: {}", dir.to_string_lossy());

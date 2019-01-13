@@ -42,7 +42,7 @@ impl SelectFilterTo {
 pub fn select_by_args(args: &[String]) -> Result<(), String> {
   let filters = match SelectFilters::parse_from_args(args) {
     Ok(parsed_filters) => parsed_filters,
-    Err(error) => return Err(format!("{}", error)),
+    Err(error) => return Err(error.to_string()),
   };
 
   let indexdir = defaults::get_indexdir();
