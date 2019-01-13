@@ -24,9 +24,9 @@ fn main() {
   let args: Vec<String> = env::args().collect();
   let config = Config::read_config();
 
-  match main_internal(&args[0], &args[1..], &config) {
-    Err(error) => error!("{}", error),
-      Ok(_) => (),
+  let result = main_internal(&args[0], &args[1..], &config);
+  if let Err(error) = result {
+    error!("{}", error)
   }
 }
 
