@@ -26,7 +26,7 @@ pub fn default_input_single() -> Result<KhLine, String> {
       }
     };
     if lines.len() > 1 {
-      return Err("too many lines in cursorfile".to_string());
+      Err("too many lines in cursorfile".to_string())
     } else {
       lines[0].parse::<KhLine>()
     }
