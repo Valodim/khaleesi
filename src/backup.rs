@@ -9,22 +9,24 @@ use utils::fileutil;
 impl IcalVEvent {
   pub fn backup(&self) -> Result<PathBuf, String> {
     let khline = KhLine::from(self);
-    let normalized_path = khline.get_normalized_path();
     
     let backupdir = defaults::get_backupdir();
-    let path = backupdir.join(with_timestamp(normalized_path));
-    let cal = self.get_parent().unwrap();
-    let new_cal = cal.clone().with_path(&path);
-
-    prepare_backup_dir(&backupdir);
-    fileutil::write_cal(&new_cal)?;
-    Ok(path)
+    let backup_path = backupdir.join(with_timestamp(khline.get_normalized_path()));
+    if backup_path == khline.path {
+      Err("backup dir same as source dir".to_string())
+    } else {
+      match prepare_backup_dir(&backupdir)
+        .and_then(|_| fs::copy(khline.path, backup_path.clone())) {
+        Ok(_) => Ok(backup_path),
+        Err(err) => Err(format!("{}", err)),
+      }
+    }
   }
 }
 
 fn with_timestamp(path: &Path) -> PathBuf {
   let mut filename = path.file_stem().unwrap().to_owned();
-  filename.push(format!("{}", Local::now().format("%FT%T")));
+  filename.push(format!("_{}", Local::now().format("%FT%T")));
   let mut pathbuf = path.to_path_buf();
   pathbuf.set_file_name(filename);
   pathbuf.set_extension("ics");
@@ -55,7 +57,7 @@ mod tests {
   fn backup_test() {
     let testdir = prepare_testdir("testdir");
 
-    let khline = "12345 twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
+    let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
     let event = khline.to_event().unwrap();
 
     let new_path = event.backup().unwrap();
@@ -63,7 +65,7 @@ mod tests {
     testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").assert(predicate::path::exists());
     testdir.child(new_path.clone()).assert(predicate::path::exists());
 
-    //let predicate_file = predicate::path::eq_file(new_path);
-    //testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").assert(predicate_file);
+    let predicate_file = predicate::path::eq_file(testdir.child(new_path.clone()).path());
+    testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").assert(predicate_file);
   }
 }
