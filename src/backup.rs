@@ -1,10 +1,10 @@
-use icalwrap::IcalVEvent;
-use khline::KhLine;
-use defaults;
 use std::fs;
 use chrono::Local;
 use std::path::{Path,PathBuf};
-use utils::fileutil;
+
+use icalwrap::IcalVEvent;
+use khline::KhLine;
+use defaults;
 
 impl IcalVEvent {
   pub fn backup(&self) -> Result<PathBuf, String> {
@@ -45,13 +45,10 @@ fn prepare_backup_dir(backupdir: &Path) -> Result<(), std::io::Error> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use testdata;
-  use chrono::{Utc, Local, TimeZone};
 
   use testutils::prepare_testdir;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
-  use itertools::Itertools;
 
   #[test]
   fn backup_test() {
