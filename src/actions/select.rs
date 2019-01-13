@@ -39,10 +39,10 @@ impl SelectFilterTo {
   }
 }
 
-pub fn select_by_args(args: &[String]) {
+pub fn select_by_args(args: &[String]) -> Result<(), String> {
   let filters = match SelectFilters::parse_from_args(args) {
-    Err(error) => { println!("{}", error); return; },
     Ok(parsed_filters) => parsed_filters,
+    Err(error) => return Err(format!("{}", error)),
   };
 
   let indexdir = defaults::get_indexdir();
@@ -75,4 +75,6 @@ pub fn select_by_args(args: &[String]) {
   for line in lines {
     println!("{}", line);
   }
+
+  Ok(())
 }

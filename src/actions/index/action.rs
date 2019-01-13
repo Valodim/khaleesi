@@ -13,6 +13,20 @@ use utils::lock;
 use utils::misc;
 
 
+pub fn action_index(mut args: &[String]) -> Result<(), String> {
+  let reindex = !args.is_empty() && args[0] == "--reindex";
+  if reindex {
+    args = &args[1..];
+  }
+  let indexpath = if args.is_empty() {
+    get_caldir()
+  } else {
+    PathBuf::from(&args[0])
+  };
+
+  index_dir(&indexpath, reindex)
+}
+
 fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &IcalVCalendar) {
   use super::bucketable::Bucketable;
   use super::bucketable::Merge;
@@ -25,19 +39,17 @@ fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &Ic
   }
 }
 
-pub fn index_dir(dir: &Path, reindex: bool) {
+fn index_dir(dir: &Path, reindex: bool) -> Result<(), String> {
   use std::time::Instant;
 
   let lock = lock::lock_file_exclusive(&get_indexlockfile());
   if lock.is_err() {
-    error!("Failed to obtain index lock!");
-    return;
+    return Err(format!("Failed to obtain index lock!"));
   }
 
   info!("Recursively indexing '.ics' files in directory: {}", dir.to_string_lossy());
   if !dir.exists() {
-    error!("Directory doesn't exist: {}", dir.to_string_lossy());
-    return;
+    return Err(format!("Directory doesn't exist: {}", dir.to_string_lossy()));
   }
 
   let now = Instant::now();
@@ -63,14 +75,15 @@ pub fn index_dir(dir: &Path, reindex: bool) {
   let indexdir = get_indexdir();
   let clear_index_dir = last_index_time.is_none();
   if let Err(error) = prepare_index_dir(&indexdir, clear_index_dir) {
-    error!("{}", error);
-    return;
+    return Err(format!("{}", error));
   }
 
   write_index(&indexdir, &buckets);
   info!("Index written in {}ms", misc::format_duration(&now.elapsed()));
 
   indextime::write_index_time(&start_time);
+
+  Ok(())
 }
 
 pub fn get_ics_files(dir: &Path, modified_since: i64) -> impl Iterator<Item = PathBuf> {

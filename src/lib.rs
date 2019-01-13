@@ -4,6 +4,7 @@ pub mod config;
 pub mod cursorfile;
 pub mod defaults;
 pub mod icalwrap;
+pub mod input;
 pub mod selectors;
 pub mod seqfile;
 pub mod utils;
@@ -19,6 +20,7 @@ extern crate assert_fs;
 #[cfg(test)]
 extern crate predicates;
 
+extern crate atty;
 extern crate chrono;
 extern crate fs2;
 extern crate itertools;

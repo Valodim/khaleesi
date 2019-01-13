@@ -9,7 +9,7 @@ struct Cell {
     content: (String,String)
 }
 
-pub fn printcal() {
+pub fn printcal() -> Result<(), String> {
     let now = Local::today();
     let a = cal_month(now);
     let b = cal_month(now.with_month(now.month() + 1).unwrap());
@@ -18,9 +18,11 @@ pub fn printcal() {
     let joined = misc::joinlines(&a, &b);
     let joined = misc::joinlines(&joined, &c);
     println!("{}", joined);
+
+    Ok(())
 }
 
-pub fn dbg() {
+pub fn dbg() -> Result<(), String> {
     let begin = Local::today().naive_local();
     let end = begin + Duration::days(5);
     let cells = get_cells(begin, end);
@@ -28,6 +30,8 @@ pub fn dbg() {
 
     let render = render_cells(&cells);
     print!("{}", render);
+
+    Ok(())
 }
 
 fn render_cells(cells: &[Cell]) -> String {

@@ -1,12 +1,15 @@
 use icalwrap::{IcalComponent,IcalProperty};
 use utils::fileutil;
+use input;
 
-pub fn prettyprint(lines: &mut Iterator<Item = String>) {
-  let cals = fileutil::read_calendars_from_files(lines).unwrap();
+pub fn prettyprint() -> Result<(), String> {
+  let mut lines = input::default_input_multiple()?;
+  let cals = fileutil::read_calendars_from_files(&mut lines)?;
   for cal in cals {
     let event = cal.get_principal_event();
     prettyprint_comp(&event, cal.get_path_as_string());
   }
+  Ok(())
 }
 
 pub fn prettyprint_comp(cal: &IcalComponent, path: Option<String>) {

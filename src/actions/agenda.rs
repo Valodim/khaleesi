@@ -4,13 +4,18 @@ use yansi::{Style};
 
 use cursorfile;
 use icalwrap::*;
+use input;
 use utils::fileutil as utils;
 use config::{Config,CalendarConfig};
 use khline::KhLine;
 
-pub fn show_events(config: &Config, lines: &mut Iterator<Item = String>) {
+pub fn show_events(config: &Config, _args: &[String]) -> Result<(), String> {
+  let mut lines = input::default_input_multiple()?;
+
   let cursor = cursorfile::read_cursorfile().ok();
-  show_events_cursor(config, lines, cursor.as_ref())
+  show_events_cursor(config, &mut lines, cursor.as_ref());
+
+  Ok(())
 }
 
 pub fn show_events_cursor(config: &Config, lines: &mut Iterator<Item = String>, cursor: Option<&KhLine>) {

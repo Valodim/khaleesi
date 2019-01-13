@@ -1,22 +1,16 @@
+use input;
 use khline::KhLine;
 use utils::fileutil;
 use utils::misc;
 
-pub fn do_copy(khline: &KhLine, _args: &[String]) {
+pub fn do_copy(_args: &[String]) -> Result<(), String> {
+  let khline = input::default_input_single()?;
 
   let uid = &misc::make_new_uid();
-  let new_khline = match copy_internal(khline, uid) {
-    Ok(khline) => khline,
-    Err(error) => {
-      error!("{}", error);
-      return
-    }
-  };
-  println!("{}", new_khline);
+  copy_internal(&khline, uid).map(|_| ())
 }
 
 fn copy_internal(khline: &KhLine, uid: &str) -> Result<KhLine, String> {
-
   let cal = khline.to_cal()?;
   let new_cal = cal.with_uid(uid)?;
   let new_cal = new_cal.with_dtstamp_now();

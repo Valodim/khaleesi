@@ -1,10 +1,12 @@
-use utils::fileutil as utils;
+use utils::fileutil;
+use input;
 
-pub fn do_modify(lines: &mut Iterator<Item = String>, args: &[String]) {
+pub fn do_modify(args: &[String]) -> Result<(), String> {
   info!("do_modify");
-  
+  let mut lines = input::default_input_multiple()?;
+
   if args[0] == "removeprop" && args[1] == "xlicerror" {
-    let cals = utils::read_calendars_from_files(lines).unwrap();
+    let cals = fileutil::read_calendars_from_files(&mut lines)?;
     let output: Vec<String> = cals.into_iter()
       .map(|cal| cal.with_remove_property("X-LIC-ERROR") )
       .filter(|cal| cal.1 > 0)
@@ -12,7 +14,8 @@ pub fn do_modify(lines: &mut Iterator<Item = String>, args: &[String]) {
       .collect();
     println!("{}", output.join("\n"));
   } else {
-    error!("not supported")
+    error!("not supported");
   }
 
+  Ok(())
 }

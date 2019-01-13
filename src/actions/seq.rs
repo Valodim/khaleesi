@@ -3,16 +3,18 @@ extern crate atty;
 use seqfile;
 use utils::fileutil;
 
-pub fn do_seq(_args: &[String]) {
+pub fn do_seq(_args: &[String]) -> Result<(), String> {
   if atty::isnt(atty::Stream::Stdin) {
-    write_stdin_to_seqfile()
+    write_stdin_to_seqfile();
   } else {
     //println!("stdin is tty")
   }
 
   if atty::isnt(atty::Stream::Stdout) || atty::is(atty::Stream::Stdin) {
-    write_seqfile_to_stdout()
+    write_seqfile_to_stdout();
   }
+
+  Ok(())
 }
 
 fn write_stdin_to_seqfile() {

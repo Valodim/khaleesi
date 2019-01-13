@@ -4,29 +4,19 @@ use khline::KhLine;
 use utils::fileutil;
 use utils::misc;
 
-pub fn do_new(_lines: &mut Iterator<Item = String>, _args: &[String]) {
-
+pub fn do_new(_args: &[String]) -> Result<(), String> {
   let uid = misc::make_new_uid();
   let path = defaults::get_datafile(&(uid.clone() + ".ics"));
 
-  let new_cal = match IcalVCalendar::from_str(TEMPLATE_EVENT, Some(&path)).unwrap().with_uid(&uid) {
-    Ok(new_cal) => new_cal,
-    Err(error) => {
-      error!("{}", error);
-      return
-    },
-  };
+  let new_cal = IcalVCalendar::from_str(TEMPLATE_EVENT, Some(&path))?.with_uid(&uid)?;
   let new_cal = new_cal.with_dtstamp_now();
-  match fileutil::write_cal(&new_cal) {
-    Ok(_) => info!("Successfully wrote file: {}", new_cal.get_path().unwrap().display()),
-    Err(error) => {
-      error!("{}", error);
-      return
-    },
-  }
+
+  fileutil::write_cal(&new_cal)?;
 
   let khline = KhLine::from(&new_cal);
   println!("{}", khline);
+
+  Ok(())
 }
 
 static TEMPLATE_EVENT: &str = indoc!("

@@ -1,14 +1,13 @@
 use selectors::SelectFilters;
 use utils::fileutil;
 use khline::KhLine;
+use input;
 
-pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
-  let filters = match SelectFilters::parse_from_args_with_range(args) {
-    Err(error) => { println!("{}", error); return; },
-    Ok(parsed_filters) => parsed_filters,
-  };
+pub fn list_by_args(args: &[String]) -> Result<(), String> {
+  let mut filenames = input::default_input_multiple()?;
+  let cals = fileutil::read_calendars_from_files(&mut filenames)?;
 
-  let cals = fileutil::read_calendars_from_files(filenames).unwrap();
+  let filters = SelectFilters::parse_from_args_with_range(args)?;
 
   let events = cals.into_iter()
     .map(|cal| cal.get_principal_event())
@@ -18,5 +17,7 @@ pub fn list_by_args(filenames: &mut Iterator<Item = String>, args: &[String]) {
   for (_, event) in events {
     println!("{}", KhLine::from(&event));
   }
+
+  Ok(())
 }
 

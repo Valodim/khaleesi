@@ -3,16 +3,18 @@ extern crate atty;
 use cursorfile;
 use utils::fileutil;
 
-pub fn do_cursor(_args: &[String]) {
+pub fn do_cursor(_args: &[String]) -> Result<(), String> {
   if atty::isnt(atty::Stream::Stdin) {
-    write_stdin_to_cursorfile()
+    write_stdin_to_cursorfile();
   } else {
     //println!("stdin is tty")
   }
 
   if atty::isnt(atty::Stream::Stdout) || atty::is(atty::Stream::Stdin) {
-    write_cursorfile_to_stdout()
+    write_cursorfile_to_stdout();
   }
+
+  Ok(())
 }
 
 fn write_stdin_to_cursorfile() {
