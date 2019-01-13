@@ -75,14 +75,6 @@ impl IcalVCalendar {
         return Err("could not read component".to_string());
       }
 
-      if let Err(error) = IcalVCalendar::check_icalcomponent(parsed_cal) {
-        let path_string = match path {
-          Some(path_ref) => format!("{}", path_ref.display()),
-          None => "".to_string()
-        };
-        warn!("{}: {}", path_string, error);
-      }
-
       let kind = ical::icalcomponent_isa(parsed_cal);
       if kind != ical::icalcomponent_kind_ICAL_VCALENDAR_COMPONENT {
         let kind = CStr::from_ptr(ical::icalcomponent_kind_to_string(kind)).to_string_lossy();
@@ -91,6 +83,10 @@ impl IcalVCalendar {
 
       let mut cal = IcalVCalendar::from_ptr(parsed_cal);
       cal.path = path.map(|path| path.to_path_buf());
+
+      if let Err(error) = cal.check_for_errors() {
+        warn!("{}: {}", path.map_or_else(|| "", |path| path.to_str().unwrap()), error);
+      }
       Ok(cal)
     }
   }
@@ -227,9 +223,16 @@ impl IcalVCalendar {
     event
   }
 
-  //to be used after parsing, parser adds X-LIC-ERROR properties for any error
-  //ical::icalrestriction_check() checks if the specification is violated and adds X-LIC-ERRORs accordingly
-  //ical::icalcomponent_count_errors() counts all X-LIC-ERROR properties
+  pub fn check_for_errors(&self) -> Result<(), String> {
+    let result = unsafe {
+      IcalVCalendar::check_icalcomponent(self.get_ptr())
+    };
+    result
+  }
+
+  /// to be used after parsing, parser adds X-LIC-ERROR properties for any error
+  /// ical::icalrestriction_check() checks if the specification is violated and adds X-LIC-ERRORs accordingly
+  /// ical::icalcomponent_count_errors() counts all X-LIC-ERROR properties
   unsafe fn check_icalcomponent(comp: *mut ical::icalcomponent) -> Result<(), String> {
     ical::icalrestriction_check(comp);
     let error_count = ical::icalcomponent_count_errors(comp);
@@ -486,10 +489,7 @@ mod tests {
 
   #[test]
   fn parse_checker_test() {
-    let c_str = CString::new(testdata::TEST_EVENT_MULTIDAY).unwrap();
-    unsafe {
-      let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_ok())
-    }
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    assert!(cal.check_for_errors().is_ok());
   }
 }
