@@ -39,7 +39,7 @@ impl KhLine {
     self == &KhLine::from(event)
   }
 
-  fn get_normalized_path(&self) -> &Path {
+  pub fn get_normalized_path(&self) -> &Path {
     self.path
       .strip_prefix(defaults::get_caldir())
       .unwrap_or(&self.path)
