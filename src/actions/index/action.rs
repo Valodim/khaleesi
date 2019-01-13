@@ -163,3 +163,21 @@ fn prepare_index_dir(indexdir: &Path, clear_index_dir: bool) -> Result<(), std::
 
   Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  use testutils::prepare_testdir;
+  use assert_fs::prelude::*;
+
+  #[test]
+  fn test_index() {
+    let testdir = prepare_testdir("testdir");
+
+    action_index(&[]).unwrap();
+
+    testdir.child(".khaleesi/index/2018-W50").assert("1544740200 twodaysacrossbuckets.ics\n");
+    testdir.child(".khaleesi/index/2018-W51").assert("1544740200 twodaysacrossbuckets.ics\n");
+  }
+}
