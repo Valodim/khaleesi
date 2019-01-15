@@ -46,11 +46,16 @@ pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = 
   }
 }
 
-pub fn read_single_char(mut source: impl Read) -> Result<char, io::Error> {
-  let mut buffer = [0; 1];
+pub fn read_single_char(mut source: impl BufRead) -> Result<char, String> {
+  let mut buf = String::new();
+  if let Err(error) = source.read_line(&mut buf) {
+    return Err(format!("{}", error));
+  }
 
-  source.read(&mut buffer[..])?;
-  Ok(char::from(buffer[0]))
+  match buf.chars().next() {
+    Some(c) => Ok(c),
+    None => Err("failed to read from stdin".to_string()),
+  }
 }
 
 pub fn read_lines_from_stdin() -> Result<Vec<String>, io::Error> {
