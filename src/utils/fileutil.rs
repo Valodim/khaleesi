@@ -46,6 +46,13 @@ pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = 
   }
 }
 
+pub fn read_single_char(mut source: impl Read) -> Result<char, io::Error> {
+  let mut buffer = [0; 1];
+
+  source.read(&mut buffer[..])?;
+  Ok(char::from(buffer[0]))
+}
+
 pub fn read_lines_from_stdin() -> Result<Vec<String>, io::Error> {
   let stdin = io::stdin();
   let lines = stdin.lock().lines();
