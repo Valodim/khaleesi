@@ -243,7 +243,7 @@ impl IcalVCalendar {
         inner_comp = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
       }
 
-      Some(format!("calendar contains errors: {}", output.join(" ")))
+      Some(format!("{}", output.join(" ")))
     } else {
       IcalVCalendar::check_uid(comp)
     }
