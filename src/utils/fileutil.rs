@@ -120,4 +120,11 @@ mod tests {
     write_file(file.path(), "z\n").unwrap();
     file.assert("z\n");
   }
+
+  #[test]
+  fn read_single_char_test() {
+    let source = "ab".as_bytes();
+    let read_char = read_single_char(source).unwrap();
+    assert_eq!('a', read_char);
+  }
 }
