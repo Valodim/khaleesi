@@ -84,9 +84,6 @@ impl IcalVCalendar {
       let mut cal = IcalVCalendar::from_ptr(parsed_cal);
       cal.path = path.map(|path| path.to_path_buf());
 
-      if let Err(error) = cal.check_for_errors() {
-        warn!("{}: {}", path.map_or_else(|| "", |path| path.to_str().unwrap()), error);
-      }
       Ok(cal)
     }
   }
@@ -223,22 +220,19 @@ impl IcalVCalendar {
     event
   }
 
-  pub fn check_for_errors(&self) -> Result<(), String> {
-    let result = unsafe {
+  pub fn check_for_errors(&self) -> Option<String> {
+    unsafe {
       IcalVCalendar::check_icalcomponent(self.get_ptr())
-    };
-    result
+    }
   }
 
   /// to be used after parsing, parser adds X-LIC-ERROR properties for any error
   /// ical::icalrestriction_check() checks if the specification is violated and adds X-LIC-ERRORs accordingly
   /// ical::icalcomponent_count_errors() counts all X-LIC-ERROR properties
-  unsafe fn check_icalcomponent(comp: *mut ical::icalcomponent) -> Result<(), String> {
+  unsafe fn check_icalcomponent(comp: *mut ical::icalcomponent) -> Option<String> {
     ical::icalrestriction_check(comp);
     let error_count = ical::icalcomponent_count_errors(comp);
     if error_count > 0 {
-      //let ical_str = ical::icalcomponent_as_ical_string(comp);
-      //println!("{}", CStr::from_ptr(ical_str).to_string_lossy());
 
       let mut output: Vec<String> = Vec::new();
       output.append(&mut IcalVCalendar::get_errors(comp));
@@ -249,18 +243,18 @@ impl IcalVCalendar {
         inner_comp = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
       }
 
-      Err(format!("calendar contains errors: {}", output.join(" ")))
+      Some(format!("calendar contains errors: {}", output.join(" ")))
     } else {
       IcalVCalendar::check_uid(comp)
     }
   }
 
-  unsafe fn check_uid(comp: *mut ical::icalcomponent) -> Result<(), String> {
+  unsafe fn check_uid(comp: *mut ical::icalcomponent) -> Option<String> {
     let uid = ical::icalcomponent_get_uid(comp);
     if uid.is_null() {
-      Err("missing required property: UID".to_string())
+      Some("missing required property: UID".to_string())
     } else {
-      Ok(())
+      None
     }
   }
 
@@ -397,7 +391,7 @@ mod tests {
     let c_str = CString::new(testdata::TEST_EVENT_EMPTY_SUMMARY).unwrap();
     unsafe {
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_some())
     }
   }
 
@@ -406,7 +400,7 @@ mod tests {
     let c_str = CString::new(testdata::TEST_EVENT_NO_UID).unwrap();
     unsafe {
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_some())
     }
   }
 
@@ -415,7 +409,7 @@ mod tests {
     let c_str = CString::new(testdata::TEST_EVENT_NO_PRODID).unwrap();
     unsafe {
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_some())
     }
   }
 
@@ -483,13 +477,13 @@ mod tests {
     let c_str = CString::new(testdata::TEST_EVENT_NO_PRODID).unwrap();
     unsafe {
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
-      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_err())
+      assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_some())
     }
   }
 
   #[test]
   fn parse_checker_test() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-    assert!(cal.check_for_errors().is_ok());
+    assert!(cal.check_for_errors().is_none());
   }
 }
