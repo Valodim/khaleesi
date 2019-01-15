@@ -14,7 +14,6 @@ pub mod testutils;
 
 #[cfg(test)]
 pub mod testdata;
-#[cfg(test)]
 extern crate tempfile;
 #[cfg(test)]
 extern crate assert_fs;

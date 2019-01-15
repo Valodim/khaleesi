@@ -17,10 +17,10 @@ libical-sys = "0.1.1"
 toml = "0.4.2"
 serde = "1.0.82"
 serde_derive = "1.0.82"
+tempfile = "3.0.5"
 uuid = { version = "0.7", features = ["v4"] }
 fs2 = "0.4.3"
 
 [dev-dependencies]
 assert_fs = "0.10.1"
-tempfile = "3.0.5"
 predicates = "1.0"
