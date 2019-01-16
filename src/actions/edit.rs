@@ -13,8 +13,6 @@ use utils::fileutil;
 
 pub fn do_edit(_args: &[String]) -> Result<(), String> {
   let khline = input::default_input_single()?;
-  let backup_path = backup(&khline).unwrap();
-  info!("Backup written to {}", backup_path.display());
 
   let tempfile = copy_to_tempfile(&khline.path).map_err(|err| format!("{}", err))?;
   loop {
@@ -25,6 +23,8 @@ pub fn do_edit(_args: &[String]) -> Result<(), String> {
         break;
       }
     } else {
+      let backup_path = backup(&khline).unwrap();
+      info!("Backup written to {}", backup_path.display());
       //TODO move tempfile to edited file
       break;
     }
@@ -58,7 +58,7 @@ fn edit_file(path: &Path) -> Result<(), String> {
 }
 
 fn ask_continue_editing(error: &str) -> bool {
-  println!("Calendar contains errors: {}", error);
+  println!("Calendar contains errors:\n{}", error);
   println!("Continue editing? y/n:");
 
   let stdin = std::io::stdin();
