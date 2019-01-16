@@ -128,11 +128,11 @@ impl IcalVEvent {
 
   pub fn is_recur_valid(&self) -> bool {
     if self.is_recur_master() {
-      return true;
+      true
     } else if self.is_recur() {
       let timestamp = self.instance_timestamp.unwrap();
       let recur_times = self.get_recur_datetimes();
-      return recur_times.contains(&timestamp.with_timezone(&Utc));
+      recur_times.contains(&timestamp.with_timezone(&Utc))
     } else {
       self.instance_timestamp.is_none()
     }
