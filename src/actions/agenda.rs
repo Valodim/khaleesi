@@ -68,7 +68,7 @@ fn maybe_print_week_separator(config: &Config, date: Date<Local>, start_date: Da
     return;
   }
   if date != start_date && last_printed_date.iso_week() < date.iso_week() {
-    println!();
+    khprintln!();
   }
 }
 
@@ -90,7 +90,7 @@ fn maybe_print_date_line(config: &Config, date: Date<Local>, start_date: Date<Lo
 
 fn print_date_line(date: Date<Local>) {
   let style_heading = Style::new().bold();
-  println!("{}, {}", style_heading.paint(date.format("%Y-%m-%d")), date.format("%A"));
+  khprintln!("{}, {}", style_heading.paint(date.format("%Y-%m-%d")), date.format("%A"));
 }
 
 fn print_event_line(
@@ -101,7 +101,7 @@ fn print_event_line(
   is_cursor: bool
 ) {
   match event_line(config, &event, date, is_cursor) {
-    Ok(line) => println!("{:4}  {}", index, line),
+    Ok(line) => khprintln!("{:4}  {}", index, line),
     Err(error) => warn!("{} in {}", error, event.get_uid())
   }
 }
@@ -169,6 +169,9 @@ impl IcalVEvent {
 mod tests {
   use super::*;
   use testdata;
+  use testutils::*;
+  use config::Config;
+
   use chrono::{Local, TimeZone};
 
   #[test]
@@ -253,5 +256,28 @@ mod tests {
     let date = Local.ymd(2007, 6, 28);
     let event_line = event_line(None, &event, date, false).unwrap();
     assert_eq!("                Festival International de Jazz de Montreal".to_string(), event_line)
+  }
+
+  #[test]
+  fn test_stdout_simple() {
+    testdata::setup();
+    let _testdir = prepare_testdir("testdir_with_seq");
+
+    show_events(&Config::read_config(), &[]).unwrap();
+
+    let stdout = test_stdout_clear();
+    let expected = indoc!("
+      2018-12-13, Thursday
+         0     22:30-       shows up on two days
+      2018-12-14, Friday
+         0                  shows up on two days
+      2018-12-15, Saturday
+         0                  shows up on two days
+      2018-12-16, Sunday
+         0                  shows up on two days
+      2018-12-17, Monday
+         0          -18:30  shows up on two days
+   ");
+    assert_eq!(expected, stdout);
   }
 }

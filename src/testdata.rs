@@ -221,6 +221,8 @@ pub fn setup() {
   INIT.call_once(|| {
     env::set_var("TZ", "UTC");
   });
+  use yansi;
+  yansi::Paint::disable();
 }
 
 #[cfg(test)]
