@@ -1,3 +1,6 @@
+#[macro_use]
+mod macros;
+
 pub mod actions;
 pub mod backup;
 pub mod khline;
