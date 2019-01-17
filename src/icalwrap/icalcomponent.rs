@@ -50,8 +50,29 @@ pub trait IcalComponent {
     };
     self.get_property(property_kind)
   }
-}
 
+  unsafe fn remove_property_all(&self, kind: ical::icalproperty_kind) -> usize {
+
+    unsafe fn remove_property_inner(comp: *mut ical::icalcomponent, kind: ical::icalproperty_kind) -> usize {
+      let mut count = 0;
+      let mut prop = ical::icalcomponent_get_first_property(comp, kind);
+      while !prop.is_null() {
+        ical::icalcomponent_remove_property(comp, prop);
+        count += 1;
+        prop = ical::icalcomponent_get_current_property(comp);
+      }
+      let mut inner_comp = ical::icalcomponent_get_first_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
+      while !inner_comp.is_null() {
+        count += remove_property_inner(inner_comp, kind);
+        inner_comp = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
+      }
+      count
+    }
+
+    let comp = self.get_ptr();
+    remove_property_inner(comp, kind)
+  }
+}
 
 #[cfg(test)]
 mod tests {
