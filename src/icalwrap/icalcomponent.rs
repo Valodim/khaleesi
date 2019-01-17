@@ -70,6 +70,16 @@ mod tests {
   }
 
   #[test]
+  fn get_property_test_lastmodified() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_LASTMODIFIED, None).unwrap();
+    let event = cal.get_principal_event();
+    let prop_name = "LAST-MODIFIED";
+    let prop_value: String = event.get_property_by_name(prop_name).unwrap().get_value();
+
+    assert_eq!("20070423T123432Z".to_string(), prop_value);
+  }
+
+  #[test]
   fn get_property_test_cal() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let prop_name = "PRODID";
