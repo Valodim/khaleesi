@@ -16,6 +16,17 @@ pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
     .map(|entry| entry.into_path())
 }
 
+pub fn dir_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
+  use walkdir::WalkDir;
+
+  let dir = dir.to_path_buf();
+  WalkDir::new(&dir).into_iter()
+    .filter_map(|e| e.ok())
+    .filter(|e| e.file_type().is_dir())
+    .filter(move |f| f.path() != dir)
+    .map(|entry| entry.into_path())
+}
+
 pub fn write_file(filepath: &Path, contents: &str) -> io::Result<()> {
   let mut file = fs::File::create(filepath)?;
   file.write_all(contents.as_bytes())

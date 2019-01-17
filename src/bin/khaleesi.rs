@@ -40,6 +40,7 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) -> Result<
     match cmd {
       "agenda" => agenda::show_events(&config, args),
       "cal" => cal::printcal(),
+      "get" => get::action_get(&args),
       "copy" => copy::do_copy(&args),
       "cursor" => cursor::do_cursor(args),
       "new" => new::do_new(&args),
