@@ -27,6 +27,6 @@ mod tests {
 
     action_get(&["calendars".to_string()]).unwrap();
 
-    assert_eq!("second\nsecond/second_sub\nfirst\n", testutils::test_stdout_clear());
+    assert_eq!("first\nsecond\nsecond/second_sub\n", testutils::test_stdout_clear());
   }
 }
