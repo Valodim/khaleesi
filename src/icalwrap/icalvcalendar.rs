@@ -220,7 +220,7 @@ impl IcalVCalendar {
     event
   }
 
-  pub fn check_for_errors(&self) -> Option<String> {
+  pub fn check_for_errors(&self) -> Option<Vec<String>> {
     unsafe {
       IcalVCalendar::check_icalcomponent(self.get_ptr())
     }
@@ -229,12 +229,12 @@ impl IcalVCalendar {
   /// to be used after parsing, parser adds X-LIC-ERROR properties for any error
   /// ical::icalrestriction_check() checks if the specification is violated and adds X-LIC-ERRORs accordingly
   /// ical::icalcomponent_count_errors() counts all X-LIC-ERROR properties
-  unsafe fn check_icalcomponent(comp: *mut ical::icalcomponent) -> Option<String> {
+  unsafe fn check_icalcomponent(comp: *mut ical::icalcomponent) -> Option<Vec<String>> {
     ical::icalrestriction_check(comp);
     let error_count = ical::icalcomponent_count_errors(comp);
+    let mut output: Vec<String> = Vec::new();
     if error_count > 0 {
 
-      let mut output: Vec<String> = Vec::new();
       output.append(&mut IcalVCalendar::get_errors(comp));
 
       let mut inner_comp = ical::icalcomponent_get_first_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
@@ -242,10 +242,14 @@ impl IcalVCalendar {
         output.append(&mut IcalVCalendar::get_errors(inner_comp));
         inner_comp = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
       }
-
-      Some(output.join("\n").to_string())
+    }
+    if let Some(errstring) = IcalVCalendar::check_uid(comp) {
+      output.push(errstring);
+    }
+    if output.is_empty() {
+      None
     } else {
-      IcalVCalendar::check_uid(comp)
+      Some(output)
     }
   }
 

@@ -16,8 +16,8 @@ pub fn do_edit(_args: &[String]) -> Result<(), String> {
   loop {
     edit_file(tempfile.path())?;
     let temp_cal = KhLine::new(tempfile.path(), None);
-    if let Some(error) = temp_cal.to_cal()?.check_for_errors() {
-      if !ask_continue_editing(&error) {
+    if let Some(errors) = temp_cal.to_cal()?.check_for_errors() {
+      if !ask_continue_editing(&errors) {
         break;
       }
     } else {
@@ -50,8 +50,8 @@ fn edit_file(path: &Path) -> Result<(), String> {
   Ok(())
 }
 
-fn ask_continue_editing(error: &str) -> bool {
-  println!("Calendar contains errors:\n{}", error);
+fn ask_continue_editing(error: &Vec<String>) -> bool {
+  println!("Calendar contains errors:\n{}", error.join("\n"));
   println!("Continue editing? y/n:");
 
   let stdin = std::io::stdin();

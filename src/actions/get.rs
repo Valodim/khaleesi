@@ -1,6 +1,9 @@
 use calendars;
 
 pub fn action_get(args: &[String]) -> Result<(), String> {
+  if args.is_empty() {
+    return Err("get calendars".to_string());
+  }
   match args[0].as_str() {
     "calendars" => action_get_calendars(),
     _ => Err("Unknown get parameter!".to_string())
