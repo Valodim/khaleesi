@@ -6,7 +6,7 @@ use super::icalcomponent::IcalComponent;
 use ical;
 
 pub struct IcalProperty<'a> {
-  ptr: *mut ical::icalproperty,
+  pub ptr: *mut ical::icalproperty,
   _parent: &'a dyn IcalComponent,
 }
 

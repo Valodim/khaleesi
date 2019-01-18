@@ -227,6 +227,11 @@ pub static TEST_EVENT_WITH_X_LIC_ERROR: &str = indoc!("
     END:VCALENDAR
 ");
 
+use chrono::{Utc,DateTime,TimeZone};
+lazy_static! {
+  pub static ref now_test: DateTime<Utc> = Utc.ymd(2013, 01, 01).and_hms(1, 2, 3);
+}
+
 #[cfg(test)]
 use std::sync::{Once, ONCE_INIT};
 #[cfg(test)]

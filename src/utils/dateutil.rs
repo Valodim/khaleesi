@@ -22,6 +22,17 @@ pub fn week_from_str_begin(date_str: &str) -> Result<Date<Local>,String> {
   Err("Could not parse '{}' as week".to_string())
 }
 
+#[cfg(not(test))]
+pub fn now() -> DateTime<Utc> {
+  Utc::now()
+}
+
+#[cfg(test)]
+pub fn now() -> DateTime<Utc> {
+  use testdata;
+  *testdata::now_test
+}
+
 pub fn week_from_str_end(date_str: &str) -> Result<Date<Local>,String> {
   let now = Local::now();
   if date_str == "toweek" || date_str == "thisweek"  {

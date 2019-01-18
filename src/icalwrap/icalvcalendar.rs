@@ -6,6 +6,7 @@ use std::rc::Rc;
 use super::IcalVEvent;
 use super::IcalComponent;
 use ical;
+use utils::dateutil;
 
 pub struct IcalVCalendar {
   comp: Rc<IcalComponentOwner>,
@@ -131,6 +132,18 @@ impl IcalVCalendar {
     unsafe {
       let dtstamp_icaltime = ical::icaltime_current_time_with_zone(ical::icaltimezone_get_utc_timezone());
       ical::icalcomponent_set_dtstamp(self.get_ptr(), dtstamp_icaltime);
+    }
+    self
+  }
+
+  pub fn with_last_modified_now(self) -> Self {
+    let event = self.get_principal_event();
+    unsafe {
+      let now = dateutil::now().timestamp();
+      let is_date = 0;
+      let now_icaltime = ical::icaltime_from_timet_with_zone(now, is_date, ical::icaltimezone_get_utc_timezone());
+      let prop = event.get_property_by_name("LAST-MODIFIED").unwrap();
+      ical::icalproperty_set_lastmodified(prop.ptr, now_icaltime);
     }
     self
   }
@@ -405,6 +418,16 @@ mod tests {
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
       assert!(IcalVCalendar::check_icalcomponent(parsed_cal).is_some())
     }
+  }
+
+  #[test]
+  fn test_with_last_modified_now() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_LASTMODIFIED, None).unwrap();
+
+    let new_cal = cal.with_last_modified_now();
+
+    let event = new_cal.get_principal_event();
+    assert_eq!("20130101T010203Z", event.get_property_by_name("LAST-MODIFIED").unwrap().get_value());
   }
 
   #[test]
