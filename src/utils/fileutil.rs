@@ -57,6 +57,12 @@ pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = 
   }
 }
 
+pub fn read_single_char_from_stdin() -> Result<char, String> {
+  let stdin = std::io::stdin();
+  let stdinlock = stdin.lock();
+  read_single_char(stdinlock)
+}
+
 pub fn read_single_char(mut source: impl BufRead) -> Result<char, String> {
   let mut buf = String::new();
   if let Err(error) = source.read_line(&mut buf) {
@@ -69,7 +75,7 @@ pub fn read_single_char(mut source: impl BufRead) -> Result<char, String> {
   }
 }
 
-pub fn read_lines_from_stdin() -> Result<Vec<String>, io::Error> {
+pub fn read_lines_from_stdin() -> io::Result<Vec<String>> {
   let stdin = io::stdin();
   let lines = stdin.lock().lines();
 
