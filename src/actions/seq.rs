@@ -2,8 +2,9 @@ extern crate atty;
 
 use seqfile;
 use utils::fileutil;
+use KhResult;
 
-pub fn do_seq(_args: &[String]) -> Result<(), String> {
+pub fn do_seq(_args: &[String]) -> KhResult<()> {
   if atty::isnt(atty::Stream::Stdin) {
     write_stdin_to_seqfile();
   } else {

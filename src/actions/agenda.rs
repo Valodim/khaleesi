@@ -8,8 +8,9 @@ use input;
 use utils::fileutil as utils;
 use config::{Config,CalendarConfig};
 use khline::KhLine;
+use KhResult;
 
-pub fn show_events(config: &Config, _args: &[String]) -> Result<(), String> {
+pub fn show_events(config: &Config, _args: &[String]) -> KhResult<()> {
   let mut lines = input::default_input_multiple()?;
 
   let cursor = cursorfile::read_cursorfile().ok();

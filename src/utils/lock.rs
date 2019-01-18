@@ -1,4 +1,5 @@
 use std::fs;
+use std::io;
 use std::path::{Path,PathBuf};
 use fs2::FileExt;
 
@@ -15,13 +16,16 @@ impl Drop for FileLock {
   }
 }
 
-pub fn lock_file_exclusive(path: &Path) -> Result<FileLock ,()> {
+pub fn lock_file_exclusive(path: &Path) -> io::Result<FileLock> {
   debug!("Locking on file ({})", path.to_string_lossy());
 
-  let lockfile = fs::File::create(path).unwrap();
-  lockfile.try_lock_exclusive().map_err(|_| ())?;
+  let lockfile = fs::File::create(path)?;
+  lockfile.try_lock_exclusive()?;
 
-  Ok(FileLock  { path: PathBuf::from(path), lockfile })
+  Ok(FileLock {
+    path: PathBuf::from(path),
+    lockfile,
+  })
 }
 
 #[cfg(test)]

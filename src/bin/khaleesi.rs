@@ -6,6 +6,7 @@ extern crate log;
 
 use khaleesi::config::Config;
 use khaleesi::actions::*;
+use khaleesi::KhResult;
 
 use std::env;
 
@@ -30,7 +31,7 @@ fn main() {
   }
 }
 
-fn main_internal(binary_name: &str, args: &[String], config: &Config) -> Result<(), String> {
+fn main_internal(binary_name: &str, args: &[String], config: &Config) -> KhResult<()> {
   if args.is_empty() {
     print_usage(&binary_name);
     Ok(())

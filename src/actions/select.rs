@@ -4,6 +4,7 @@ use defaults;
 use selectors::{SelectFilters,daterange::SelectFilterFrom,daterange::SelectFilterTo};
 use utils::fileutil as utils;
 use khline::KhLine;
+use KhResult;
 
 impl SelectFilters {
   fn predicate_path_skip_while(&self) -> impl Fn(&PathBuf) -> bool + '_ {
@@ -39,11 +40,8 @@ impl SelectFilterTo {
   }
 }
 
-pub fn select_by_args(args: &[String]) -> Result<(), String> {
-  let filters = match SelectFilters::parse_from_args(args) {
-    Ok(parsed_filters) => parsed_filters,
-    Err(error) => return Err(error.to_string()),
-  };
+pub fn select_by_args(args: &[String]) -> KhResult<()> {
+  let filters = SelectFilters::parse_from_args(args)?;
 
   let indexdir = defaults::get_indexdir();
 

@@ -2,8 +2,9 @@ use selectors::SelectFilters;
 use utils::fileutil;
 use khline::KhLine;
 use input;
+use KhResult;
 
-pub fn list_by_args(args: &[String]) -> Result<(), String> {
+pub fn list_by_args(args: &[String]) -> KhResult<()> {
   let mut filenames = input::default_input_multiple()?;
   let cals = fileutil::read_calendars_from_files(&mut filenames)?;
 

@@ -11,9 +11,9 @@ use super::indextime;
 use utils::fileutil;
 use utils::lock;
 use utils::misc;
+use KhResult;
 
-
-pub fn action_index(mut args: &[String]) -> Result<(), String> {
+pub fn action_index(mut args: &[String]) -> KhResult<()> {
   let reindex = !args.is_empty() && args[0] == "--reindex";
   if reindex {
     args = &args[1..];
@@ -39,17 +39,14 @@ fn add_buckets_for_calendar(buckets: &mut HashMap<String, Vec<String>>, cal: &Ic
   }
 }
 
-fn index_dir(dir: &Path, reindex: bool) -> Result<(), String> {
+fn index_dir(dir: &Path, reindex: bool) -> KhResult<()> {
   use std::time::Instant;
 
-  let lock = lock::lock_file_exclusive(&get_indexlockfile());
-  if lock.is_err() {
-    return Err("Failed to obtain index lock!".to_string());
-  }
+  let _lock = lock::lock_file_exclusive(&get_indexlockfile())?;
 
   info!("Recursively indexing '.ics' files in directory: {}", dir.to_string_lossy());
   if !dir.exists() {
-    return Err(format!("Directory doesn't exist: {}", dir.to_string_lossy()));
+    Err(format!("Directory doesn't exist: {}", dir.to_string_lossy()))?;
   }
 
   let now = Instant::now();
@@ -74,9 +71,7 @@ fn index_dir(dir: &Path, reindex: bool) -> Result<(), String> {
 
   let indexdir = get_indexdir();
   let clear_index_dir = last_index_time.is_none();
-  if let Err(error) = prepare_index_dir(&indexdir, clear_index_dir) {
-    return Err(format!("{}", error));
-  }
+  prepare_index_dir(&indexdir, clear_index_dir)?;
 
   write_index(&indexdir, &buckets);
   info!("Index written in {}ms", misc::format_duration(&now.elapsed()));

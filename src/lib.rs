@@ -1,6 +1,9 @@
 #[macro_use]
 mod macros;
 
+use std::error::Error;
+pub type KhResult<T> = Result<T,Box<Error>>;
+
 pub mod actions;
 pub mod backup;
 pub mod khline;

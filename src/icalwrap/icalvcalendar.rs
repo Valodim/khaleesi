@@ -88,6 +88,13 @@ impl IcalVCalendar {
     }
   }
 
+  pub fn with_normalize(self) -> Self {
+    unsafe {
+      ical::icalcomponent_normalize(self.get_ptr());
+    }
+    self
+  }
+
   pub fn to_string(&self) -> String {
     unsafe {
       let ical_cstr = CStr::from_ptr(ical::icalcomponent_as_ical_string(self.get_ptr()));

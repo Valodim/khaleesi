@@ -1,16 +1,17 @@
 use calendars;
+use KhResult;
 
-pub fn action_get(args: &[String]) -> Result<(), String> {
+pub fn action_get(args: &[String]) -> KhResult<()> {
   if args.is_empty() {
-    return Err("get calendars".to_string());
+    Err("get calendars")?;
   }
   match args[0].as_str() {
     "calendars" => action_get_calendars(),
-    _ => Err("Unknown get parameter!".to_string())
+    _ => Err("Unknown get parameter!")?
   }
 }
 
-pub fn action_get_calendars() -> Result<(), String> {
+pub fn action_get_calendars() -> KhResult<()> {
   for calendar in calendars::calendar_list() {
     khprintln!("{}", calendar);
   }

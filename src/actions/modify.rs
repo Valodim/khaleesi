@@ -1,7 +1,8 @@
 use utils::fileutil;
 use input;
+use KhResult;
 
-pub fn do_modify(args: &[String]) -> Result<(), String> {
+pub fn do_modify(args: &[String]) -> KhResult<()> {
   info!("do_modify");
   let mut lines = input::default_input_multiple()?;
 

@@ -4,7 +4,9 @@ use khline::KhLine;
 use utils::fileutil;
 use utils::misc;
 
-pub fn do_new(_args: &[String]) -> Result<(), String> {
+use KhResult;
+
+pub fn do_new(_args: &[String]) -> KhResult<()> {
   let uid = misc::make_new_uid();
   let path = defaults::get_datafile(&(uid.clone() + ".ics"));
 

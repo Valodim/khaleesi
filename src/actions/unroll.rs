@@ -1,8 +1,9 @@
 use std::path::Path;
 
 use khline::KhLine;
+use KhResult;
 
-pub fn action_unroll(args: &[String]) -> Result<(), String> {
+pub fn action_unroll(args: &[String]) -> KhResult<()> {
   let file = &args[0];
   let filepath = Path::new(file);
   do_unroll(filepath);

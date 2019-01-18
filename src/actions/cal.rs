@@ -3,13 +3,14 @@ use chrono::prelude::*;
 use yansi::{Style,Color};
 
 use utils::misc;
+use KhResult;
 
 struct Cell {
     date: NaiveDate,
     content: (String,String)
 }
 
-pub fn printcal() -> Result<(), String> {
+pub fn printcal() -> KhResult<()> {
     let now = Local::today();
     let a = cal_month(now);
     let b = cal_month(now.with_month(now.month() + 1).unwrap());
@@ -22,7 +23,7 @@ pub fn printcal() -> Result<(), String> {
     Ok(())
 }
 
-pub fn dbg() -> Result<(), String> {
+pub fn dbg() -> KhResult<()> {
     let begin = Local::today().naive_local();
     let end = begin + Duration::days(5);
     let cells = get_cells(begin, end);

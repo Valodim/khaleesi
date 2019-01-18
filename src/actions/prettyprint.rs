@@ -1,8 +1,9 @@
 use icalwrap::{IcalComponent,IcalProperty};
 use utils::fileutil;
 use input;
+use KhResult;
 
-pub fn prettyprint() -> Result<(), String> {
+pub fn prettyprint() -> KhResult<()> {
   let mut lines = input::default_input_multiple()?;
   let cals = fileutil::read_calendars_from_files(&mut lines)?;
   for cal in cals {

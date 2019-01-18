@@ -8,8 +8,9 @@ use backup::backup;
 use input;
 use khline::KhLine;
 use utils::fileutil;
+use KhResult;
 
-pub fn do_edit(_args: &[String]) -> Result<(), String> {
+pub fn do_edit(_args: &[String]) -> KhResult<()> {
   let khline = input::default_input_single()?;
 
   let tempfile = copy_to_tempfile(&khline.path).map_err(|err| format!("{}", err))?;
