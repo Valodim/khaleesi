@@ -1,8 +1,8 @@
 #[macro_use]
 mod macros;
 
-use std::error::Error;
-pub type KhResult<T> = Result<T,Box<Error>>;
+pub mod errors;
+pub type KhResult<T> = Result<T,errors::KhError>;
 
 pub mod actions;
 pub mod backup;
@@ -28,6 +28,7 @@ extern crate assert_fs;
 extern crate predicates;
 
 extern crate atty;
+extern crate backtrace;
 extern crate chrono;
 extern crate fs2;
 extern crate itertools;
