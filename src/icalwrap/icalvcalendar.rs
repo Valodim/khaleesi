@@ -130,8 +130,10 @@ impl IcalVCalendar {
 
   pub fn with_dtstamp_now(self) -> Self {
     unsafe {
-      let dtstamp_icaltime = ical::icaltime_current_time_with_zone(ical::icaltimezone_get_utc_timezone());
-      ical::icalcomponent_set_dtstamp(self.get_ptr(), dtstamp_icaltime);
+      let now = dateutil::now().timestamp();
+      let is_date = 0;
+      let now_icaltime = ical::icaltime_from_timet_with_zone(now, is_date, ical::icaltimezone_get_utc_timezone());
+      ical::icalcomponent_set_dtstamp(self.get_ptr(), now_icaltime);
     }
     self
   }
@@ -378,8 +380,7 @@ mod tests {
     cal = cal.with_dtstamp_now();
     let event = cal.get_principal_event();
     let now_dtstamp = event.get_property_by_name("DTSTAMP").unwrap().get_value();
-    let now_expected = format!("{}", Utc::now().format("%Y%m%dT%H%M%SZ"));
-    assert_eq!(now_expected, now_dtstamp)
+    assert_eq!(now_dtstamp, "20130101T010203Z")
   }
 
   #[test]
