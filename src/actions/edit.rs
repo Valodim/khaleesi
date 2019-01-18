@@ -1,5 +1,5 @@
 use std::env;
-use std::{fs, io};
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 use tempfile::NamedTempFile;
@@ -51,7 +51,7 @@ fn edit_file(path: &Path) -> Result<(), String> {
   Ok(())
 }
 
-fn ask_continue_editing(error: &Vec<String>) -> bool {
+fn ask_continue_editing(error: &[String]) -> bool {
   println!("Calendar contains errors:\n{}", error.join("\n"));
   println!("Continue editing? y/n:");
 

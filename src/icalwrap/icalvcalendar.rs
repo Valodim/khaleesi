@@ -142,7 +142,7 @@ impl IcalVCalendar {
     let event = self.get_principal_event();
     unsafe {
       let now = dateutil::now().timestamp();
-      let is_date = 0;
+      let is_date = 0;  // 1 == true
       let now_icaltime = ical::icaltime_from_timet_with_zone(now, is_date, ical::icaltimezone_get_utc_timezone());
       if let Some(prop) = event.get_property_by_name("LAST-MODIFIED") {
         ical::icalproperty_set_lastmodified(prop.ptr, now_icaltime);
@@ -336,7 +336,7 @@ impl Drop for IcalComponentOwner {
 mod tests {
   use super::*;
   use testdata;
-  use chrono::{Utc, Local, TimeZone};
+  use chrono::{Local, TimeZone};
 
   #[test]
   fn test_from_str_empty() {
