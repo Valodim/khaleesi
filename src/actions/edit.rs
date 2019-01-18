@@ -13,18 +13,20 @@ use KhResult;
 pub fn do_edit(_args: &[String]) -> KhResult<()> {
   let khline = input::default_input_single()?;
 
-  let tempfile = copy_to_tempfile(&khline.path).map_err(|err| format!("{}", err))?;
+  let tempfile = NamedTempFile::new()?;
+  let calendar = khline.to_cal()?.with_dtstamp_now().with_last_modified_now();
+  fileutil::write_file(tempfile.path(), &calendar.to_string())?;
   loop {
     edit_file(tempfile.path())?;
-    let temp_cal = KhLine::new(tempfile.path(), None);
-    if let Some(errors) = temp_cal.to_cal()?.check_for_errors() {
+    let edited_cal = KhLine::new(tempfile.path(), None).to_cal()?;
+    if let Some(errors) = edited_cal.check_for_errors() {
       if !ask_continue_editing(&errors) {
         break;
       }
     } else {
       let backup_path = backup(&khline).unwrap();
       info!("Backup written to {}", backup_path.display());
-      fs::copy(tempfile.path(), &khline.path).unwrap();
+      fileutil::write_file(&khline.path, &edited_cal.with_dtstamp_now().with_last_modified_now().to_string())?;
       info!("Successfully edited file {}", khline.path.display());
       break;
     }
@@ -32,13 +34,9 @@ pub fn do_edit(_args: &[String]) -> KhResult<()> {
   Ok(())
 }
 
-fn copy_to_tempfile(path: &Path) -> io::Result<tempfile::NamedTempFile> {
-  let tempfile = NamedTempFile::new()?;
-  fs::copy(path, tempfile.path())?;
-  Ok(tempfile)
-}
-
 fn edit_file(path: &Path) -> Result<(), String> {
+  if cfg!(test) { return Ok(()) };
+
   let editor = env::var("EDITOR").unwrap_or_else(|_| "vim".to_string());
 
   if let Err(error) = Command::new(&editor)
