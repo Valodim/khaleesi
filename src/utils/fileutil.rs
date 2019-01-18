@@ -65,7 +65,7 @@ pub fn read_single_char(mut source: impl BufRead) -> Result<char, String> {
 
   match buf.chars().next() {
     Some(c) => Ok(c),
-    None => Err("failed to read from stdin".to_string()),
+    None => Err("failed to read from {}".to_string()),
   }
 }
 

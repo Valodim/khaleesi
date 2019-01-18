@@ -12,7 +12,10 @@ use KhResult;
 
 pub fn do_edit(_args: &[String]) -> KhResult<()> {
   let khline = input::default_input_single()?;
+  edit_internal(&khline)
+}
 
+pub fn edit_internal(khline: &KhLine) -> KhResult<()> {
   let tempfile = NamedTempFile::new()?;
   let calendar = khline.to_cal()?.with_dtstamp_now().with_last_modified_now();
   fileutil::write_file(tempfile.path(), &calendar.to_string())?;
@@ -34,17 +37,15 @@ pub fn do_edit(_args: &[String]) -> KhResult<()> {
   Ok(())
 }
 
-fn edit_file(path: &Path) -> Result<(), String> {
+fn edit_file(path: &Path) -> KhResult<()> {
   if cfg!(test) { return Ok(()) };
 
   let editor = env::var("EDITOR").unwrap_or_else(|_| "vim".to_string());
 
-  if let Err(error) = Command::new(&editor)
+  Command::new(&editor)
     .arg(path.as_os_str())
     .stdin(fs::File::open("/dev/tty").unwrap())
-    .status() {
-      return Err(format!("{} command failed to start, error: {}", editor, error));
-    };
+    .status()?;
 
   Ok(())
 }
@@ -58,5 +59,27 @@ fn ask_continue_editing(error: &[String]) -> bool {
   match fileutil::read_single_char(stdinlock).unwrap() {
     'y' => true,
     _ => false
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  use testutils::prepare_testdir;
+  use icalwrap::IcalComponent;
+
+  #[test]
+  fn edit_test() {
+    let _testdir = prepare_testdir("testdir");
+
+    let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
+
+    assert!(edit_internal(&khline).is_ok());
+    let event = khline.to_event().unwrap();
+    let dtstamp = event.get_property_by_name("DTSTAMP").unwrap().get_value();
+    assert_eq!(dtstamp, "20130101T010203Z");
+    let lastmodified = event.get_property_by_name("LAST-MODIFIED").unwrap().get_value();
+    assert_eq!(lastmodified, "20130101T010203Z");
   }
 }
