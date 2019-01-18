@@ -142,8 +142,12 @@ impl IcalVCalendar {
       let now = dateutil::now().timestamp();
       let is_date = 0;
       let now_icaltime = ical::icaltime_from_timet_with_zone(now, is_date, ical::icaltimezone_get_utc_timezone());
-      let prop = event.get_property_by_name("LAST-MODIFIED").unwrap();
-      ical::icalproperty_set_lastmodified(prop.ptr, now_icaltime);
+      if let Some(prop) = event.get_property_by_name("LAST-MODIFIED") {
+        ical::icalproperty_set_lastmodified(prop.ptr, now_icaltime);
+      } else {
+        let prop_lastmod = ical::icalproperty_new_lastmodified(now_icaltime);
+        ical::icalcomponent_add_property(event.get_ptr(), prop_lastmod);
+      }
     }
     self
   }
@@ -425,7 +429,15 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_LASTMODIFIED, None).unwrap();
 
     let new_cal = cal.with_last_modified_now();
+    let event = new_cal.get_principal_event();
+    assert_eq!("20130101T010203Z", event.get_property_by_name("LAST-MODIFIED").unwrap().get_value());
+  }
 
+  #[test]
+  fn test_with_last_modified_now_added() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+
+    let new_cal = cal.with_last_modified_now();
     let event = new_cal.get_principal_event();
     assert_eq!("20130101T010203Z", event.get_property_by_name("LAST-MODIFIED").unwrap().get_value());
   }

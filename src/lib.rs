@@ -48,5 +48,6 @@ extern crate log;
 #[macro_use]
 extern crate indoc;
 
+#[cfg(test)]
 #[macro_use]
 extern crate lazy_static;
