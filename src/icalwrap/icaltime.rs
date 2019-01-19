@@ -25,6 +25,12 @@ impl Deref for IcalTime {
   }
 }
 
+impl From<&DateTime<Local>> for IcalTime {
+  fn from(time: &DateTime<Local>) -> IcalTime {
+    time.into()
+  }
+}
+
 impl From<DateTime<Local>> for IcalTime {
   fn from(time: DateTime<Local>) -> IcalTime {
     let timestamp = time.timestamp();
