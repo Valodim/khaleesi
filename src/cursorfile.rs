@@ -7,10 +7,10 @@ use defaults::*;
 use khline::KhLine;
 use utils::fileutil;
 
-pub fn write_cursorfile(lines: &str) -> io::Result<()> {
+pub fn write_cursorfile(line: &str) -> io::Result<()> {
   let tmpfilename = get_datafile("tmpcursor");
 
-  fileutil::write_file(&tmpfilename, lines)?;
+  fileutil::write_file(&tmpfilename, line)?;
 
   let cursorfile = get_cursorfile();
   rename(tmpfilename, cursorfile)?;
