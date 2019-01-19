@@ -1,37 +1,31 @@
 extern crate atty;
 
 use std::fs::rename;
+use std::io;
 
 use defaults::*;
 use khline::KhLine;
 use utils::fileutil;
 
-pub fn write_cursorfile(lines: &str) -> Result<(), String> {
+pub fn write_cursorfile(lines: &str) -> io::Result<()> {
   let tmpfilename = get_datafile("tmpcursor");
 
-  if let Err(error) = fileutil::write_file(&tmpfilename, lines) {
-    return Err(format!("Could not write cursorfile: {}", error));
-  }
+  fileutil::write_file(&tmpfilename, lines)?;
 
   let cursorfile = get_cursorfile();
-  if let Err(error) = rename(tmpfilename, cursorfile) {
-    return Err(format!("{}", error));
-  }
+  rename(tmpfilename, cursorfile)?;
 
   Ok(())
 }
 
-pub fn read_cursorfile() -> Result<KhLine, String> {
+pub fn read_cursorfile() -> io::Result<KhLine> {
   let cursorfile = get_cursorfile();
   debug!("Reading cursor file: {}", cursorfile.to_string_lossy());
-  let lines = match fileutil::read_lines_from_file(&cursorfile) {
-    Ok(lines) => lines.collect::<Vec<String>>(),
-    Err(error) => return Err(format!("{}", error)),
-  };
+  let lines = fileutil::read_lines_from_file(&cursorfile)?.collect::<Vec<String>>();
   if lines.len() > 1 {
-    Err("too many lines in cursorfile".to_string())
+    Err(io::Error::new(io::ErrorKind::Other, "too many lines in cursorfile"))
   } else {
-    lines[0].parse::<KhLine>()
+    lines[0].parse::<KhLine>().map_err(|err| io::Error::new(io::ErrorKind::Other, err.to_string()))
   }
 }
 

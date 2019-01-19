@@ -1,4 +1,5 @@
 use atty;
+use std::io;
 
 use seqfile;
 use cursorfile;
@@ -15,20 +16,15 @@ pub fn default_input_multiple() -> Result<Box<dyn Iterator<Item = String>>, Stri
   }
 }
 
-pub fn default_input_single() -> Result<KhLine, String> {
+pub fn default_input_single() -> io::Result<KhLine> {
   if atty::isnt(atty::Stream::Stdin) {
     debug!("Taking input from Stdin");
 
-    let lines = match fileutil::read_lines_from_stdin() {
-      Ok(lines) => lines,
-      Err(error) => {
-        return Err(format!("{}", error));
-      }
-    };
+    let lines = fileutil::read_lines_from_stdin()?;
     if lines.len() > 1 {
-      Err("too many lines in cursorfile".to_string())
+      Err(io::Error::new(io::ErrorKind::Other, "too many lines in cursorfile"))
     } else {
-      lines[0].parse::<KhLine>()
+      lines[0].parse::<KhLine>().map_err(|err| io::Error::new(io::ErrorKind::Other, err.to_string()))
     }
   } else {
     cursorfile::read_cursorfile()
