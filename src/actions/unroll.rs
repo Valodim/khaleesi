@@ -6,16 +6,16 @@ use KhResult;
 pub fn action_unroll(args: &[String]) -> KhResult<()> {
   let file = &args[0];
   let filepath = Path::new(file);
-  do_unroll(filepath);
+  do_unroll(filepath)?;
 
   Ok(())
 }
 
-fn do_unroll(filepath: &Path) {
-  let cal = filepath.to_str().ok_or_else(|| "str to path failed".to_string())
-    .and_then(|path| path.parse::<KhLine>())
-    .and_then(|khline| khline.to_cal())
-    .unwrap();
+fn do_unroll(filepath: &Path) -> KhResult<()> {
+  let path = filepath.to_str().ok_or_else(|| "str to path failed")?;
+  let khline = path.parse::<KhLine>()?;
+  let cal = khline.to_cal()?;
+
   for event in cal.events_iter() {
     if event.is_recur_master() {
       let recurs = event.get_recur_datetimes();
@@ -24,4 +24,5 @@ fn do_unroll(filepath: &Path) {
       }
     }
   }
+  Ok(())
 }

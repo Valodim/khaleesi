@@ -1,6 +1,7 @@
 use std::fmt;
-use std::str::FromStr;
+use std::io;
 use std::path::{PathBuf,Path};
+use std::str::FromStr;
 use chrono::prelude::*;
 
 use icalwrap::{IcalVCalendar,IcalVEvent};
@@ -23,7 +24,7 @@ impl KhLine {
     Self { path, time }
   }
 
-  pub fn to_cal(&self) -> Result<IcalVCalendar, String> {
+  pub fn to_cal(&self) -> io::Result<IcalVCalendar> {
     let mut calendar = fileutil::read_calendar_from_path(&self.path)?;
     if let Some(time) = self.time {
       calendar = calendar.with_internal_timestamp(time);
@@ -31,7 +32,7 @@ impl KhLine {
     Ok(calendar)
   }
 
-  pub fn to_event(&self) -> Result<IcalVEvent, String> {
+  pub fn to_event(&self) -> io::Result<IcalVEvent> {
     self.to_cal().map(|cal| cal.get_principal_event())
   }
 

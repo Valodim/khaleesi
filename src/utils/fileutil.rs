@@ -40,10 +40,10 @@ pub fn append_file(filepath: &Path, contents: &str) -> io::Result<()> {
   file.write_all(contents.as_bytes())
 }
 
-pub fn write_cal(cal: &IcalVCalendar) -> Result<(), String> {
+pub fn write_cal(cal: &IcalVCalendar) -> io::Result<()> {
   match cal.get_path() {
-    Some(path) => write_file(&path, &cal.to_string()).map_err(|error| format!("{}", error)),
-    None => Err("calendar has no path".to_string()),
+    Some(path) => write_file(&path, &cal.to_string()),
+    None => Err(io::Error::new(io::ErrorKind::Other, "calendar has no path")),
   }
 }
 
@@ -51,28 +51,20 @@ pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = 
   let f = fs::File::open(filepath)?;
   let f = BufReader::new(f);
   let lines: Result<Vec<String>, io::Error> = f.lines().collect();
-  match lines {
-    Ok(result) => Ok(result.into_iter()),
-    Err(error) => Err(error)
-  }
+  lines.map(|result| result.into_iter())
 }
 
-pub fn read_single_char_from_stdin() -> Result<char, String> {
+pub fn read_single_char_from_stdin() -> io::Result<char> {
   let stdin = std::io::stdin();
   let stdinlock = stdin.lock();
   read_single_char(stdinlock)
 }
 
-pub fn read_single_char(mut source: impl BufRead) -> Result<char, String> {
+pub fn read_single_char(mut source: impl BufRead) -> io::Result<char> {
   let mut buf = String::new();
-  if let Err(error) = source.read_line(&mut buf) {
-    return Err(format!("{}", error));
-  }
+  source.read_line(&mut buf)?;
 
-  match buf.chars().next() {
-    Some(c) => Ok(c),
-    None => Err("failed to read from {}".to_string()),
-  }
+  buf.chars().next().ok_or_else(|| io::Error::new(io::ErrorKind::Other, "calendar has no path"))
 }
 
 pub fn read_lines_from_stdin() -> io::Result<Vec<String>> {
@@ -82,29 +74,20 @@ pub fn read_lines_from_stdin() -> io::Result<Vec<String>> {
   lines.collect()
 }
 
-pub fn read_file_to_string(path: &Path) -> Result<String, String> {
-  if let Ok(mut file) = fs::File::open(&path) {
-    let mut contents = String::new();
-    if file.read_to_string(&mut contents).is_ok() {
-      Ok(contents)
-    } else {
-      Err("Something went wrong reading the file".to_string())
-    }
-  } else {
-    Err(format!("Could not open {} for reading", path.display()))
-  }
+pub fn read_file_to_string(path: &Path) -> io::Result<String> {
+  let mut file = fs::File::open(&path)?;
+  let mut contents = String::new();
+  file.read_to_string(&mut contents)?;
+  Ok(contents)
 }
 
-pub fn read_calendar_from_path(path: &Path) -> Result<IcalVCalendar, String> {
+pub fn read_calendar_from_path(path: &Path) -> io::Result<IcalVCalendar> {
   trace!("Reading calendar from {}", path.to_string_lossy());
-  let content = match fs::read_to_string(path) {
-    Ok(content) => content,
-    Err(error) => return Err(format!("{} {:?}", error, path))
-  };
+  let content = fs::read_to_string(path)?;
   IcalVCalendar::from_str(&content, Some(path))
 }
 
-pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> Result<Vec<IcalVCalendar>, String> {
+pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> io::Result<Vec<IcalVCalendar>> {
   files
     .map(|line| line.parse::<KhLine>())
     .flatten()

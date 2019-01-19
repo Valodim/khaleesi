@@ -2,6 +2,7 @@ use chrono::{DateTime, Local};
 use std::ffi::{CStr, CString};
 use std::path::{PathBuf,Path};
 use std::rc::Rc;
+use std::io;
 
 use super::IcalVEvent;
 use super::IcalComponent;
@@ -68,18 +69,18 @@ impl IcalVCalendar {
     self
   }
 
-  pub fn from_str(str: &str, path: Option<&Path>) -> Result<Self, String> {
+  pub fn from_str(str: &str, path: Option<&Path>) -> io::Result<Self> {
     unsafe {
       let c_str = CString::new(str).unwrap();
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
       if parsed_cal.is_null() {
-        return Err("could not read component".to_string());
+        return Err(io::Error::new(io::ErrorKind::Other, "calendar has no path"))
       }
 
       let kind = ical::icalcomponent_isa(parsed_cal);
       if kind != ical::icalcomponent_kind_ICAL_VCALENDAR_COMPONENT {
         let kind = CStr::from_ptr(ical::icalcomponent_kind_to_string(kind)).to_string_lossy();
-        return Err(format!("expected VCALENDAR component, got {}", kind));
+        return Err(io::Error::new(io::ErrorKind::Other, format!("expected VCALENDAR component, got {}", kind)))
       }
 
       let mut cal = IcalVCalendar::from_ptr(parsed_cal);
