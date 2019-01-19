@@ -25,34 +25,36 @@ fn main() {
   let args: Vec<String> = env::args().collect();
   let config = Config::read_config();
 
-  let result = main_internal(&args[0], &args[1..], &config);
+  let binary_name = &args[0];
+  let args = &args[1..].iter().map(|s| s.as_str()).collect::<Vec<&str>>();
+  let result = main_internal(binary_name, args, &config);
   if let Err(error) = result {
     error!("{}", error)
   }
 }
 
-fn main_internal(binary_name: &str, args: &[String], config: &Config) -> KhResult<()> {
+fn main_internal(binary_name: &str, args: &[&str], config: &Config) -> KhResult<()> {
   if args.is_empty() {
     print_usage(&binary_name);
     Ok(())
   } else {
-    let cmd = args[0].as_str();
+    let cmd = args[0];
     let args = &args[1..];
     match cmd {
       "agenda" => agenda::show_events(&config, args),
-      "get" => get::action_get(&args),
-      "copy" => copy::do_copy(&args),
+      "get" => get::action_get(args),
+      "copy" => copy::do_copy(args),
       "cursor" => cursor::do_cursor(args),
-      "new" => new::do_new(&args),
-      "edit" => edit::do_edit(&args),
-      "index" => index::action_index(&args),
-      "list" => list::list_by_args(&args),
-      "modify" => modify::do_modify(&args),
+      "new" => new::do_new(args),
+      "edit" => edit::do_edit(args),
+      "index" => index::action_index(args),
+      "list" => list::list_by_args(args),
+      "modify" => modify::do_modify(args),
       "select" => select::select_by_args(args),
       "seq" => seq::do_seq(args),
       "pretty" => prettyprint::prettyprint(),
-      "show" => show::do_show(&args),
-      "unroll" => unroll::action_unroll(&args),
+      "show" => show::do_show(args),
+      "unroll" => unroll::action_unroll(args),
       _  => { print_usage(cmd); Ok(()) }
     }
   }

@@ -24,21 +24,21 @@ pub struct SelectFilters {
 }
 
 pub trait SelectFilter {
-  fn add_term(&mut self, it: &mut dyn Iterator<Item = &String>);
+  fn add_term(&mut self, it: &mut dyn Iterator<Item = &&str>);
   fn is_not_empty(&self) -> bool;
   fn includes(&self, event: &IcalVEvent) -> bool;
 }
 
 impl SelectFilters {
-  pub fn parse_from_args_with_range(args: &[String]) -> Result<Self, String> {
+  pub fn parse_from_args_with_range(args: &[&str]) -> Result<Self, String> {
     Self::parse_from_args_internal(args, true)
   }
 
-  pub fn parse_from_args(args: &[String]) -> Result<Self, String> {
+  pub fn parse_from_args(args: &[&str]) -> Result<Self, String> {
     Self::parse_from_args_internal(args, false)
   }
 
-  fn parse_from_args_internal(args: &[String], with_range: bool) -> Result<Self, String> {
+  fn parse_from_args_internal(args: &[&str], with_range: bool) -> Result<Self, String> {
     let mut from: SelectFilterFrom = Default::default();
     let mut to: SelectFilterTo = Default::default();
     let mut range: Option<RangeFilter> = None;
@@ -47,9 +47,9 @@ impl SelectFilters {
     others.insert("cal", Box::new(CalendarFilter::default()));
     others.insert("prop", Box::new(PropFilter::default()));
 
-    let mut it = args.into_iter();
+    let mut it = args.iter();
     while let Some(arg) = it.next() {
-      match arg.as_str() {
+      match *arg {
         "from" => {
           let term = it.next().unwrap();
           from = from.combine_with(&term.parse()?);

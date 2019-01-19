@@ -4,7 +4,7 @@ use khline::KhLine;
 use input;
 use KhResult;
 
-pub fn list_by_args(args: &[String]) -> KhResult<()> {
+pub fn list_by_args(args: &[&str]) -> KhResult<()> {
   let mut filenames = input::default_input_multiple()?;
   let cals = fileutil::read_calendars_from_files(&mut filenames)?;
 

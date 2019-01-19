@@ -4,7 +4,7 @@ use seqfile;
 use utils::fileutil;
 use KhResult;
 
-pub fn do_seq(_args: &[String]) -> KhResult<()> {
+pub fn do_seq(_args: &[&str]) -> KhResult<()> {
   if atty::isnt(atty::Stream::Stdin) {
     write_stdin_to_seqfile();
   } else {

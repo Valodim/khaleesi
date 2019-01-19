@@ -3,7 +3,7 @@ use khline::KhLine;
 use utils::fileutil;
 use KhResult;
 
-pub fn do_show(_args: &[String]) -> KhResult<()> {
+pub fn do_show(_args: &[&str]) -> KhResult<()> {
   info!("do_show");
   let lines = input::default_input_multiple()?;
 

@@ -10,7 +10,7 @@ pub struct PropFilter {
 }
 
 impl SelectFilter for PropFilter  {
-  fn add_term(&mut self, it: &mut dyn Iterator<Item = &String>) {
+  fn add_term(&mut self, it: &mut dyn Iterator<Item = &&str>) {
     let term = it.next().unwrap().to_uppercase();
     let value = it.next().unwrap();
     self.terms.entry(term)

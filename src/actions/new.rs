@@ -6,7 +6,7 @@ use utils::misc;
 
 use KhResult;
 
-pub fn do_new(_args: &[String]) -> KhResult<()> {
+pub fn do_new(_args: &[&str]) -> KhResult<()> {
   let uid = misc::make_new_uid();
   let path = defaults::get_datafile(&(uid.clone() + ".ics"));
 

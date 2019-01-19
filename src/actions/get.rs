@@ -1,11 +1,11 @@
 use calendars;
 use KhResult;
 
-pub fn action_get(args: &[String]) -> KhResult<()> {
+pub fn action_get(args: &[&str]) -> KhResult<()> {
   if args.is_empty() {
     Err("get calendars")?;
   }
-  match args[0].as_str() {
+  match args[0] {
     "calendars" => action_get_calendars(),
     _ => Err("Unknown get parameter!")?
   }
@@ -29,7 +29,7 @@ mod tests {
   fn test_get_calendars() {
     let _testdir = testutils::prepare_testdir("testdir_two_cals");
 
-    action_get(&["calendars".to_string()]).unwrap();
+    action_get(&["calendars"]).unwrap();
 
     assert_eq!("first\nsecond\nsecond/second_sub\n", testutils::test_stdout_clear());
   }

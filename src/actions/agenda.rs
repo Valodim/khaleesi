@@ -10,7 +10,7 @@ use config::{Config,CalendarConfig};
 use khline::KhLine;
 use KhResult;
 
-pub fn show_events(config: &Config, _args: &[String]) -> KhResult<()> {
+pub fn show_events(config: &Config, _args: &[&str]) -> KhResult<()> {
   let mut lines = input::default_input_multiple()?;
 
   let cursor = cursorfile::read_cursorfile().ok();

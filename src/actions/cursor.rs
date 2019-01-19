@@ -4,7 +4,7 @@ use cursorfile;
 use utils::fileutil;
 use KhResult;
 
-pub fn do_cursor(_args: &[String]) -> KhResult<()> {
+pub fn do_cursor(_args: &[&str]) -> KhResult<()> {
   if atty::isnt(atty::Stream::Stdin) {
     write_stdin_to_cursorfile();
   } else {

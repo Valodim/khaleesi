@@ -7,7 +7,7 @@ pub struct CalendarFilter {
 }
 
 impl SelectFilter for CalendarFilter {
-  fn add_term(&mut self, it: &mut dyn Iterator<Item = &String>) {
+  fn add_term(&mut self, it: &mut dyn Iterator<Item = &&str>) {
     let term = it.next().unwrap();
     self.cal_names.push(term.to_lowercase());
   }

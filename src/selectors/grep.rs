@@ -7,7 +7,7 @@ pub struct GrepFilter {
 }
 
 impl SelectFilter for GrepFilter  {
-  fn add_term(&mut self, it: &mut dyn Iterator<Item = &String>) {
+  fn add_term(&mut self, it: &mut dyn Iterator<Item = &&str>) {
     let term = it.next().unwrap();
     self.terms.push(term.to_lowercase());
   }

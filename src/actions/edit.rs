@@ -10,7 +10,7 @@ use khline::KhLine;
 use utils::fileutil;
 use KhResult;
 
-pub fn do_edit(_args: &[String]) -> KhResult<()> {
+pub fn do_edit(_args: &[&str]) -> KhResult<()> {
   let khline = input::default_input_single()?;
   edit_internal(&khline)
 }

@@ -40,7 +40,7 @@ impl SelectFilterTo {
   }
 }
 
-pub fn select_by_args(args: &[String]) -> KhResult<()> {
+pub fn select_by_args(args: &[&str]) -> KhResult<()> {
   let filters = SelectFilters::parse_from_args(args)?;
 
   let indexdir = defaults::get_indexdir();

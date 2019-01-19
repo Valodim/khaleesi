@@ -13,7 +13,7 @@ use utils::lock;
 use utils::misc;
 use KhResult;
 
-pub fn action_index(mut args: &[String]) -> KhResult<()> {
+pub fn action_index(mut args: &[&str]) -> KhResult<()> {
   let reindex = !args.is_empty() && args[0] == "--reindex";
   if reindex {
     args = &args[1..];
