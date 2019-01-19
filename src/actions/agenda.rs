@@ -19,13 +19,22 @@ pub fn show_events(config: &Config, _args: &[&str]) -> KhResult<()> {
   Ok(())
 }
 
-pub fn show_events_cursor(config: &Config, lines: &mut Iterator<Item = String>, cursor: Option<&KhLine>) {
+pub fn show_events_cursor(
+  config: &Config,
+  lines: &mut Iterator<Item = String>,
+  cursor: Option<&KhLine>,
+) {
   let cals = utils::read_calendars_from_files(lines).unwrap();
 
   let mut not_over_yet: Vec<(usize, &IcalVCalendar, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
-  let mut cals_iter = cals.iter()
+  let mut cals_iter = cals
+    .iter()
     .enumerate()
-    .map(|(i, cal)| (i, cal, cal.get_principal_event(), config.get_config_for_calendar(&cal)))
+    .map(|(i, cal)| {
+      let event = cal.get_principal_event();
+      let config = cal.get_calendar_name().and_then(|name| config.get_config_for_calendar(&name));
+      (i, cal, event, config)
+    })
     .peekable();
 
   let start_day = match cals_iter.peek() {

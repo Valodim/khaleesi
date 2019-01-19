@@ -3,7 +3,6 @@ use toml;
 use yansi::{self,Style,Color};
 
 use defaults;
-use icalwrap::IcalVCalendar;
 use utils::fileutil as utils;
 
 #[derive(Deserialize,Debug,PartialEq)]
@@ -26,8 +25,7 @@ pub struct CalendarConfig {
 }
 
 impl Config {
-  pub fn get_config_for_calendar(&self,  event: &IcalVCalendar) -> Option<&CalendarConfig> {
-    let calendar_name = &event.get_calendar_name()?;
+  pub fn get_config_for_calendar(&self,  calendar_name: &str) -> Option<&CalendarConfig> {
     self.calendars.get(calendar_name)
   }
 
@@ -87,6 +85,7 @@ mod tests {
     let _testdir = testutils::prepare_testdir("testdir_config");
 
     let config = Config::read_config();
+    let cal_config = config.get_config_for_calendar("sample").unwrap();
 
     let expected = Config {
       calendars: hashmap!{"sample".to_string() => CalendarConfig { color: Some(81) }},
@@ -95,6 +94,16 @@ mod tests {
         print_empty_days: false
       }
     };
+
     assert_eq!(expected, config);
+    assert_eq!(expected.calendars.get("sample").unwrap(), cal_config);
+  }
+
+  #[test]
+  fn test_get_style_for_calendar() {
+    let config = CalendarConfig { color: Some(81) };
+    let style = config.get_style_for_calendar();
+
+    assert_eq!(Color::Fixed(81).style(), style);
   }
 }
