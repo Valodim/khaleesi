@@ -40,12 +40,10 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) -> KhResul
     let args = &args[1..];
     match cmd {
       "agenda" => agenda::show_events(&config, args),
-      "cal" => cal::printcal(),
       "get" => get::action_get(&args),
       "copy" => copy::do_copy(&args),
       "cursor" => cursor::do_cursor(args),
       "new" => new::do_new(&args),
-      "dbg" => cal::dbg(),
       "edit" => edit::do_edit(&args),
       "index" => index::action_index(&args),
       "list" => list::list_by_args(&args),
@@ -61,5 +59,5 @@ fn main_internal(binary_name: &str, args: &[String], config: &Config) -> KhResul
 }
 
 fn print_usage(name: &str) {
-  error!("Usage: {} index|select|list|agenda|copy|new|edit|show|cal|dbg", name)
+  error!("Usage: {} index|select|list|agenda|copy|new|edit|show", name)
 }
