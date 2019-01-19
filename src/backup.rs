@@ -1,3 +1,4 @@
+use std::io;
 use std::fs;
 use chrono::Local;
 use std::path::{Path,PathBuf};
@@ -5,19 +6,17 @@ use std::path::{Path,PathBuf};
 use defaults;
 use khline::KhLine;
 
-pub fn backup(khline: &KhLine) -> Result<PathBuf, String> {
+pub fn backup(khline: &KhLine) -> io::Result<PathBuf> {
   let backupdir = defaults::get_backupdir();
   let backup_path = backupdir.join(with_timestamp(khline.get_normalized_path()));
 
   if backup_path == khline.path {
-    Err("backup dir same as source dir".to_string())
+    Err(io::Error::new(io::ErrorKind::Other, "backup dir same as source dir"))
   } else {
     let backup_path_parent = backup_path.parent().unwrap();
-    match prepare_backup_dir(&backup_path_parent)
-      .and_then(|_| fs::copy(&khline.path, backup_path.clone())) {
-        Ok(_) => Ok(backup_path.clone()),
-        Err(err) => Err(err.to_string()),
-      }
+    prepare_backup_dir(&backup_path_parent)?;
+    fs::copy(&khline.path, backup_path.clone())?;
+    Ok(backup_path.clone())
   }
 }
 
@@ -30,7 +29,7 @@ fn with_timestamp(path: &Path) -> PathBuf {
   pathbuf
 }
 
-fn prepare_backup_dir(backupdir: &Path) -> Result<(), std::io::Error> {
+fn prepare_backup_dir(backupdir: &Path) -> io::Result<()> {
   if !backupdir.exists() {
     info!("Creating backup directory: {}", backupdir.to_string_lossy());
     fs::create_dir_all(&backupdir)?;
