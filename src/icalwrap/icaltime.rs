@@ -25,9 +25,9 @@ impl Deref for IcalTime {
   }
 }
 
-impl From<&DateTime<Local>> for IcalTime {
-  fn from(time: &DateTime<Local>) -> IcalTime {
-    time.into()
+impl<T: Into<IcalTime> + Clone> From<&T> for IcalTime {
+  fn from(time: &T) -> IcalTime {
+    time.clone().into()
   }
 }
 
