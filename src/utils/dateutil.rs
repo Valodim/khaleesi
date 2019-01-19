@@ -8,6 +8,14 @@ pub fn date_from_str(date_str: &str) -> ParseResult<Date<Local>> {
   Ok(Local.from_local_date(naive_date).unwrap())
 }
 
+pub fn datetime_from_str(datetime_str: &str) -> ParseResult<DateTime<Local>> {
+  if datetime_str == "now" {
+    return Ok(Local::now());
+  }
+  let naive_datetime = &NaiveDateTime::parse_from_str(datetime_str, "%Y-%m-%dT%H:%M")?;
+  Ok(Local.from_local_datetime(naive_datetime).unwrap())
+}
+
 pub fn week_from_str_begin(date_str: &str) -> Result<Date<Local>,String> {
   let now = Local::now();
   if date_str == "toweek" || date_str == "thisweek" {
