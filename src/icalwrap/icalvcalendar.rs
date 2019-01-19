@@ -6,6 +6,7 @@ use std::io;
 
 use super::IcalVEvent;
 use super::IcalComponent;
+use super::IcalTime;
 use ical;
 use utils::dateutil;
 
@@ -130,11 +131,9 @@ impl IcalVCalendar {
   }
 
   pub fn with_dtstamp_now(self) -> Self {
+    let dtstamp = IcalTime::now();
     unsafe {
-      let now = dateutil::now().timestamp();
-      let is_date = 0;
-      let now_icaltime = ical::icaltime_from_timet_with_zone(now, is_date, ical::icaltimezone_get_utc_timezone());
-      ical::icalcomponent_set_dtstamp(self.get_ptr(), now_icaltime);
+      ical::icalcomponent_set_dtstamp(self.get_ptr(), *dtstamp);
     }
     self
   }
