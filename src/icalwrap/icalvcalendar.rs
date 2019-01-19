@@ -141,13 +141,11 @@ impl IcalVCalendar {
   pub fn with_last_modified_now(self) -> Self {
     let event = self.get_principal_event();
     unsafe {
-      let now = dateutil::now().timestamp();
-      let is_date = 0;  // 1 == true
-      let now_icaltime = ical::icaltime_from_timet_with_zone(now, is_date, ical::icaltimezone_get_utc_timezone());
+      let now_icaltime = IcalTime::now();
       if let Some(prop) = event.get_property_by_name("LAST-MODIFIED") {
-        ical::icalproperty_set_lastmodified(prop.ptr, now_icaltime);
+        ical::icalproperty_set_lastmodified(prop.ptr, *now_icaltime);
       } else {
-        let prop_lastmod = ical::icalproperty_new_lastmodified(now_icaltime);
+        let prop_lastmod = ical::icalproperty_new_lastmodified(*now_icaltime);
         ical::icalcomponent_add_property(event.get_ptr(), prop_lastmod);
       }
     }
