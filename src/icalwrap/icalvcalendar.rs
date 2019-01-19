@@ -8,7 +8,6 @@ use super::IcalVEvent;
 use super::IcalComponent;
 use super::IcalTime;
 use ical;
-use utils::dateutil;
 
 pub struct IcalVCalendar {
   comp: Rc<IcalComponentOwner>,
@@ -134,6 +133,42 @@ impl IcalVCalendar {
     let dtstamp = IcalTime::now();
     unsafe {
       ical::icalcomponent_set_dtstamp(self.get_ptr(), *dtstamp);
+    }
+    self
+  }
+
+  pub fn with_dtstart(self, dtstart: &DateTime<Local>) -> Self {
+    let event = self.get_principal_event();
+    unsafe {
+      let dtstart_icaltime = IcalTime::from(dtstart);
+      ical::icalcomponent_set_dtstart(event.get_ptr(), *dtstart_icaltime);
+    }
+    self
+  }
+
+  pub fn with_dtend(self, dtend: &DateTime<Local>) -> Self {
+    let event = self.get_principal_event();
+    unsafe {
+      let dtend_icaltime = IcalTime::from(dtend);
+      ical::icalcomponent_set_dtend(event.get_ptr(), *dtend_icaltime);
+    }
+    self
+  }
+
+  pub fn with_location(self, location: &str) -> Self {
+    let event = self.get_principal_event();
+    unsafe {
+      let c_str = CString::new(location).unwrap();
+      ical::icalcomponent_set_location(event.get_ptr(), c_str.as_ptr());
+    }
+    self
+  }
+
+  pub fn with_summary(self, summary: &str) -> Self {
+    let event = self.get_principal_event();
+    unsafe {
+      let c_str = CString::new(summary).unwrap();
+      ical::icalcomponent_set_summary(event.get_ptr(), c_str.as_ptr());
     }
     self
   }
