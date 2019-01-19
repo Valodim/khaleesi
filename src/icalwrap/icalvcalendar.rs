@@ -477,6 +477,50 @@ mod tests {
   }
 
   #[test]
+  fn test_with_location() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+
+    let location = "test";
+    let new_cal = cal.with_location(location);
+
+    let event = new_cal.get_principal_event();
+    assert_eq!(location, event.get_location().unwrap())
+  }
+
+  #[test]
+  fn test_with_summary() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+
+    let summary = "test";
+    let new_cal = cal.with_summary(summary);
+
+    let event = new_cal.get_principal_event();
+    assert_eq!(summary, event.get_summary().unwrap())
+  }
+
+  #[test]
+  fn test_with_dtend() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+
+    let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
+    let new_cal = cal.with_dtend(&timestamp);
+
+    let event = new_cal.get_principal_event();
+    assert_eq!(timestamp, event.get_dtend().unwrap())
+  }
+
+  #[test]
+  fn test_with_dtstart() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+
+    let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
+    let new_cal = cal.with_dtstart(&timestamp);
+
+    let event = new_cal.get_principal_event();
+    assert_eq!(timestamp, event.get_dtstart().unwrap())
+  }
+
+  #[test]
   fn test_with_internal_timestamp() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
