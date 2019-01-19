@@ -1,0 +1,6 @@
+[agenda]
+print_week_separator = true
+print_empty_days = false
+
+[calendars.sample]
+color = 81

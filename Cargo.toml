@@ -26,3 +26,4 @@ backtrace = "0.3"
 [dev-dependencies]
 assert_fs = "0.10.1"
 predicates = "1.0"
+maplit = "1.0.1"

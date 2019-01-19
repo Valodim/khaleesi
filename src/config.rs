@@ -6,21 +6,21 @@ use defaults;
 use icalwrap::IcalVCalendar;
 use utils::fileutil as utils;
 
-#[derive(Deserialize)]
+#[derive(Deserialize,Debug,PartialEq)]
 #[serde(default)]
 pub struct Config {
   pub calendars: HashMap<String,CalendarConfig>,
   pub agenda: AgendaConfig
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize,Debug,PartialEq)]
 #[serde(default)]
 pub struct AgendaConfig {
   pub print_week_separator: bool,
   pub print_empty_days: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize,Debug,PartialEq)]
 pub struct CalendarConfig {
   pub color: Option<u8>
 }
@@ -65,5 +65,36 @@ impl Default for Config {
       calendars: HashMap::new(),
       agenda: AgendaConfig::default(),
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use testutils;
+
+  #[test]
+  fn test_read_config_none() {
+    let _testdir = testutils::prepare_testdir("testdir");
+
+    let config = Config::read_config();
+
+    assert_eq!(Config::default(), config);
+  }
+
+  #[test]
+  fn test_read_config() {
+    let _testdir = testutils::prepare_testdir("testdir_config");
+
+    let config = Config::read_config();
+
+    let expected = Config {
+      calendars: hashmap!{"sample".to_string() => CalendarConfig { color: Some(81) }},
+      agenda: AgendaConfig {
+        print_week_separator: true,
+        print_empty_days: false
+      }
+    };
+    assert_eq!(expected, config);
   }
 }

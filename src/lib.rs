@@ -26,6 +26,9 @@ extern crate tempfile;
 extern crate assert_fs;
 #[cfg(test)]
 extern crate predicates;
+#[cfg(test)]
+#[macro_use]
+extern crate maplit;
 
 extern crate atty;
 extern crate backtrace;
