@@ -17,7 +17,7 @@ impl KhError {
       backtrace: backtrace_strip_foreign(Backtrace::new()),
       #[cfg(not(debug_assertions))]
       backtrace: Backtrace::new_unresolved(),
-      cause: cause
+      cause
     }
   }
 }
