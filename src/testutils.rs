@@ -4,7 +4,8 @@ use std::path::PathBuf;
 
 use std::cell::RefCell;
 thread_local! {
-  pub static STDOUT_BUF: RefCell<String> = RefCell::new(String::new())
+  pub static STDOUT_BUF: RefCell<String> = RefCell::new(String::new());
+  pub static STDIN_BUF: RefCell<String> = RefCell::new(String::new());
 }
 
 use defaults;
@@ -32,6 +33,18 @@ pub fn test_stdout_write(line: &str) {
 pub fn test_stdout_clear() -> String {
   STDOUT_BUF.with(|cell| {
     let result = cell.borrow().clone();
+    *cell.borrow_mut() = String::new();
+    result
+  })
+}
+
+pub fn test_stdin_write(text: &str) {
+  STDIN_BUF.with(|cell| cell.borrow_mut().push_str(&text));
+}
+
+pub fn test_stdin_clear() -> Vec<String> {
+  STDIN_BUF.with(|cell| {
+    let result = cell.borrow().lines().map(|line| line.to_owned()).collect();
     *cell.borrow_mut() = String::new();
     result
   })
