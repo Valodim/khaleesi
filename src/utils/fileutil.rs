@@ -5,7 +5,6 @@ use std::{fs, io};
 use std::fs::OpenOptions;
 
 use icalwrap::IcalVCalendar;
-use khline::KhLine;
 
 pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
   use walkdir::WalkDir;
@@ -79,20 +78,6 @@ pub fn read_file_to_string(path: &Path) -> io::Result<String> {
   let mut contents = String::new();
   file.read_to_string(&mut contents)?;
   Ok(contents)
-}
-
-pub fn read_calendar_from_path(path: &Path) -> io::Result<IcalVCalendar> {
-  trace!("Reading calendar from {}", path.to_string_lossy());
-  let content = fs::read_to_string(path)?;
-  IcalVCalendar::from_str(&content, Some(path))
-}
-
-pub fn read_calendars_from_files(files: &mut Iterator<Item = String>) -> io::Result<Vec<IcalVCalendar>> {
-  files
-    .map(|line| line.parse::<KhLine>())
-    .flatten()
-    .map(|khline| khline.to_cal())
-    .collect()
 }
 
 #[cfg(test)]

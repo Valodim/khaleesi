@@ -25,7 +25,8 @@ impl KhLine {
   }
 
   pub fn to_cal(&self) -> io::Result<IcalVCalendar> {
-    let calendar = fileutil::read_calendar_from_path(&self.path)?;
+    let content = fileutil::read_file_to_string(&self.path)?;
+    let calendar = IcalVCalendar::from_str(&content, Some(&self.path))?;
     Ok(calendar)
   }
 
