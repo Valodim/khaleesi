@@ -41,7 +41,7 @@ pub fn do_new(args: &[&str]) -> KhResult<()> {
     .with_uid(&uid)?
     .with_dtstamp_now()
     .with_last_modified_now()
-    .with_eventprops(ep);
+    .with_eventprops(&ep);
 
   fileutil::write_cal(&new_cal)?;
 
@@ -53,7 +53,7 @@ pub fn do_new(args: &[&str]) -> KhResult<()> {
 }
 
 impl IcalVCalendar {
-  fn with_eventprops(self, ep: EventProperties) -> Self {
+  fn with_eventprops(self, ep: &EventProperties) -> Self {
     self
       .with_dtstart(&ep.start)
       .with_dtend(&ep.end)
