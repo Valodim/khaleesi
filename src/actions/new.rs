@@ -6,6 +6,7 @@ use chrono::{DateTime,Local};
 
 use KhResult;
 use cursorfile;
+use calendars;
 
 struct EventProperties {
   calendar: String,
@@ -20,12 +21,37 @@ impl EventProperties {
     if args.len() < 3 {
       Err("new calendar from to summary location")?
     }
-    let calendar = args[0].to_string();
+    let calendar = EventProperties::parse_calendar(args[0])?;
     let start = dateutil::datetime_from_str(args[1])?;
     let end = dateutil::datetime_from_str(args[2])?;
-    let summary = args[3].to_string();
-    let location = args[4].to_string();
+    let summary = EventProperties::parse_summary(args[0])?;
+    let location = EventProperties::parse_location(args[0])?;
     Ok(EventProperties{ calendar, start, end, summary, location })
+  }
+
+  fn parse_location(location: &str) -> KhResult<String> {
+    if location.is_empty() {
+      Err("no location given")?
+    };
+    Ok(location.to_string())
+  }
+
+  fn parse_summary(summary: &str) -> KhResult<String> {
+    if summary.is_empty() {
+      Err("no summary given")?
+    };
+    Ok(summary.to_string())
+  }
+
+  fn parse_calendar(cal: &str) -> KhResult<String> {
+    if cal.is_empty() {
+      Err("no calendar given")?
+    };
+    let cal = cal.to_string();
+    if !calendars::calendar_list().contains(&cal) {
+      Err("calendar does not exist")?
+    }
+    Ok(cal)
   }
 }
 
@@ -43,9 +69,10 @@ pub fn do_new(args: &[&str]) -> KhResult<()> {
     .with_last_modified_now()
     .with_eventprops(&ep);
 
+  let khline = KhLine::from(&new_cal);
+
   fileutil::write_cal(&new_cal)?;
 
-  let khline = KhLine::from(&new_cal);
   cursorfile::write_cursorfile(&khline.to_string())?;
   khprintln!("{}", khline);
 
@@ -76,3 +103,48 @@ static TEMPLATE_EVENT: &str = indoc!("
   END:VEVENT
   END:VCALENDAR
 ");
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use testutils;
+  use chrono::{TimeZone,Local};
+
+  #[test]
+  fn test_parse_calendar() {
+    let _testdir = testutils::prepare_testdir("testdir_two_cals");
+    let calendar = EventProperties::parse_calendar("first").unwrap();
+    assert_eq!("first", calendar);
+  }
+
+  #[test]
+  fn test_parse_calendar_neg() {
+    let _testdir = testutils::prepare_testdir("testdir_two_cals");
+    let calendar = EventProperties::parse_calendar("");
+    assert!(calendar.is_err());
+    let calendar = EventProperties::parse_calendar("foo");
+    assert!(calendar.is_err());
+  }
+
+  #[test]
+  fn test_with_eventprops() {
+    let calendar = "foo".to_string();
+    let start = Local.ymd(2015, 04, 17).and_hms(8, 17, 3);
+    let end = Local.ymd(2015, 05, 17).and_hms(8, 17, 3);
+    let summary = "summary";
+    let location = "home";
+    let ep = EventProperties { calendar, start, end, summary: summary.to_string(), location: location.to_string() };
+
+    let _testdir = testutils::prepare_testdir("testdir");
+    let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
+
+    let cal = khline.to_cal().unwrap()
+      .with_eventprops(&ep);
+
+    let event = cal.get_principal_event();
+    assert_eq!(start, event.get_dtstart().unwrap());
+    assert_eq!(end, event.get_dtend().unwrap());
+    assert_eq!(summary, event.get_summary().unwrap());
+    assert_eq!(location, event.get_location().unwrap());
+  }
+}
