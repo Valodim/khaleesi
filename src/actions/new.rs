@@ -47,7 +47,7 @@ pub fn do_new(args: &[&str]) -> KhResult<()> {
 
   let khline = KhLine::from(&new_cal);
   cursorfile::write_cursorfile(&khline.to_string())?;
-  println!("{}", khline);
+  khprintln!("{}", khline);
 
   Ok(())
 }
