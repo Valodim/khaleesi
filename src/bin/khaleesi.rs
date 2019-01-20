@@ -51,7 +51,7 @@ fn main_internal(binary_name: &str, args: &[&str], config: &Config) -> KhResult<
       "list" => list::list_by_args(args),
       "modify" => modify::do_modify(args),
       "select" => select::select_by_args(args),
-      "seq" => seq::do_seq(args),
+      "seq" => seq::action_seq(args),
       "pretty" => prettyprint::prettyprint(),
       "show" => show::do_show(args),
       "unroll" => unroll::action_unroll(args),

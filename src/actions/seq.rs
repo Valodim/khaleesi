@@ -2,7 +2,7 @@ use seqfile;
 use utils::stdioutils;
 use KhResult;
 
-pub fn do_seq(_args: &[&str]) -> KhResult<()> {
+pub fn action_seq(_args: &[&str]) -> KhResult<()> {
   if !stdioutils::is_stdin_tty() {
     write_stdin_to_seqfile()?;
   } else {
@@ -43,24 +43,37 @@ mod tests {
   use utils::stdioutils;
 
   #[test]
-  fn test_write_stdin_to_seqfile() {
+  fn test_with_stdin() {
     let testdir = testutils::prepare_testdir_empty();
     stdioutils::test_stdin_write("hi\nthere");
 
-    write_stdin_to_seqfile().unwrap();
+    action_seq(&[]).unwrap();
 
     testdir.child(".khaleesi/seq").assert("hi\nthere\n");
   }
 
   #[test]
-  fn test_read_seqfile_to_stdout() {
+  fn test_no_stdin() {
     let testdir = testutils::prepare_testdir("testdir_with_seq");
 
-    write_seqfile_to_stdout();
+    action_seq(&[]).unwrap();
     let out = stdioutils::test_stdout_clear();
 
     let predicate = predicate::str::similar(out);
     testdir.child(".khaleesi/seq").assert(predicate);
+  }
+
+  #[test]
+  fn test_with_stdin_stdout() {
+    let testdir = testutils::prepare_testdir_empty();
+    stdioutils::test_stdin_write("hi\nthere");
+    stdioutils::test_stdout_set_tty(false);
+
+    action_seq(&[]).unwrap();
+    let out = stdioutils::test_stdout_clear();
+
+    testdir.child(".khaleesi/seq").assert("hi\nthere\n");
+    assert_eq!("hi\nthere\n", out);
   }
 }
 
