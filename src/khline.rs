@@ -33,7 +33,12 @@ impl KhLine {
   }
 
   pub fn to_event(&self) -> io::Result<IcalVEvent> {
-    self.to_cal().map(|cal| cal.get_principal_event())
+    let calendar = self.to_cal()?;
+    let mut event = calendar.get_first_event();
+    if let Some(time) = self.time {
+      event = event.with_internal_timestamp(time);
+    }
+    Ok(event)
   }
 
   pub fn matches(&self, event: &IcalVEvent) -> bool {

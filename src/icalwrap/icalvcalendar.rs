@@ -243,7 +243,7 @@ impl IcalVCalendar {
     IcalEventIter::from_vcalendar(self)
   }
 
-  fn get_first_event(&self) -> IcalVEvent {
+  pub fn get_first_event(&self) -> IcalVEvent {
     let event = unsafe {
       ical::icalcomponent_get_first_component(
         self.get_ptr(),
