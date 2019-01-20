@@ -1,8 +1,10 @@
 use std::ops::Deref;
+use std::ffi::CStr;
 use chrono::prelude::*;
 use ical;
 use utils::dateutil;
 use super::IcalTimeZone;
+use std::fmt::{Error,Display,Formatter};
 
 pub struct IcalTime {
   time: ical::icaltimetype,
@@ -19,6 +21,16 @@ impl Deref for IcalTime {
 
   fn deref(&self) -> &ical::icaltimetype {
     &self.time
+  }
+}
+
+impl Display for IcalTime {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+    let cstr = unsafe {
+      CStr::from_ptr(ical::icaltime_as_ical_string(self.time))
+    };
+    let string = cstr.to_string_lossy().into_owned();
+    write!(f, "{}", string)
   }
 }
 
