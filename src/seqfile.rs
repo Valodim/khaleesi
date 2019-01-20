@@ -1,23 +1,18 @@
-extern crate atty;
-
 use std::fs::rename;
 use std::io;
 
 use defaults::*;
 use utils::fileutil;
 
-pub fn write_to_seqfile(lines: &str) {
+pub fn write_to_seqfile(lines: &str) -> io::Result<()> {
   let tmpfilename = get_datafile("tmpseq");
 
-  if let Err(error) = fileutil::write_file(&tmpfilename, lines) {
-    error!("Could not write seqfile: {}", error);
-    return
-  }
+  fileutil::write_file(&tmpfilename, lines)?;
 
   let seqfile = get_seqfile();
-  if let Err(error) = rename(tmpfilename, seqfile) {
-    error!("{}", error)
-  }
+  rename(tmpfilename, seqfile)?;
+
+  Ok(())
 }
 
 pub fn read_seqfile() -> io::Result<impl Iterator<Item = String>> {
@@ -50,7 +45,8 @@ mod tests {
     let testdir = prepare_testdir("testdir");
     let teststr = "Teststr äöüß\n";
 
-    write_to_seqfile(teststr);
+    write_to_seqfile(teststr).unwrap();
+
     testdir.child(".khaleesi/seq").assert(teststr);
   }
 }

@@ -4,7 +4,7 @@ macro_rules! khprint {
   ($($arg:tt)*) => ({
     let line = format!($($arg)*);
     #[cfg(test)] {
-      use testutils;
+      use utils::stdioutils;
       testutils::test_stdout_write(&line);
     }
     print!("{}", line);
@@ -15,17 +15,17 @@ macro_rules! khprint {
 macro_rules! khprintln {
   () => ({
     #[cfg(test)] {
-      use testutils;
-      testutils::test_stdout_write("\n");
+      use utils::stdioutils;
+      stdioutils::test_stdout_write("\n");
     }
     println!();
   });
   ($($arg:tt)*) => ({
     let line = format!($($arg)*);
     #[cfg(test)] {
-      use testutils;
-      testutils::test_stdout_write(&line);
-      testutils::test_stdout_write("\n");
+      use utils::stdioutils;
+      stdioutils::test_stdout_write(&line);
+      stdioutils::test_stdout_write("\n");
     }
     println!("{}", line);
   })

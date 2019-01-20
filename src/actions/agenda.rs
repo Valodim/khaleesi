@@ -177,6 +177,7 @@ mod tests {
   use super::*;
   use testdata;
   use testutils::*;
+  use utils::stdioutils;
   use config::Config;
 
   use chrono::{Local, TimeZone};
@@ -272,7 +273,7 @@ mod tests {
 
     show_events(&Config::read_config(), &[]).unwrap();
 
-    let stdout = test_stdout_clear();
+    let stdout = stdioutils::test_stdout_clear();
     let expected = indoc!("
       2018-12-13, Thursday
          0     22:30-       shows up on two days

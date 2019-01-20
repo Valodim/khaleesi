@@ -19,6 +19,7 @@ mod tests {
   use super::*;
 
   use testutils::*;
+  use utils::stdioutils::*;
 
   #[test]
   fn test_() {

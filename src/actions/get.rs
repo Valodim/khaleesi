@@ -24,6 +24,7 @@ mod tests {
   use super::*;
 
   use testutils;
+  use utils::stdioutils;
 
   #[test]
   fn test_get_calendars() {
@@ -31,6 +32,6 @@ mod tests {
 
     action_get(&["calendars"]).unwrap();
 
-    assert_eq!("first\nsecond\nsecond/second_sub\n", testutils::test_stdout_clear());
+    assert_eq!("first\nsecond\nsecond/second_sub\n", stdioutils::test_stdout_clear());
   }
 }

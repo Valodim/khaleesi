@@ -1,17 +1,17 @@
 extern crate atty;
 
 use cursorfile;
-use utils::fileutil;
+use utils::stdioutils;
 use KhResult;
 
 pub fn do_cursor(_args: &[&str]) -> KhResult<()> {
-  if atty::isnt(atty::Stream::Stdin) {
+  if !stdioutils::is_stdin_tty() {
     write_stdin_to_cursorfile();
   } else {
     //println!("stdin is tty")
   }
 
-  if atty::isnt(atty::Stream::Stdout) || atty::is(atty::Stream::Stdin) {
+  if !stdioutils::is_stdout_tty() || stdioutils::is_stdin_tty() {
     write_cursorfile_to_stdout();
   }
 
@@ -19,7 +19,7 @@ pub fn do_cursor(_args: &[&str]) -> KhResult<()> {
 }
 
 fn write_stdin_to_cursorfile() {
-  let lines = match fileutil::read_lines_from_stdin() {
+  let lines = match stdioutils::read_lines_from_stdin() {
     Ok(input) => input,
     Err(error) => {
       error!("Error reading from stdin: {}", error);

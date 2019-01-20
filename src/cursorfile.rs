@@ -1,5 +1,3 @@
-extern crate atty;
-
 use std::fs::rename;
 use std::io;
 

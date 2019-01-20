@@ -1,41 +1,66 @@
-extern crate atty;
-
 use seqfile;
-use utils::fileutil;
+use utils::stdioutils;
 use KhResult;
 
 pub fn do_seq(_args: &[&str]) -> KhResult<()> {
-  if atty::isnt(atty::Stream::Stdin) {
-    write_stdin_to_seqfile();
+  if !stdioutils::is_stdin_tty() {
+    write_stdin_to_seqfile()?;
   } else {
     //println!("stdin is tty")
   }
 
-  if atty::isnt(atty::Stream::Stdout) || atty::is(atty::Stream::Stdin) {
+  if !stdioutils::is_stdout_tty() || stdioutils::is_stdin_tty() {
     write_seqfile_to_stdout();
   }
 
   Ok(())
 }
 
-fn write_stdin_to_seqfile() {
-  let mut lines;
-  match fileutil::read_lines_from_stdin() {
-    Ok(input) => lines = input.join("\n"),
-    Err(error) => {
-      error!("Error reading from stdin: {}", error);
-      return
-    }
-  }
+fn write_stdin_to_seqfile() -> KhResult<()> {
+  let mut lines = stdioutils::read_lines_from_stdin()?.join("\n");
   lines.push_str("\n");
 
-  seqfile::write_to_seqfile(&lines);
+  seqfile::write_to_seqfile(&lines)?;
+
+  Ok(())
 }
 
 fn write_seqfile_to_stdout() {
   if let Ok(sequence) = seqfile::read_seqfile() {
     for line in sequence {
-      println!("{}", line);
+      khprintln!("{}", line);
     }
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  use assert_fs::prelude::*;
+  use predicates::prelude::*;
+  use testutils;
+  use utils::stdioutils;
+
+  #[test]
+  fn test_write_stdin_to_seqfile() {
+    let testdir = testutils::prepare_testdir_empty();
+    stdioutils::test_stdin_write("hi\nthere");
+
+    write_stdin_to_seqfile().unwrap();
+
+    testdir.child(".khaleesi/seq").assert("hi\nthere\n");
+  }
+
+  #[test]
+  fn test_read_seqfile_to_stdout() {
+    let testdir = testutils::prepare_testdir("testdir_with_seq");
+
+    write_seqfile_to_stdout();
+    let out = stdioutils::test_stdout_clear();
+
+    let predicate = predicate::str::similar(out);
+    testdir.child(".khaleesi/seq").assert(predicate);
+  }
+}
+

@@ -7,7 +7,7 @@ use tempfile::NamedTempFile;
 use backup::backup;
 use input;
 use khline::KhLine;
-use utils::fileutil;
+use utils::{fileutil,stdioutils};
 use KhResult;
 
 pub fn do_edit(_args: &[&str]) -> KhResult<()> {
@@ -54,7 +54,7 @@ fn ask_continue_editing(error: &[String]) -> bool {
   println!("Calendar contains errors:\n{}", error.join("\n"));
   println!("Continue editing? y/n:");
 
-  match fileutil::read_single_char_from_stdin().unwrap() {
+  match stdioutils::read_single_char_from_stdin().unwrap() {
     'y' => true,
     _ => false
   }

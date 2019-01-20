@@ -1,12 +1,7 @@
 use assert_fs::prelude::*;
 use assert_fs::TempDir;
 use std::path::PathBuf;
-
-use std::cell::RefCell;
-thread_local! {
-  pub static STDOUT_BUF: RefCell<String> = RefCell::new(String::new());
-  pub static STDIN_BUF: RefCell<String> = RefCell::new(String::new());
-}
+use std::fs;
 
 use defaults;
 
@@ -16,6 +11,7 @@ pub fn path_to(artifact: &str) -> PathBuf {
 
 pub fn prepare_testdir_empty() -> TempDir {
   let testdir = TempDir::new().unwrap();
+  fs::create_dir(testdir.child(".khaleesi").path()).unwrap();
   defaults::set_khaleesi_dir(testdir.path());
   testdir
 }
@@ -24,28 +20,4 @@ pub fn prepare_testdir(template: &str) -> TempDir {
   let testdir = prepare_testdir_empty();
   testdir.child(".khaleesi/").copy_from(path_to(template), &["*"]).unwrap();
   testdir
-}
-
-pub fn test_stdout_write(line: &str) {
-  STDOUT_BUF.with(|cell| cell.borrow_mut().push_str(&line));
-}
-
-pub fn test_stdout_clear() -> String {
-  STDOUT_BUF.with(|cell| {
-    let result = cell.borrow().clone();
-    *cell.borrow_mut() = String::new();
-    result
-  })
-}
-
-pub fn test_stdin_write(text: &str) {
-  STDIN_BUF.with(|cell| cell.borrow_mut().push_str(&text));
-}
-
-pub fn test_stdin_clear() -> Vec<String> {
-  STDIN_BUF.with(|cell| {
-    let result = cell.borrow().lines().map(|line| line.to_owned()).collect();
-    *cell.borrow_mut() = String::new();
-    result
-  })
 }

@@ -53,33 +53,6 @@ pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = 
   lines.map(|result| result.into_iter())
 }
 
-pub fn read_single_char(mut source: impl BufRead) -> io::Result<char> {
-  let mut buf = String::new();
-  source.read_line(&mut buf)?;
-
-  buf.chars().next().ok_or_else(|| io::Error::new(io::ErrorKind::Other, "calendar has no path"))
-}
-
-pub fn read_single_char_from_stdin() -> io::Result<char> {
-  let stdin = std::io::stdin();
-  let stdinlock = stdin.lock();
-  read_single_char(stdinlock)
-}
-
-#[cfg(not(test))]
-pub fn read_lines_from_stdin() -> io::Result<Vec<String>> {
-  let stdin = io::stdin();
-  let lines = stdin.lock().lines();
-  lines.collect()
-}
-
-#[cfg(test)]
-pub fn read_lines_from_stdin() -> io::Result<Vec<String>> {
-  use testutils;
-  let lines = testutils::test_stdin_clear();
-  Ok(lines)
-}
-
 pub fn read_file_to_string(path: &Path) -> io::Result<String> {
   let mut file = fs::File::open(&path)?;
   let mut contents = String::new();
@@ -116,12 +89,5 @@ mod tests {
 
     write_file(file.path(), "z\n").unwrap();
     file.assert("z\n");
-  }
-
-  #[test]
-  fn read_single_char_test() {
-    let source = "ab".as_bytes();
-    let read_char = read_single_char(source).unwrap();
-    assert_eq!('a', read_char);
   }
 }
