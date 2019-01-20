@@ -1,11 +1,54 @@
+use tempfile::NamedTempFile;
+
+use backup::backup;
 use edit;
 use input;
 use khline::KhLine;
-use utils::{fileutil,stdioutils};
+use utils::fileutil;
 use KhResult;
 
 pub fn do_edit(_args: &[&str]) -> KhResult<()> {
   let khline = input::default_input_khline()?;
-  edit::edit(&khline)
+  edit(&khline)
 }
 
+fn edit(khline: &KhLine) -> KhResult<()> {
+  let tempfile = NamedTempFile::new()?;
+  let calendar = khline.to_cal()?;
+
+  fileutil::write_file(tempfile.path(), &calendar.to_string())?;
+  edit::edit_loop(&tempfile.path())?;
+
+  let backup_path = backup(&khline).unwrap();
+  info!("Backup written to {}", backup_path.display());
+
+  let edited_cal = KhLine::new(tempfile.path(), None).to_cal()?.with_dtstamp_now().with_last_modified_now();
+  fileutil::write_file(&khline.path, &edited_cal.to_string())?;
+  info!("Successfully edited file {}", khline.path.display());
+
+  Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  use testutils::prepare_testdir;
+  use icalwrap::IcalComponent;
+
+  #[test]
+  fn edit_test() {
+    let _testdir = prepare_testdir("testdir");
+
+    let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
+
+    assert!(edit(&khline).is_ok());
+    let event = khline.to_event().unwrap();
+
+    let dtstamp_prop = ical::icalproperty_kind_ICAL_DTSTAMP_PROPERTY;
+    assert_eq!("20130101T010203Z", event.get_property(dtstamp_prop).unwrap().get_value());
+
+    let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
+    assert_eq!("20130101T010203Z", event.get_property(last_modified_kind).unwrap().get_value());
+  }
+}
