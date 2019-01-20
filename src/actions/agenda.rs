@@ -1,17 +1,16 @@
 use chrono::{Datelike, TimeZone, Local, Date};
-use itertools::Itertools;
 use yansi::{Style};
+use itertools::Itertools;
 
 use cursorfile;
 use icalwrap::*;
 use input;
-use utils::fileutil as utils;
 use config::{Config,CalendarConfig};
 use khline::KhLine;
 use KhResult;
 
 pub fn show_events(config: &Config, _args: &[&str]) -> KhResult<()> {
-  let mut lines = input::default_input_multiple()?;
+  let mut lines = input::default_input_khlines()?;
 
   let cursor = cursorfile::read_cursorfile().ok();
   show_events_cursor(config, &mut lines, cursor.as_ref());
@@ -21,24 +20,22 @@ pub fn show_events(config: &Config, _args: &[&str]) -> KhResult<()> {
 
 pub fn show_events_cursor(
   config: &Config,
-  lines: &mut Iterator<Item = String>,
+  lines: &mut Iterator<Item = KhLine>,
   cursor: Option<&KhLine>,
 ) {
-  let cals = utils::read_calendars_from_files(lines).unwrap();
 
-  let mut not_over_yet: Vec<(usize, &IcalVCalendar, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
-  let mut cals_iter = cals
-    .iter()
+  let mut not_over_yet: Vec<(usize, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
+  let mut cals_iter = lines
     .enumerate()
-    .map(|(i, cal)| {
-      let event = cal.get_principal_event();
-      let config = cal.get_calendar_name().and_then(|name| config.get_config_for_calendar(&name));
-      (i, cal, event, config)
+    .map(|(i, khline)| {
+      let event = khline.to_event().unwrap();
+      let config = event.get_parent().unwrap().get_calendar_name().and_then(|name| config.get_config_for_calendar(&name));
+      (i, event, config)
     })
     .peekable();
 
   let start_day = match cals_iter.peek() {
-    Some((_, _, event, _)) => {
+    Some((_, event, _)) => {
       event
         .get_dtstart()
         .unwrap_or_else(|| Local.timestamp(0, 0))
@@ -54,20 +51,20 @@ pub fn show_events_cursor(
 
     maybe_print_date_line_header(&config, cur_day, start_day, &mut last_printed_day);
 
-    not_over_yet.retain( |(index, _, event, cal_config)| {
+    not_over_yet.retain( |(index, event, cal_config)| {
       let is_cursor = cursor.map(|c| c.matches(&event)).unwrap_or(false);
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
       print_event_line(*cal_config, *index, &event, cur_day, is_cursor);
       event.continues_after(cur_day)
     });
 
-    let relevant_events = cals_iter.peeking_take_while(|(_,_,event,_)| event.starts_on(cur_day));
-    for (i, cal, event, cal_config) in relevant_events {
+    let relevant_events = cals_iter.peeking_take_while(|(_,event,_)| event.starts_on(cur_day));
+    for (i, event, cal_config) in relevant_events {
       let is_cursor = cursor.map(|c| c.matches(&event)).unwrap_or(false);
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
       print_event_line(cal_config, i, &event, cur_day, is_cursor);
       if event.continues_after(cur_day) {
-        not_over_yet.push((i, cal, event, cal_config));
+        not_over_yet.push((i, event, cal_config));
       }
     }
   }

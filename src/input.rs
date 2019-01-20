@@ -6,17 +6,20 @@ use cursorfile;
 use khline::KhLine;
 use utils::fileutil;
 
-pub fn default_input_multiple() -> Result<Box<dyn Iterator<Item = String>>, String> {
+pub fn default_input_khlines() -> Result<Box<dyn Iterator<Item = KhLine>>, String> {
   if atty::isnt(atty::Stream::Stdin) {
     debug!("Taking input from Stdin");
-    Ok(Box::new(fileutil::read_lines_from_stdin().unwrap().into_iter()))
+    let lines = fileutil::read_lines_from_stdin().unwrap().into_iter();
+    let khlines = lines.map(|line| line.parse::<KhLine>()).flatten();
+    Ok(Box::new(khlines))
   } else {
-    let seq = seqfile::read_seqfile().map_err(|_| "Invalid input".to_string())?;
-    Ok(Box::new(seq))
+    let lines = seqfile::read_seqfile().map_err(|_| "Invalid input".to_string())?;
+    let khlines = lines.map(|line| line.parse::<KhLine>()).flatten();
+    Ok(Box::new(khlines))
   }
 }
 
-pub fn default_input_single() -> io::Result<KhLine> {
+pub fn default_input_khline() -> io::Result<KhLine> {
   if atty::isnt(atty::Stream::Stdin) {
     debug!("Taking input from Stdin");
 

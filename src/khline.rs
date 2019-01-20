@@ -25,10 +25,7 @@ impl KhLine {
   }
 
   pub fn to_cal(&self) -> io::Result<IcalVCalendar> {
-    let mut calendar = fileutil::read_calendar_from_path(&self.path)?;
-    if let Some(time) = self.time {
-      calendar = calendar.with_internal_timestamp(time);
-    }
+    let calendar = fileutil::read_calendar_from_path(&self.path)?;
     Ok(calendar)
   }
 
@@ -43,6 +40,10 @@ impl KhLine {
 
   pub fn matches(&self, event: &IcalVEvent) -> bool {
     self == &KhLine::from(event)
+  }
+
+  pub fn get_path(&self) -> &Path {
+    &self.path
   }
 
   pub fn get_normalized_path(&self) -> &Path {
@@ -63,7 +64,7 @@ impl From<&IcalVEvent> for KhLine {
 
 impl From<&IcalVCalendar> for KhLine {
   fn from(cal: &IcalVCalendar) -> Self {
-    KhLine::from(&cal.get_principal_event())
+    (&cal.get_principal_event()).into()
   }
 }
 
@@ -156,7 +157,7 @@ mod tests {
     let path = PathBuf::from("test/path");
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
 
-    let khline = KhLine::from(&cal.get_principal_event());
+    let khline = KhLine::from(&cal);
 
     assert_eq!(String::from("1182988800 test/path"), khline.to_string());
   }

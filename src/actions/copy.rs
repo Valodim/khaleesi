@@ -6,7 +6,7 @@ use utils::misc;
 use KhResult;
 
 pub fn do_copy(_args: &[&str]) -> KhResult<()> {
-  let khline = input::default_input_single()?;
+  let khline = input::default_input_khline()?;
 
   let uid = &misc::make_new_uid();
   copy_internal(&khline, uid).map(|_| ())

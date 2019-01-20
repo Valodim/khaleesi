@@ -1,14 +1,14 @@
-use utils::fileutil;
 use input;
 use KhResult;
 
 pub fn do_modify(args: &[&str]) -> KhResult<()> {
   info!("do_modify");
-  let mut lines = input::default_input_multiple()?;
 
   if args[0] == "removeprop" && args[1] == "xlicerror" {
-    let cals = fileutil::read_calendars_from_files(&mut lines)?;
-    let output: Vec<String> = cals.into_iter()
+    let lines = input::default_input_khlines()?;
+    let output: Vec<String> = lines
+      .map(|line| line.to_cal())
+      .flatten()
       .map(|cal| cal.with_remove_property("X-LIC-ERROR") )
       .filter(|cal| cal.1 > 0)
       .map(|cal| cal.0.to_string())

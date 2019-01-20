@@ -1,22 +1,22 @@
 use selectors::SelectFilters;
-use utils::fileutil;
-use khline::KhLine;
 use input;
 use KhResult;
 
 pub fn list_by_args(args: &[&str]) -> KhResult<()> {
-  let mut filenames = input::default_input_multiple()?;
-  let cals = fileutil::read_calendars_from_files(&mut filenames)?;
-
+  let lines = input::default_input_khlines()?;
   let filters = SelectFilters::parse_from_args_with_range(args)?;
 
-  let events = cals.into_iter()
-    .map(|cal| cal.get_principal_event())
+  let events = lines
     .enumerate()
-    .filter(|(index, event)| filters.is_selected_index(*index, event));
+    .filter(|(index, khline)| {
+      match khline.to_event() {
+        Ok(event) => filters.is_selected_index(*index, &event),
+        Err(cause) => { warn!("{}", cause); false },
+      }
+    });
 
-  for (_, event) in events {
-    println!("{}", KhLine::from(&event));
+  for (_, khline) in events {
+    khprintln!("{}", khline);
   }
 
   Ok(())
