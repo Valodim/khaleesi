@@ -22,32 +22,46 @@ impl EventProperties {
       Err("new calendar from to summary location")?
     }
     let calendar = EventProperties::parse_calendar(args[0])?;
-    let start = dateutil::datetime_from_str(args[1])?;
-    let end = dateutil::datetime_from_str(args[2])?;
-    let summary = EventProperties::parse_summary(args[0])?;
-    let location = EventProperties::parse_location(args[0])?;
+    let start = EventProperties::parse_start(args[1])?;
+    let end = EventProperties::parse_end(args[2])?;
+    let summary = EventProperties::parse_summary(args[3])?;
+    let location = EventProperties::parse_location(args[4])?;
     Ok(EventProperties{ calendar, start, end, summary, location })
   }
 
-  fn parse_location(location: &str) -> KhResult<String> {
-    if location.is_empty() {
+  fn parse_start(arg: &str) -> KhResult<DateTime<Local>> {
+    if arg.is_empty() {
+      Err("no start time given")?
+    };
+    Ok(dateutil::datetime_from_str(arg)?)
+  }
+
+  fn parse_end(arg: &str) -> KhResult<DateTime<Local>> {
+    if arg.is_empty() {
+      Err("no end time given")?
+    };
+    Ok(dateutil::datetime_from_str(arg)?)
+  }
+
+  fn parse_location(arg: &str) -> KhResult<String> {
+    if arg.is_empty() {
       Err("no location given")?
     };
-    Ok(location.to_string())
+    Ok(arg.to_string())
   }
 
-  fn parse_summary(summary: &str) -> KhResult<String> {
-    if summary.is_empty() {
+  fn parse_summary(arg: &str) -> KhResult<String> {
+    if arg.is_empty() {
       Err("no summary given")?
     };
-    Ok(summary.to_string())
+    Ok(arg.to_string())
   }
 
-  fn parse_calendar(cal: &str) -> KhResult<String> {
-    if cal.is_empty() {
+  fn parse_calendar(arg: &str) -> KhResult<String> {
+    if arg.is_empty() {
       Err("no calendar given")?
     };
-    let cal = cal.to_string();
+    let cal = arg.to_string();
     if !calendars::calendar_list().contains(&cal) {
       Err("calendar does not exist")?
     }
@@ -148,6 +162,32 @@ mod tests {
   fn test_parse_summary_neg() {
     let summary = EventProperties::parse_calendar("");
     assert!(summary.is_err());
+  }
+
+  #[test]
+  fn test_parse_start() {
+    let start = EventProperties::parse_start("2017-07-14T17:45").unwrap();
+    let expected = Local.ymd(2017, 7, 14).and_hms(17, 45, 0);
+    assert_eq!(expected, start);
+  }
+
+  #[test]
+  fn test_parse_start_neg() {
+    let start = EventProperties::parse_start("45");
+    assert!(start.is_err());
+  }
+
+  #[test]
+  fn test_parse_end() {
+    let end = EventProperties::parse_end("2017-07-14T17:45").unwrap();
+    let expected = Local.ymd(2017, 7, 14).and_hms(17, 45, 0);
+    assert_eq!(expected, end);
+  }
+
+  #[test]
+  fn test_parse_end_neg() {
+    let end = EventProperties::parse_end("45");
+    assert!(end.is_err());
   }
 
   #[test]
