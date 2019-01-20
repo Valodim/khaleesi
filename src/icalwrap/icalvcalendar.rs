@@ -177,7 +177,9 @@ impl IcalVCalendar {
     let event = self.get_principal_event();
     unsafe {
       let now_icaltime = IcalTime::now();
-      if let Some(prop) = event.get_property_by_name("LAST-MODIFIED") {
+
+      let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
+      if let Some(prop) = event.get_property(last_modified_kind) {
         ical::icalproperty_set_lastmodified(prop.ptr, *now_icaltime);
       } else {
         let prop_lastmod = ical::icalproperty_new_lastmodified(*now_icaltime);
@@ -412,7 +414,9 @@ mod tests {
     let mut cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     cal = cal.with_dtstamp_now();
     let event = cal.get_principal_event();
-    let now_dtstamp = event.get_property_by_name("DTSTAMP").unwrap().get_value();
+
+    let dtstamp_prop = ical::icalproperty_kind_ICAL_DTSTAMP_PROPERTY;
+    let now_dtstamp = event.get_property(dtstamp_prop).unwrap().get_value();
     assert_eq!(now_dtstamp, "20130101T010203Z")
   }
 
@@ -464,7 +468,9 @@ mod tests {
 
     let new_cal = cal.with_last_modified_now();
     let event = new_cal.get_principal_event();
-    assert_eq!("20130101T010203Z", event.get_property_by_name("LAST-MODIFIED").unwrap().get_value());
+
+    let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
+    assert_eq!("20130101T010203Z", event.get_property(last_modified_kind).unwrap().get_value());
   }
 
   #[test]
@@ -473,7 +479,9 @@ mod tests {
 
     let new_cal = cal.with_last_modified_now();
     let event = new_cal.get_principal_event();
-    assert_eq!("20130101T010203Z", event.get_property_by_name("LAST-MODIFIED").unwrap().get_value());
+
+    let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
+    assert_eq!("20130101T010203Z", event.get_property(last_modified_kind).unwrap().get_value());
   }
 
   #[test]
