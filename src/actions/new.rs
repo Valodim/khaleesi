@@ -142,13 +142,13 @@ mod tests {
 
   #[test]
   fn test_parse_location() {
-    let location = EventProperties::parse_summary("room 101").unwrap();
+    let location = EventProperties::parse_location("room 101").unwrap();
     assert_eq!("room 101", location);
   }
 
   #[test]
   fn test_parse_location_neg() {
-    let location = EventProperties::parse_calendar("");
+    let location = EventProperties::parse_location("");
     assert!(location.is_err());
   }
 
@@ -160,7 +160,7 @@ mod tests {
 
   #[test]
   fn test_parse_summary_neg() {
-    let summary = EventProperties::parse_calendar("");
+    let summary = EventProperties::parse_summary("");
     assert!(summary.is_err());
   }
 
@@ -173,7 +173,9 @@ mod tests {
 
   #[test]
   fn test_parse_start_neg() {
-    let start = EventProperties::parse_start("45");
+    let start = EventProperties::parse_start("blödsinn");
+    assert!(start.is_err());
+    let start = EventProperties::parse_start("");
     assert!(start.is_err());
   }
 
@@ -186,8 +188,20 @@ mod tests {
 
   #[test]
   fn test_parse_end_neg() {
-    let end = EventProperties::parse_end("45");
+    let end = EventProperties::parse_end("quatsch");
     assert!(end.is_err());
+    let end = EventProperties::parse_end("");
+    assert!(end.is_err());
+  }
+
+  #[test]
+  fn test_parse_from_args() {
+    let _testdir = testutils::prepare_testdir("testdir_two_cals");
+    let args = &["second", "2017-11-03T12:30", "2017-11-07T11:11", "summary text", "location text"];
+    let ep = EventProperties::parse_from_args(args).unwrap();
+    assert_eq!("second".to_string(), ep.calendar);
+    assert_eq!("summary text".to_string(), ep.summary);
+    assert_eq!("location text".to_string(), ep.location);
   }
 
   #[test]

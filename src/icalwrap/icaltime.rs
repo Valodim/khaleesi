@@ -70,7 +70,7 @@ impl<T: TimeZone> From<Date<T>> for IcalTime {
   fn from(date: Date<T>) -> IcalTime {
     let timestamp = date.with_timezone(&Utc).and_hms(0, 0, 0).timestamp();
     let is_date = 1;
-    let timezone = IcalTimeZone::utc();
+    let timezone = IcalTimeZone::utc(); //TODO this should correspond to the timezone T
     let time = unsafe {
       ical::icaltime_from_timet_with_zone(timestamp, is_date, *timezone)
     };
