@@ -127,6 +127,30 @@ mod tests {
   }
 
   #[test]
+  fn test_parse_location() {
+    let location = EventProperties::parse_summary("room 101").unwrap();
+    assert_eq!("room 101", location);
+  }
+
+  #[test]
+  fn test_parse_location_neg() {
+    let location = EventProperties::parse_calendar("");
+    assert!(location.is_err());
+  }
+
+  #[test]
+  fn test_parse_summary() {
+    let summary = EventProperties::parse_summary("first").unwrap();
+    assert_eq!("first", summary);
+  }
+
+  #[test]
+  fn test_parse_summary_neg() {
+    let summary = EventProperties::parse_calendar("");
+    assert!(summary.is_err());
+  }
+
+  #[test]
   fn test_with_eventprops() {
     let calendar = "foo".to_string();
     let start = Local.ymd(2015, 04, 17).and_hms(8, 17, 3);
