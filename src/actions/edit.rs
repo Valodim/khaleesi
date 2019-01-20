@@ -75,9 +75,11 @@ mod tests {
 
     assert!(edit_internal(&khline).is_ok());
     let event = khline.to_event().unwrap();
-    let dtstamp = event.get_property_by_name("DTSTAMP").unwrap().get_value();
-    assert_eq!(dtstamp, "20130101T010203Z");
-    let lastmodified = event.get_property_by_name("LAST-MODIFIED").unwrap().get_value();
-    assert_eq!(lastmodified, "20130101T010203Z");
+
+    let dtstamp_prop = ical::icalproperty_kind_ICAL_DTSTAMP_PROPERTY;
+    assert_eq!("20130101T010203Z", event.get_property(dtstamp_prop).unwrap().get_value());
+
+    let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
+    assert_eq!("20130101T010203Z", event.get_property(last_modified_kind).unwrap().get_value());
   }
 }

@@ -262,9 +262,9 @@ mod tests {
   fn test_get_property_debug() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
     let event = cal.get_principal_event();
-    let prop = event.get_properties_by_name("DTSTART");
+    let prop = event.get_property(ical::icalproperty_kind_ICAL_DTSTART_PROPERTY).unwrap();
 
-    assert_eq!("DTSTART;VALUE=DATE:20070628", format!("{:?}", prop[0]));
+    assert_eq!("DTSTART;VALUE=DATE:20070628", format!("{:?}", prop));
   }
 
   #[test]
