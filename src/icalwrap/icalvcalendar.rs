@@ -137,20 +137,18 @@ impl IcalVCalendar {
     self
   }
 
-  pub fn with_dtstart(self, dtstart: &DateTime<Local>) -> Self {
+  pub fn with_dtstart(self, dtstart: &IcalTime) -> Self {
     let event = self.get_principal_event();
     unsafe {
-      let dtstart_icaltime = IcalTime::from(dtstart);
-      ical::icalcomponent_set_dtstart(event.get_ptr(), *dtstart_icaltime);
+      ical::icalcomponent_set_dtstart(event.get_ptr(), **dtstart);
     }
     self
   }
 
-  pub fn with_dtend(self, dtend: &DateTime<Local>) -> Self {
+  pub fn with_dtend(self, dtend: &IcalTime) -> Self {
     let event = self.get_principal_event();
     unsafe {
-      let dtend_icaltime = IcalTime::from(dtend);
-      ical::icalcomponent_set_dtend(event.get_ptr(), *dtend_icaltime);
+      ical::icalcomponent_set_dtend(event.get_ptr(), **dtend);
     }
     self
   }
@@ -511,7 +509,7 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
     let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
-    let new_cal = cal.with_dtend(&timestamp);
+    let new_cal = cal.with_dtend(&timestamp.into());
 
     let event = new_cal.get_principal_event();
     assert_eq!(timestamp, event.get_dtend().unwrap())
@@ -522,7 +520,7 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
     let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
-    let new_cal = cal.with_dtstart(&timestamp);
+    let new_cal = cal.with_dtstart(&timestamp.into());
 
     let event = new_cal.get_principal_event();
     assert_eq!(timestamp, event.get_dtstart().unwrap())

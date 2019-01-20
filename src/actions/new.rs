@@ -96,8 +96,8 @@ pub fn do_new(args: &[&str]) -> KhResult<()> {
 impl IcalVCalendar {
   fn with_eventprops(self, ep: &EventProperties) -> Self {
     self
-      .with_dtstart(&ep.start)
-      .with_dtend(&ep.end)
+      .with_dtstart(&ep.start.into())
+      .with_dtend(&ep.end.into())
       .with_summary(&ep.summary)
       .with_location(&ep.location)
   }
