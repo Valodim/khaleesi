@@ -11,6 +11,7 @@ pub mod calendars;
 pub mod config;
 pub mod cursorfile;
 pub mod defaults;
+pub mod edit;
 pub mod icalwrap;
 pub mod input;
 pub mod selectors;
