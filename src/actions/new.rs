@@ -167,6 +167,7 @@ mod tests {
 
   #[test]
   fn test_parse_start() {
+    testdata::setup();
     let start = EventProperties::parse_start("2017-07-14T17:45").unwrap();
     let expected = Local.ymd(2017, 7, 14).and_hms(17, 45, 0);
     assert_eq!(expected, start);
@@ -182,6 +183,7 @@ mod tests {
 
   #[test]
   fn test_parse_end() {
+    testdata::setup();
     let end = EventProperties::parse_end("2017-07-14T17:45").unwrap();
     let expected = Local.ymd(2017, 7, 14).and_hms(17, 45, 0);
     assert_eq!(expected, end);

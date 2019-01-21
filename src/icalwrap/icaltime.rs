@@ -4,6 +4,7 @@ use chrono::prelude::*;
 use ical;
 use utils::dateutil;
 use super::IcalTimeZone;
+use super::TZ_MUTEX;
 use std::fmt::{Error,Display,Formatter};
 use std::str::FromStr;
 
@@ -17,12 +18,18 @@ impl IcalTime {
   }
 
   pub fn from_timestamp(timestamp: i64) -> Self {
+    let _lock = TZ_MUTEX.lock();
     let utc = IcalTimeZone::utc();
     let is_date = 0;
     let time = unsafe {
       ical::icaltime_from_timet_with_zone(timestamp, is_date, *utc)
     };
     IcalTime{ time }
+  }
+
+  pub fn get_timestamp(&self) -> i64 {
+    let _lock = TZ_MUTEX.lock();
+    unsafe { ical::icaltime_as_timet_with_zone(self.time, self.time.zone) }
   }
 
   pub fn as_date(&self) -> IcalTime {
@@ -39,10 +46,12 @@ impl IcalTime {
   }
 
   pub fn with_timezone(&self, timezone: &IcalTimeZone) -> IcalTime {
+    let _lock = TZ_MUTEX.lock();
     let time = unsafe {
       ical::icaltime_convert_to_zone(self.time, **timezone)
     };
-    IcalTime { time }
+    let result = IcalTime { time };
+    result
   }
 }
 
@@ -82,6 +91,12 @@ impl FromStr for IcalTime {
     } else {
       return Err(format!("Could not parse time {}", s));
     }
+  }
+}
+
+impl From<ical::icaltimetype> for IcalTime {
+  fn from(time: ical::icaltimetype) -> IcalTime {
+    IcalTime { time }
   }
 }
 
@@ -132,6 +147,7 @@ mod tests {
     let now = IcalTime::now();
 
     assert_eq!("20130101T010203Z", now.to_string());
+    assert_eq!(1357002123, now.get_timestamp());
   }
 
   #[test]
@@ -141,7 +157,7 @@ mod tests {
     let time = IcalTime::from(local_time);
 
     assert_eq!("Europe/Berlin", time.get_timezone().get_name());
-    assert_eq!("20140101T010203", time.to_string());
+    assert_eq!(1388534523, time.get_timestamp());
   }
 
   #[test]
@@ -153,6 +169,7 @@ mod tests {
 
     assert_eq!("US/Eastern", time.get_timezone().get_name());
     assert_eq!("20121231T200203", time.to_string());
+    assert_eq!(1357002123, time.get_timestamp());
   }
 
   #[test]

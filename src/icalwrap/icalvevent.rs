@@ -3,6 +3,7 @@ use std::ffi::CStr;
 
 use super::IcalComponent;
 use super::IcalVCalendar;
+use super::IcalTime;
 use ical;
 
 pub struct IcalVEvent {
@@ -61,15 +62,16 @@ impl IcalVEvent {
     }
   }
 
-  pub fn get_dtstart_unix(&self) -> Option<i64> {
+  pub fn get_dtstart_ical(&self) -> Option<IcalTime> {
     match self.instance_timestamp {
-      Some(timestamp) => Some(timestamp.timestamp()),
+      Some(timestamp) => Some(IcalTime::from_timestamp(timestamp.timestamp())),
       None => unsafe {
         let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
         if ical::icaltime_is_null_time(dtstart) == 1 {
           None
         } else {
-          Some(ical::icaltime_as_timet_with_zone(dtstart, dtstart.zone))
+          let icaltime = IcalTime::from(dtstart);
+          Some(icaltime)
         }
       }
     }
@@ -77,12 +79,12 @@ impl IcalVEvent {
 
   pub fn get_dtend(&self) -> Option<DateTime<Local>> {
     let dtend = self.get_dtend_unix()?;
-    Some(Utc.timestamp(dtend, 0).with_timezone(&Local))
+    Some(Local.timestamp(dtend, 0))
   }
 
   pub fn get_dtstart(&self) -> Option<DateTime<Local>> {
-    let dtstart = self.get_dtstart_unix()?;
-    Some(Utc.timestamp(dtstart, 0).with_timezone(&Local))
+    let dtstart = self.get_dtstart_ical()?.get_timestamp();
+    Some(Local.timestamp(dtstart, 0))
   }
 
   pub fn get_dtstart_date(&self) -> Option<Date<Local>> {
