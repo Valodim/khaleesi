@@ -1,5 +1,9 @@
 use chrono::*;
 
+use std::path::PathBuf;
+use std::env;
+use utils::fileutil;
+
 pub fn date_from_str(date_str: &str) -> ParseResult<Date<Local>> {
   if date_str  == "today" || date_str == "now" {
     return Ok(Local::now().date());
@@ -28,6 +32,19 @@ pub fn week_from_str_begin(date_str: &str) -> Result<Date<Local>,String> {
     return Ok(Local.from_local_date(date).unwrap());
   }
   Err("Could not parse '{}' as week".to_string())
+}
+
+pub fn find_local_timezone() -> String {
+  if let Ok(candidate) = env::var("TZ") {
+    return candidate;
+  }
+  if let Ok(candidate) = fileutil::read_file_to_string(&PathBuf::from("/etc/timezone")) {
+    return candidate;
+  }
+  if let Ok(candidate) = fileutil::read_file_to_string(&PathBuf::from("/etc/localtime")) {
+    return candidate;
+  }
+  "UTC".to_owned()
 }
 
 #[cfg(not(test))]
@@ -65,6 +82,8 @@ pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Local>> {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  use testdata;
 
   #[test]
   fn test_date_from_str() {
@@ -127,5 +146,13 @@ mod tests {
     let dt_from_ts = datetime_from_timestamp(timestamp).unwrap();
     let dt = Utc.ymd(2019, 01, 11).and_hms(19, 24, 47);
     assert_eq!(dt, dt_from_ts);
+  }
+
+  #[test]
+  fn test_find_local_timezone() {
+    testdata::setup();
+
+    let tz_name = find_local_timezone();
+    assert_eq!("Europe/Berlin", tz_name);
   }
 }

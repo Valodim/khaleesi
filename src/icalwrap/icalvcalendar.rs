@@ -506,6 +506,7 @@ mod tests {
 
   #[test]
   fn test_with_dtend() {
+    testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
     let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
@@ -517,6 +518,7 @@ mod tests {
 
   #[test]
   fn test_with_dtstart() {
+    testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
     let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);

@@ -228,7 +228,7 @@ mod tests {
     let event = cal.get_principal_event();
     let date = Local.ymd(1997, 3, 24);
     let event_line = event_line(None, &event, date, false).unwrap();
-    assert_eq!("   12:30-21:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
+    assert_eq!("   13:30-22:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
   }
 
   #[test]
@@ -238,7 +238,7 @@ mod tests {
     let event = cal.get_principal_event();
     let date = Local.ymd(1997, 3, 24);
     let event_line = event_line(None, &event, date, true).unwrap();
-    assert_eq!(">  12:30-21:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
+    assert_eq!(">  13:30-22:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
   }
 
   #[test]
@@ -252,9 +252,9 @@ mod tests {
     let event_line_begin = event_line(None, &event, begin, false).unwrap();
     let event_line_middle = event_line(None, &event, middle, false).unwrap();
     let event_line_end = event_line(None, &event, end, false).unwrap();
-    assert_eq!("   13:29-       Festival International de Jazz de Montreal".to_string(), event_line_begin);
+    assert_eq!("   15:29-       Festival International de Jazz de Montreal".to_string(), event_line_begin);
     assert_eq!("                Festival International de Jazz de Montreal".to_string(), event_line_middle);
-    assert_eq!("        -07:29  Festival International de Jazz de Montreal".to_string(), event_line_end);
+    assert_eq!("        -09:29  Festival International de Jazz de Montreal".to_string(), event_line_end);
   }
 
   #[test]
@@ -276,7 +276,7 @@ mod tests {
     let stdout = stdioutils::test_stdout_clear();
     let expected = indoc!("
       2018-12-13, Thursday
-         0     22:30-       shows up on two days
+         0     23:30-       shows up on two days
       2018-12-14, Friday
          0                  shows up on two days
       2018-12-15, Saturday
@@ -284,7 +284,7 @@ mod tests {
       2018-12-16, Sunday
          0                  shows up on two days
       2018-12-17, Monday
-         0          -18:30  shows up on two days
+         0          -19:30  shows up on two days
    ");
     assert_eq!(expected, stdout);
   }

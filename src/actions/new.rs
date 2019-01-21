@@ -122,6 +122,7 @@ static TEMPLATE_EVENT: &str = indoc!("
 mod tests {
   use super::*;
   use testutils;
+  use testdata;
   use chrono::{TimeZone,Local};
 
   #[test]
@@ -206,6 +207,8 @@ mod tests {
 
   #[test]
   fn test_with_eventprops() {
+    testdata::setup();
+
     let calendar = "foo".to_string();
     let start = Local.ymd(2015, 04, 17).and_hms(8, 17, 3);
     let end = Local.ymd(2015, 05, 17).and_hms(8, 17, 3);

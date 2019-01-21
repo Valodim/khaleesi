@@ -241,7 +241,7 @@ static INIT: Once = ONCE_INIT;
 pub fn setup() {
   use std::env;
   INIT.call_once(|| {
-    env::set_var("TZ", "UTC");
+    env::set_var("TZ", "Europe/Berlin");
   });
   use yansi;
   yansi::Paint::disable();
