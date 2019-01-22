@@ -120,10 +120,13 @@ static TEMPLATE_EVENT: &str = indoc!("
 
 #[cfg(test)]
 mod tests {
+  use assert_fs::prelude::*;
+  use chrono::{TimeZone,Local};
+  use predicates::prelude::*;
+
   use super::*;
   use testutils;
   use testdata;
-  use chrono::{TimeZone,Local};
 
   #[test]
   fn test_parse_calendar() {
@@ -208,6 +211,13 @@ mod tests {
   }
 
   #[test]
+  fn test_parse_from_args_neg() {
+    let args = &["1", "2", "3", "4"];
+    let ep = EventProperties::parse_from_args(args);
+    assert!(ep.is_err());
+  }
+
+  #[test]
   fn test_with_eventprops() {
     testdata::setup();
 
@@ -229,5 +239,38 @@ mod tests {
     assert_eq!(to, event.get_dtend().unwrap());
     assert_eq!(summary, event.get_summary().unwrap());
     assert_eq!(location, event.get_location().unwrap());
+  }
+
+  #[test]
+  fn test_do_new() {
+    let testdir = testutils::prepare_testdir("testdir_two_cals");
+
+    let args = &["second", "2017-11-03T12:30", "2017-11-07T11:11", "summary text", "location text"];
+
+    let result = do_new(args);
+    assert!(result.is_ok());
+
+    let expected = indoc!("
+      BEGIN:VCALENDAR
+      VERSION:2.0
+      PRODID:-//khaleesi //EN
+      BEGIN:VEVENT
+      SUMMARY:summary text
+      LOCATION:location text
+      DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:
+       20171103T123000
+      DTEND;TZID=/freeassociation.sourceforge.net/Europe/Berlin:
+       20171107T111100
+      DTSTAMP:20130101T010203Z
+      UID:11111111-2222-3333-4444-444444444444@khaleesi
+      LAST-MODIFIED:20130101T010203Z
+      END:VEVENT
+      END:VCALENDAR
+    ").replace("\n", "\r\n");
+    let predicate = predicate::str::similar(expected);
+    testdir.child(".khaleesi/cal/second/11111111-2222-3333-4444-444444444444@khaleesi.ics").assert(predicate);
+
+    let cursor_expected = "1509708600 second/11111111-2222-3333-4444-444444444444@khaleesi.ics";
+    testdir.child(".khaleesi/cursor").assert(cursor_expected);
   }
 }
