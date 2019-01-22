@@ -31,14 +31,14 @@ impl EventProperties {
 
   fn parse_from(arg: &str) -> KhResult<DateTime<Local>> {
     if arg.is_empty() {
-      Err("no start time given")?
+      Err("no start date/time given")?
     };
     Ok(dateutil::datetime_from_str(arg)?)
   }
 
   fn parse_to(arg: &str) -> KhResult<DateTime<Local>> {
     if arg.is_empty() {
-      Err("no end time given")?
+      Err("no end date/time given")?
     };
     Ok(dateutil::datetime_from_str(arg)?)
   }
