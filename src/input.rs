@@ -24,11 +24,25 @@ pub fn default_input_khline() -> io::Result<KhLine> {
 
     let lines = stdioutils::read_lines_from_stdin()?;
     if lines.len() > 1 {
-      Err(io::Error::new(io::ErrorKind::Other, "too many lines in cursorfile"))
+      Err(io::Error::new(io::ErrorKind::Other, "too many lines in input"))
     } else {
       lines[0].parse::<KhLine>().map_err(|err| io::Error::new(io::ErrorKind::Other, err.to_string()))
     }
   } else {
     cursorfile::read_cursorfile()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  use utils::stdioutils;
+
+  #[test]
+  fn test_default_input_khline() {
+    stdioutils::test_stdin_write("a\nb\n");
+
+    assert!( default_input_khline().is_err());
   }
 }
