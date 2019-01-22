@@ -10,8 +10,8 @@ use calendars;
 
 struct EventProperties {
   calendar: String,
-  start: DateTime<Local>,
-  end: DateTime<Local>,
+  from: DateTime<Local>,
+  to: DateTime<Local>,
   summary: String,
   location: String
 }
@@ -22,21 +22,21 @@ impl EventProperties {
       Err("new calendar from to summary location")?
     }
     let calendar = EventProperties::parse_calendar(args[0])?;
-    let start = EventProperties::parse_start(args[1])?;
-    let end = EventProperties::parse_end(args[2])?;
+    let from = EventProperties::parse_from(args[1])?;
+    let to = EventProperties::parse_to(args[2])?;
     let summary = EventProperties::parse_summary(args[3])?;
     let location = EventProperties::parse_location(args[4])?;
-    Ok(EventProperties{ calendar, start, end, summary, location })
+    Ok(EventProperties{ calendar, from, to, summary, location })
   }
 
-  fn parse_start(arg: &str) -> KhResult<DateTime<Local>> {
+  fn parse_from(arg: &str) -> KhResult<DateTime<Local>> {
     if arg.is_empty() {
       Err("no start time given")?
     };
     Ok(dateutil::datetime_from_str(arg)?)
   }
 
-  fn parse_end(arg: &str) -> KhResult<DateTime<Local>> {
+  fn parse_to(arg: &str) -> KhResult<DateTime<Local>> {
     if arg.is_empty() {
       Err("no end time given")?
     };
@@ -96,8 +96,8 @@ pub fn do_new(args: &[&str]) -> KhResult<()> {
 impl IcalVCalendar {
   fn with_eventprops(self, ep: &EventProperties) -> Self {
     self
-      .with_dtstart(&ep.start.into())
-      .with_dtend(&ep.end.into())
+      .with_dtstart(&ep.from.into())
+      .with_dtend(&ep.to.into())
       .with_summary(&ep.summary)
       .with_location(&ep.location)
   }
@@ -166,35 +166,35 @@ mod tests {
   }
 
   #[test]
-  fn test_parse_start() {
+  fn test_parse_from() {
     testdata::setup();
-    let start = EventProperties::parse_start("2017-07-14T17:45").unwrap();
+    let from = EventProperties::parse_from("2017-07-14T17:45").unwrap();
     let expected = Local.ymd(2017, 7, 14).and_hms(17, 45, 0);
-    assert_eq!(expected, start);
+    assert_eq!(expected, from);
   }
 
   #[test]
-  fn test_parse_start_neg() {
-    let start = EventProperties::parse_start("blödsinn");
-    assert!(start.is_err());
-    let start = EventProperties::parse_start("");
-    assert!(start.is_err());
+  fn test_parse_from_neg() {
+    let from = EventProperties::parse_from("blödsinn");
+    assert!(from.is_err());
+    let from = EventProperties::parse_from("");
+    assert!(from.is_err());
   }
 
   #[test]
-  fn test_parse_end() {
+  fn test_parse_to() {
     testdata::setup();
-    let end = EventProperties::parse_end("2017-07-14T17:45").unwrap();
+    let to = EventProperties::parse_to("2017-07-14T17:45").unwrap();
     let expected = Local.ymd(2017, 7, 14).and_hms(17, 45, 0);
-    assert_eq!(expected, end);
+    assert_eq!(expected, to);
   }
 
   #[test]
-  fn test_parse_end_neg() {
-    let end = EventProperties::parse_end("quatsch");
-    assert!(end.is_err());
-    let end = EventProperties::parse_end("");
-    assert!(end.is_err());
+  fn test_parse_to_neg() {
+    let to = EventProperties::parse_to("quatsch");
+    assert!(to.is_err());
+    let to = EventProperties::parse_to("");
+    assert!(to.is_err());
   }
 
   #[test]
@@ -212,11 +212,11 @@ mod tests {
     testdata::setup();
 
     let calendar = "foo".to_string();
-    let start = Local.ymd(2015, 04, 17).and_hms(8, 17, 3);
-    let end = Local.ymd(2015, 05, 17).and_hms(8, 17, 3);
+    let from = Local.ymd(2015, 04, 17).and_hms(8, 17, 3);
+    let to = Local.ymd(2015, 05, 17).and_hms(8, 17, 3);
     let summary = "summary";
     let location = "home";
-    let ep = EventProperties { calendar, start, end, summary: summary.to_string(), location: location.to_string() };
+    let ep = EventProperties { calendar, from, to, summary: summary.to_string(), location: location.to_string() };
 
     let _testdir = testutils::prepare_testdir("testdir");
     let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
@@ -225,8 +225,8 @@ mod tests {
       .with_eventprops(&ep);
 
     let event = cal.get_principal_event();
-    assert_eq!(start, event.get_dtstart().unwrap());
-    assert_eq!(end, event.get_dtend().unwrap());
+    assert_eq!(from, event.get_dtstart().unwrap());
+    assert_eq!(to, event.get_dtend().unwrap());
     assert_eq!(summary, event.get_summary().unwrap());
     assert_eq!(location, event.get_location().unwrap());
   }
