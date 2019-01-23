@@ -66,7 +66,7 @@ impl IcalTime {
   }
 
   pub fn as_date(&self) -> IcalTime {
-    let mut time = self.time.clone();
+    let mut time = self.time;
     time.is_date = 1;
     IcalTime{ time }
   }
@@ -83,8 +83,7 @@ impl IcalTime {
     let time = unsafe {
       ical::icaltime_convert_to_zone(self.time, **timezone)
     };
-    let result = IcalTime { time };
-    result
+    IcalTime { time }
   }
 
   pub fn pred(&self) -> IcalTime {
