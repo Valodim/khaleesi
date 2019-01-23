@@ -68,11 +68,14 @@ impl IcalTime {
     IcalTime{ time }
   }
 
-  pub fn get_timezone(&self) -> IcalTimeZone {
+  pub fn get_timezone(&self) -> Option<IcalTimeZone> {
+    if self.time.zone.is_null() {
+      return None;
+    }
     let tz_ptr = unsafe {
       ical::icaltime_get_timezone(self.time)
     };
-    IcalTimeZone::from_ptr_copy(tz_ptr)
+    Some(IcalTimeZone::from_ptr_copy(tz_ptr))
   }
 
   pub fn with_timezone(&self, timezone: &IcalTimeZone) -> IcalTime {
@@ -233,7 +236,7 @@ mod tests {
     let local_time = Local.ymd(2014, 01, 01).and_hms(01, 02, 03);
     let time = IcalTime::from(local_time);
 
-    assert_eq!("Europe/Berlin", time.get_timezone().get_name());
+    assert_eq!("Europe/Berlin", time.get_timezone().unwrap().get_name());
     assert_eq!(1388534523, time.timestamp());
   }
 
@@ -244,7 +247,7 @@ mod tests {
 
     let time = utc.with_timezone(&tz);
 
-    assert_eq!("US/Eastern", time.get_timezone().get_name());
+    assert_eq!("US/Eastern", time.get_timezone().unwrap().get_name());
     assert_eq!("20121231T200203", time.to_string());
     assert_eq!(1357002123, time.timestamp());
   }
@@ -255,7 +258,7 @@ mod tests {
     let local_date = Local.ymd(2014, 01, 01);
     let time = IcalTime::from(local_date);
 
-    assert_eq!("Europe/Berlin", time.get_timezone().get_name());
+    assert_eq!("Europe/Berlin", time.get_timezone().unwrap().get_name());
     assert_eq!("20140101", time.to_string());
   }
 
@@ -264,7 +267,7 @@ mod tests {
     let utc_date = Utc.ymd(2014, 01, 01);
     let time = IcalTime::from(utc_date);
 
-    assert_eq!("UTC", time.get_timezone().get_name());
+    assert_eq!("UTC", time.get_timezone().unwrap().get_name());
     assert_eq!("20140101", time.to_string());
   }
 
