@@ -507,7 +507,7 @@ mod tests {
     testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
-    let timestamp = IcalTime::from_ymdhms(2018, 1, 1, 11, 30, 20);
+    let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
     let new_cal = cal.with_dtend(&timestamp);
 
     let event = new_cal.get_principal_event();
@@ -519,7 +519,7 @@ mod tests {
     testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
-    let timestamp = IcalTime::from_ymdhms(2018, 1, 1, 11, 30, 20);
+    let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
     let new_cal = cal.with_dtstart(&timestamp);
 
     let event = new_cal.get_principal_event();
@@ -530,7 +530,7 @@ mod tests {
   fn test_with_internal_timestamp() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
-    let timestamp = IcalTime::from_ymdhms(2018, 1, 1, 11, 30, 20);
+    let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
     let new_cal = cal.with_internal_timestamp(&timestamp);
 
     let event = new_cal.get_principal_event();

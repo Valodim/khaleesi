@@ -212,7 +212,7 @@ mod tests {
       event.get_parent().unwrap().get_path().unwrap()
     );
     assert_eq!(
-      IcalTime::from_ymdhms(2018, 12, 13, 22, 30, 00),
+      IcalTime::floating_ymd(2018, 12, 13).and_hms(23, 30, 00),
       event.get_dtstart().unwrap()
     );
   }

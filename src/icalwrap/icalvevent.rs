@@ -215,8 +215,8 @@ mod tests {
     testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let event = cal.get_principal_event();
-    assert_eq!(IcalTime::from_ymd(2018, 10, 11), event.get_dtstart().unwrap());
-    assert_eq!(IcalTime::from_ymd(2018, 10, 13), event.get_dtend().unwrap());
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 11), event.get_dtstart().unwrap());
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 13), event.get_dtend().unwrap());
     assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).unwrap().as_ical_string());
     assert_eq!(10, event.get_recur_datetimes().len());
     assert_eq!(10, event.get_recur_instances().count());
@@ -311,7 +311,7 @@ mod tests {
   fn test_is_recur_master_instance() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let event = cal.get_principal_event();
-    let event = event.with_internal_timestamp(&IcalTime::from_ymd(2018, 01, 01));
+    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2018, 01, 01));
     assert!(!event.is_recur_master());
   }
 
@@ -328,8 +328,8 @@ mod tests {
     let event = cal.get_principal_event();
     let mut recur_instances = event.get_recur_instances();
     let local = IcalTimeZone::local();
-    assert_eq!(IcalTime::from_ymd(2018, 10, 11).with_timezone(&local), recur_instances.next().unwrap().get_dtstart().unwrap());
-    assert_eq!(IcalTime::from_ymd(2018, 10, 18).with_timezone(&local), recur_instances.next().unwrap().get_dtstart().unwrap());
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 11).with_timezone(&local), recur_instances.next().unwrap().get_dtstart().unwrap());
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 18).with_timezone(&local), recur_instances.next().unwrap().get_dtstart().unwrap());
   }
 
   #[test]
@@ -355,7 +355,7 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let event = cal.get_principal_event();
 
-    let event = event.with_internal_timestamp(&IcalTime::from_ymd(2010, 01, 01));
+    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2010, 01, 01));
 
     assert!(!event.is_recur_valid());
   }
@@ -365,7 +365,7 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let event = cal.get_principal_event();
 
-    let event = event.with_internal_timestamp(&IcalTime::from_ymd(2018, 10, 25));
+    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2018, 10, 25));
 
     assert!(event.is_recur_valid());
   }

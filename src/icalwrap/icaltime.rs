@@ -22,27 +22,24 @@ impl IcalTime {
     dateutil::now().with_timezone(&Local).into()
   }
 
-  pub fn from_ymd(year: i32, month: i32, day: i32) -> Self {
-    let utc = IcalTimeZone::utc();
+  pub fn floating_ymd(year: i32, month: i32, day: i32) -> Self {
     let time = ical::icaltimetype{
       year, month, day,
       hour: 0, minute: 0, second: 0,
       is_date: 1,
       is_daylight: 0,
-      zone: *utc
+      zone: ::std::ptr::null(),
     };
     IcalTime{ time }
   }
 
-  pub fn from_ymdhms(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> Self {
-    let utc = IcalTimeZone::utc();
-    let time = ical::icaltimetype{
-      year, month, day,
-      hour, minute, second,
-      is_date: 0,
-      is_daylight: 0,
-      zone: *utc
-    };
+  pub fn and_hms(&self, hour: i32, minute: i32, second: i32) -> Self {
+    let mut time = self.time;
+    time.hour = hour;
+    time.minute = minute;
+    time.second = second;
+    time.is_date = 0;
+
     IcalTime{ time }
   }
 
