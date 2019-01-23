@@ -80,9 +80,11 @@ impl IcalTime {
 
   pub fn with_timezone(&self, timezone: &IcalTimeZone) -> IcalTime {
     let _lock = TZ_MUTEX.lock();
-    let time = unsafe {
+    let mut time = unsafe {
       ical::icaltime_convert_to_zone(self.time, **timezone)
     };
+    //icaltime_convert_to_zone does nothing if is_date == 1
+    time.zone = **timezone;
     IcalTime { time }
   }
 
