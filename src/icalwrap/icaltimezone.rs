@@ -63,6 +63,10 @@ impl IcalTimeZone {
       ical::icaltimezone_get_utc_offset(self.timezone, &mut icaltime , &mut is_dst)
     }
   }
+
+  pub fn ymd(&self, year: i32, month: i32, day: i32) -> IcalTime {
+    IcalTime::floating_ymd(year, month, day).with_timezone(&self)
+  }
 }
 
 #[cfg(test)]
@@ -104,6 +108,24 @@ mod tests {
     let offset = tz.get_offset_at_time(&time);
 
     assert_eq!(60*60, offset);
+  }
+
+  #[test]
+  fn test_ymd() {
+    let tz = IcalTimeZone::from_name("US/Eastern").unwrap();
+    let date = tz.ymd(2014,3,1);
+    assert_eq!(IcalTime::floating_ymd(2014,3,1), date);
+    assert_eq!(1393650000, date.timestamp());
+    assert_eq!("US/Eastern", date.get_timezone().unwrap().get_name());
+  }
+
+  #[test]
+  fn test_ymd_and_hms() {
+    let tz = IcalTimeZone::from_name("US/Eastern").unwrap();
+    let date = tz.ymd(2014,3,1).and_hms(17, 20, 0);
+    assert_eq!(IcalTime::floating_ymd(2014,3,1).and_hms(17, 20, 0), date);
+    assert_eq!(1393712400, date.timestamp());
+    assert_eq!("US/Eastern", date.get_timezone().unwrap().get_name());
   }
 
   #[test]
