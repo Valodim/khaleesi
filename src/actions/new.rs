@@ -235,8 +235,8 @@ mod tests {
       .with_eventprops(&ep);
 
     let event = cal.get_principal_event();
-    assert_eq!(from, event.get_dtstart().unwrap());
-    assert_eq!(to, event.get_dtend().unwrap());
+    assert_eq!(from, Into::<DateTime<Local>>::into(event.get_dtstart().unwrap()));
+    assert_eq!(to, Into::<DateTime<Local>>::into(event.get_dtend().unwrap()));
     assert_eq!(summary, event.get_summary().unwrap());
     assert_eq!(location, event.get_location().unwrap());
   }

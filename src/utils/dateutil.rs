@@ -39,10 +39,10 @@ pub fn find_local_timezone() -> String {
     return candidate;
   }
   if let Ok(candidate) = fileutil::read_file_to_string(&PathBuf::from("/etc/timezone")) {
-    return candidate;
+    return candidate.trim().to_owned();
   }
   if let Ok(candidate) = fileutil::read_file_to_string(&PathBuf::from("/etc/localtime")) {
-    return candidate;
+    return candidate.trim().to_owned();
   }
   "UTC".to_owned()
 }

@@ -1,6 +1,6 @@
 use std::ops::Deref;
 use std::ffi::{CStr,CString};
-use chrono::prelude::*;
+use chrono::{Date,DateTime,TimeZone,Utc,Local};
 use ical;
 use utils::dateutil;
 use super::IcalTimeZone;
@@ -8,13 +8,42 @@ use super::TZ_MUTEX;
 use std::fmt::{Error,Display,Formatter};
 use std::str::FromStr;
 
+#[derive(Clone,Debug)]
 pub struct IcalTime {
   time: ical::icaltimetype,
 }
 
 impl IcalTime {
-  pub fn now() -> Self {
+  pub fn utc() -> Self {
     dateutil::now().into()
+  }
+
+  pub fn local() -> Self {
+    dateutil::now().with_timezone(&Local).into()
+  }
+
+  pub fn from_ymd(year: i32, month: i32, day: i32) -> Self {
+    let utc = IcalTimeZone::utc();
+    let time = ical::icaltimetype{
+      year, month, day,
+      hour: 0, minute: 0, second: 0,
+      is_date: 1,
+      is_daylight: 0,
+      zone: *utc
+    };
+    IcalTime{ time }
+  }
+
+  pub fn from_ymdhms(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> Self {
+    let utc = IcalTimeZone::utc();
+    let time = ical::icaltimetype{
+      year, month, day,
+      hour, minute, second,
+      is_date: 0,
+      is_daylight: 0,
+      zone: *utc
+    };
+    IcalTime{ time }
   }
 
   pub fn from_timestamp(timestamp: i64) -> Self {
@@ -27,9 +56,13 @@ impl IcalTime {
     IcalTime{ time }
   }
 
-  pub fn get_timestamp(&self) -> i64 {
+  pub fn timestamp(&self) -> i64 {
     let _lock = TZ_MUTEX.lock();
     unsafe { ical::icaltime_as_timet_with_zone(self.time, self.time.zone) }
+  }
+
+  pub fn is_date(&self) -> bool {
+    self.time.is_date != 0
   }
 
   pub fn as_date(&self) -> IcalTime {
@@ -52,6 +85,20 @@ impl IcalTime {
     };
     let result = IcalTime { time };
     result
+  }
+
+  pub fn pred(&self) -> IcalTime {
+    let mut time = self.time;
+    time.day -= 1;
+    let time = unsafe { ical::icaltime_normalize(time) };
+    IcalTime{ time }
+  }
+
+  pub fn succ(&self) -> IcalTime {
+    let mut time = self.time;
+    time.day += 1;
+    let time = unsafe { ical::icaltime_normalize(time) };
+    IcalTime{ time }
   }
 }
 
@@ -93,6 +140,16 @@ impl FromStr for IcalTime {
     }
   }
 }
+
+impl PartialEq<IcalTime> for IcalTime {
+  fn eq(&self, rhs: &IcalTime) -> bool {
+    let _lock = TZ_MUTEX.lock();
+    let cmp = unsafe { ical::icaltime_compare(self.time, rhs.time) };
+    cmp == 0
+  }
+}
+
+impl Eq for IcalTime {}
 
 impl From<ical::icaltimetype> for IcalTime {
   fn from(time: ical::icaltimetype) -> IcalTime {
@@ -136,6 +193,30 @@ impl From<Date<Utc>> for IcalTime {
   }
 }
 
+impl From<IcalTime> for Date<Local> {
+  fn from(time: IcalTime) -> Date<Local> {
+    Local.timestamp(time.timestamp(), 0).date()
+  }
+}
+
+impl From<IcalTime> for DateTime<Local> {
+  fn from(time: IcalTime) -> DateTime<Local> {
+    Local.timestamp(time.timestamp(), 0)
+  }
+}
+
+impl From<IcalTime> for Date<Utc> {
+  fn from(time: IcalTime) -> Date<Utc> {
+    Utc.timestamp(time.timestamp(), 0).date()
+  }
+}
+
+impl From<IcalTime> for DateTime<Utc> {
+  fn from(time: IcalTime) -> DateTime<Utc> {
+    Utc.timestamp(time.timestamp(), 0)
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -144,10 +225,10 @@ mod tests {
 
   #[test]
   fn test_now() {
-    let now = IcalTime::now();
+    let now = IcalTime::utc();
 
     assert_eq!("20130101T010203Z", now.to_string());
-    assert_eq!(1357002123, now.get_timestamp());
+    assert_eq!(1357002123, now.timestamp());
   }
 
   #[test]
@@ -157,19 +238,19 @@ mod tests {
     let time = IcalTime::from(local_time);
 
     assert_eq!("Europe/Berlin", time.get_timezone().get_name());
-    assert_eq!(1388534523, time.get_timestamp());
+    assert_eq!(1388534523, time.timestamp());
   }
 
   #[test]
   fn test_with_timezone_xxx() {
-    let utc = IcalTime::now();
+    let utc = IcalTime::utc();
     let tz = IcalTimeZone::from_name("US/Eastern").unwrap();
 
     let time = utc.with_timezone(&tz);
 
     assert_eq!("US/Eastern", time.get_timezone().get_name());
     assert_eq!("20121231T200203", time.to_string());
-    assert_eq!(1357002123, time.get_timestamp());
+    assert_eq!(1357002123, time.timestamp());
   }
 
   #[test]

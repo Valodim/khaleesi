@@ -2,20 +2,19 @@ use std::fmt;
 use std::io;
 use std::path::{PathBuf,Path};
 use std::str::FromStr;
-use chrono::prelude::*;
 
-use icalwrap::{IcalVCalendar,IcalVEvent};
+use icalwrap::{IcalVCalendar,IcalVEvent,IcalTime};
 use utils::{fileutil,dateutil};
 use defaults;
 
 #[derive(PartialEq,Eq)]
 pub struct KhLine {
   pub path: PathBuf,
-  time: Option<DateTime<Local>>,
+  time: Option<IcalTime>,
 }
 
 impl KhLine {
-  pub fn new(path: &Path, time: Option<DateTime<Local>>) -> Self {
+  pub fn new(path: &Path, time: Option<IcalTime>) -> Self {
     let path = if path.is_relative() {
       defaults::get_caldir().join(path)
     } else {
@@ -33,7 +32,7 @@ impl KhLine {
   pub fn to_event(&self) -> io::Result<IcalVEvent> {
     let calendar = self.to_cal()?;
     let mut event = calendar.get_first_event();
-    if let Some(time) = self.time {
+    if let Some(ref time) = self.time {
       event = event.with_internal_timestamp(time);
     }
     Ok(event)
@@ -45,6 +44,10 @@ impl KhLine {
 
   pub fn get_path(&self) -> &Path {
     &self.path
+  }
+
+  pub fn get_time(&self) -> Option<&IcalTime> {
+    self.time.as_ref()
   }
 
   pub fn get_normalized_path(&self) -> &Path {
@@ -73,7 +76,7 @@ impl fmt::Display for KhLine {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     let path_string = self.get_normalized_path().to_string_lossy();
     match self.time {
-      Some(time) => {
+      Some(ref time) => {
         let time_string = format!("{:010}", time.timestamp());
         write!(f, "{} {}", time_string, path_string)
       }
@@ -89,7 +92,7 @@ impl FromStr for KhLine {
     let parts: Vec<&str> = s.splitn(2, ' ').collect();
     if let Some(time) = dateutil::datetime_from_timestamp(parts[0]) {
       let path = PathBuf::from(parts[1]);
-      Ok(Self::new(&path, Some(time)))
+      Ok(Self::new(&path, Some(time.into())))
     } else {
       let path = PathBuf::from(parts[0]);
       Ok(Self::new(&path, None))
@@ -114,7 +117,7 @@ mod tests {
     let khline = khline_str.parse::<KhLine>().unwrap();
 
     assert_eq!(PathBuf::from("/x/y/z.ics"), khline.path);
-    assert_eq!(1182988800, khline.time.unwrap().timestamp());
+    assert_eq!(1182988800, khline.get_time().unwrap().timestamp());
     assert_eq!(khline_str, khline.to_string());
   }
 
@@ -149,7 +152,7 @@ mod tests {
     let khline = khline_str.parse::<KhLine>().unwrap();
 
     assert_eq!(testdir.child(".khaleesi/cal/x/y.ics").path(), khline.path);
-    assert_eq!(1182988800, khline.time.unwrap().timestamp());
+    assert_eq!(1182988800, khline.get_time().unwrap().timestamp());
     assert_eq!(khline_str, khline.to_string());
   }
 
@@ -209,8 +212,8 @@ mod tests {
       event.get_parent().unwrap().get_path().unwrap()
     );
     assert_eq!(
-      Utc.ymd(2018, 12, 13).and_hms(22, 30, 00),
-      event.get_dtstart().unwrap().with_timezone(&Utc)
+      IcalTime::from_ymdhms(2018, 12, 13, 22, 30, 00),
+      event.get_dtstart().unwrap()
     );
   }
 }

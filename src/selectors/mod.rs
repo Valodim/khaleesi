@@ -90,13 +90,13 @@ impl SelectFilters {
   }
 
   fn line_is_from(&self, event: &IcalVEvent) -> bool {
-    let starts_after = self.from.includes_date(event.get_dtstart().unwrap());
-    let ends_after = self.from.includes_date(event.get_dtend().unwrap());
+    let starts_after = self.from.includes_date(event.get_dtstart().unwrap().into());
+    let ends_after = self.from.includes_date(event.get_dtend().unwrap().into());
     starts_after || ends_after
   }
 
   fn line_is_to(&self, event: &IcalVEvent) -> bool {
-    self.to.includes_date(event.get_dtstart().unwrap())
+    self.to.includes_date(event.get_dtstart().unwrap().into())
   }
 
   fn filter_index(&self, index: usize) -> bool {

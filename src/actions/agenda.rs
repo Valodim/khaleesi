@@ -1,4 +1,4 @@
-use chrono::{Datelike, TimeZone, Local, Date};
+use chrono::{DateTime, Datelike, TimeZone, Local, Date};
 use yansi::{Style};
 use itertools::Itertools;
 
@@ -38,6 +38,7 @@ pub fn show_events_cursor(
     Some((_, event, _)) => {
       event
         .get_dtstart()
+        .map(|dtstart| dtstart.into())
         .unwrap_or_else(|| Local.timestamp(0, 0))
         .date()
     }
@@ -135,7 +136,7 @@ pub fn event_line(
     Ok(format!("{:3}             {}", cursor_icon, summary))
   } else {
     let mut time_sep = " ";
-    let dtstart = event.get_dtstart().ok_or("Invalid DTSTART")?;
+    let dtstart: DateTime<Local> = event.get_dtstart().ok_or("Invalid DTSTART")?.into();
     let start_string = if dtstart.date() != cur_day {
       "".to_string()
     } else {
@@ -143,7 +144,7 @@ pub fn event_line(
       format!("{}", dtstart.format("%H:%M"))
     };
 
-    let dtend = event.get_dtend().ok_or("Invalid DTEND")?;
+    let dtend: DateTime<Local> = event.get_dtend().ok_or("Invalid DTEND")?.into();
     let end_string = if dtend.date() != cur_day {
       "".to_string()
     } else {
@@ -157,16 +158,21 @@ pub fn event_line(
 
 impl IcalVEvent {
   fn starts_on(&self, date: Date<Local>) -> bool {
-    self.get_dtstart().unwrap().date() == date
+    let dtstart: Date<Local> = self.get_dtstart().unwrap().into();
+    dtstart == date
   }
 
   fn relevant_on(&self, date: Date<Local>) -> bool {
-    self.get_dtstart().map(|dtstart| dtstart.date() <= date).unwrap_or(false) &&
-    self.get_last_relevant_date().map(|enddate| enddate >= date).unwrap_or(false)
+    let dtstart: Option<Date<Local>> = self.get_dtstart().map(|date| date.into());
+    let last_relevant_date: Option<Date<Local>> = self.get_last_relevant_date().map(|date| date.into());
+
+    dtstart.map(|dtstart| dtstart <= date).unwrap_or(false) &&
+    last_relevant_date.map(|enddate| enddate >= date).unwrap_or(false)
   }
 
   fn continues_after(&self, date: Date<Local>) -> bool {
-    self.get_last_relevant_date()
+    let last_relevant_date: Option<Date<Local>> = self.get_last_relevant_date().map(|date| date.into());
+    last_relevant_date
       .map(|enddate| enddate > date)
       .unwrap_or(false)
   }

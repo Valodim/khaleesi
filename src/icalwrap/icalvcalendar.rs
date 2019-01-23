@@ -1,4 +1,3 @@
-use chrono::{DateTime, Local};
 use std::ffi::{CStr, CString};
 use std::path::{PathBuf,Path};
 use std::rc::Rc;
@@ -12,7 +11,7 @@ use ical;
 pub struct IcalVCalendar {
   comp: Rc<IcalComponentOwner>,
   path: Option<PathBuf>,
-  instance_timestamp: Option<DateTime<Local>>,
+  instance_timestamp: Option<IcalTime>,
 }
 
 pub struct IcalEventIter<'a> {
@@ -31,13 +30,13 @@ impl IcalComponent for IcalVCalendar {
 }
 
 impl Clone for IcalVCalendar {
-  fn clone (&self) -> Self {
+  fn clone(&self) -> Self {
     let new_comp_ptr = unsafe {
       ical::icalcomponent_new_clone(self.comp.ptr)
     };
     let mut new_calendar = IcalVCalendar::from_ptr(new_comp_ptr);
     new_calendar.path = self.path.clone();
-    new_calendar.instance_timestamp = self.instance_timestamp;
+    new_calendar.instance_timestamp = self.instance_timestamp.clone();
     new_calendar
   }
 }
@@ -55,12 +54,12 @@ impl IcalVCalendar {
     IcalVCalendar {
       comp: self.comp.clone(),
       path: self.path.clone(),
-      instance_timestamp: self.instance_timestamp,
+      instance_timestamp: self.instance_timestamp.clone(),
     }
   }
 
-  pub fn with_internal_timestamp(mut self, datetime: DateTime<Local>) -> IcalVCalendar {
-    self.instance_timestamp = Some(datetime);
+  pub fn with_internal_timestamp(mut self, datetime: &IcalTime) -> IcalVCalendar {
+    self.instance_timestamp = Some(datetime.clone());
     self
   }
 
@@ -130,7 +129,7 @@ impl IcalVCalendar {
   }
 
   pub fn with_dtstamp_now(self) -> Self {
-    let dtstamp = IcalTime::now();
+    let dtstamp = IcalTime::utc();
     unsafe {
       ical::icalcomponent_set_dtstamp(self.get_ptr(), *dtstamp);
     }
@@ -174,7 +173,7 @@ impl IcalVCalendar {
   pub fn with_last_modified_now(self) -> Self {
     let event = self.get_principal_event();
     unsafe {
-      let now_icaltime = IcalTime::now();
+      let now_icaltime = IcalTime::utc();
 
       let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
       if let Some(prop) = event.get_property(last_modified_kind) {
@@ -256,7 +255,7 @@ impl IcalVCalendar {
 
   pub fn get_principal_event(&self) -> IcalVEvent {
     let mut event = self.get_first_event();
-    if let Some(timestamp) = self.instance_timestamp {
+    if let Some(ref timestamp) = self.instance_timestamp {
       event = event.with_internal_timestamp(timestamp)
     }
     event
@@ -369,7 +368,6 @@ impl Drop for IcalComponentOwner {
 mod tests {
   use super::*;
   use testdata;
-  use chrono::{Local, TimeZone};
 
   #[test]
   fn test_from_str_empty() {
@@ -509,8 +507,8 @@ mod tests {
     testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
-    let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
-    let new_cal = cal.with_dtend(&timestamp.into());
+    let timestamp = IcalTime::from_ymdhms(2018, 1, 1, 11, 30, 20);
+    let new_cal = cal.with_dtend(&timestamp);
 
     let event = new_cal.get_principal_event();
     assert_eq!(timestamp, event.get_dtend().unwrap())
@@ -521,8 +519,8 @@ mod tests {
     testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
-    let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
-    let new_cal = cal.with_dtstart(&timestamp.into());
+    let timestamp = IcalTime::from_ymdhms(2018, 1, 1, 11, 30, 20);
+    let new_cal = cal.with_dtstart(&timestamp);
 
     let event = new_cal.get_principal_event();
     assert_eq!(timestamp, event.get_dtstart().unwrap())
@@ -532,11 +530,11 @@ mod tests {
   fn test_with_internal_timestamp() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
 
-    let timestamp = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
-    let new_cal = cal.with_internal_timestamp(timestamp);
+    let timestamp = IcalTime::from_ymdhms(2018, 1, 1, 11, 30, 20);
+    let new_cal = cal.with_internal_timestamp(&timestamp);
 
     let event = new_cal.get_principal_event();
-    assert_eq!(timestamp.with_timezone(&Local), event.get_dtstart().unwrap());
+    assert_eq!(timestamp, event.get_dtstart().unwrap());
   }
 
   #[test]

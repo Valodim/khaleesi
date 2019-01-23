@@ -25,8 +25,8 @@ impl Bucketable for IcalVEvent {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String> {
     let mut result:  HashMap<String, Vec<String>> = HashMap::new();
 
-    let start_date = self.get_dtstart_date().ok_or_else(|| format!("Invalid DTSTART in {}", self.get_uid()))?;
-    let mut end_date = self.get_dtend_date().unwrap_or(start_date);
+    let start_date: Date<Local> = self.get_dtstart().ok_or_else(|| format!("Invalid DTSTART in {}", self.get_uid()))?.into();
+    let mut end_date: Date<Local> = self.get_dtend().map(|date| date.into()).unwrap_or(start_date);
 
     // end-dtimes are non-inclusive
     // so in case of date-only events, the last day of the event is dtend-1

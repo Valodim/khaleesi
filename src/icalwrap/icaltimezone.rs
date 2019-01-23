@@ -88,7 +88,7 @@ mod tests {
   fn test_get_offset_utc() {
     testdata::setup();
     let tz = IcalTimeZone::utc();
-    let time = IcalTime::now();
+    let time = IcalTime::utc();
 
     let offset = tz.get_offset_at_time(&time);
 
@@ -98,7 +98,7 @@ mod tests {
   #[test]
   fn test_get_offset_local() {
     testdata::setup();
-    let time = IcalTime::now();
+    let time = IcalTime::utc();
     let tz = IcalTimeZone::local();
 
     let offset = tz.get_offset_at_time(&time);
@@ -120,7 +120,7 @@ mod tests {
 
   #[test]
   fn test_get_offset_eastern() {
-    let time = IcalTime::now();
+    let time = IcalTime::utc();
     let tz = IcalTimeZone::from_name("US/Eastern").unwrap();
 
     let offset = tz.get_offset_at_time(&time);
