@@ -1,9 +1,10 @@
-use std::ops::Deref;
+use std::ops::{Add,Deref};
 use std::ffi::{CStr,CString};
 use chrono::{Date,DateTime,TimeZone,Utc,Local};
 use ical;
 use utils::dateutil;
 use super::IcalTimeZone;
+use super::IcalDuration;
 use super::TZ_MUTEX;
 use std::fmt::{Error,Display,Formatter};
 use std::str::FromStr;
@@ -116,7 +117,7 @@ impl Display for IcalTime {
     let cstr = unsafe {
       CStr::from_ptr(ical::icaltime_as_ical_string(self.time))
     };
-    let string = cstr.to_string_lossy().into_owned();
+    let string = cstr.to_string_lossy();
     write!(f, "{}", string)
   }
 }
@@ -156,6 +157,15 @@ impl From<ical::icaltimetype> for IcalTime {
   fn from(time: ical::icaltimetype) -> IcalTime {
     IcalTime { time }
   }
+}
+
+impl Add<IcalDuration> for IcalTime {
+    type Output = IcalTime;
+
+    fn add(self, other: IcalDuration) -> IcalTime {
+      let time = unsafe { ical::icaltime_add(self.time, *other) };
+      IcalTime { time }
+    }
 }
 
 impl<T: Into<IcalTime> + Clone> From<&T> for IcalTime {
@@ -273,4 +283,14 @@ mod tests {
     assert_eq!("20140101", time.to_string());
   }
 
+
+  #[test]
+  fn test_add() {
+    let now = IcalTime::utc();
+    let duration = IcalDuration::from_seconds(123);
+
+    let sum = now + duration;
+
+    assert_eq!(1357002123 + 123, sum.timestamp());
+  }
 }

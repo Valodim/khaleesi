@@ -4,6 +4,7 @@ use super::IcalComponent;
 use super::IcalVCalendar;
 use super::IcalTime;
 use super::IcalTimeZone;
+use super::IcalDuration;
 use ical;
 
 pub struct IcalVEvent {
@@ -59,6 +60,17 @@ impl IcalVEvent {
             Some(IcalTime::from(dtend))
           }
         }
+    }
+  }
+
+  pub fn get_duration(&self) -> Option<IcalDuration> {
+    unsafe {
+      let duration = ical::icalcomponent_get_duration(self.ptr);
+      if ical::icaldurationtype_is_bad_duration(duration) == 0 {
+        Some(IcalDuration::from(duration))
+      } else {
+        None
+      }
     }
   }
 
@@ -267,6 +279,15 @@ mod tests {
 
     assert_eq!(None, event.get_summary());
   }
+
+  #[test]
+  fn test_get_duration() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(Some(IcalDuration::from_seconds(10*24*60*60 + 18*60*60)), event.get_duration());
+  }
+
 
   #[test]
   fn test_get_description() {
