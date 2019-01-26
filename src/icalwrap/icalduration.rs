@@ -165,8 +165,8 @@ mod tests {
 
   #[test]
   fn test_cmp() {
-    let more = chrono::Duration::seconds(49128);
-    let less = chrono::Duration::seconds(5);
+    let more = IcalDuration::from_seconds(49128);
+    let less = IcalDuration::from_seconds(5);
 
     assert!(less == less);
     assert!(more == more);
