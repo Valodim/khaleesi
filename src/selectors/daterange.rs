@@ -94,68 +94,69 @@ impl Default for SelectFilterFrom {
 }
 
 #[cfg(test)]
-use super::test::test_filter_event;
-#[cfg(test)]
-use testdata;
-#[test]
-fn test_from_ends_before() {
-  // DTSTART: 2007-06-28
-  // DTEND: 2007-07-09
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-08-01"]);
-  assert_eq!(false, filtered)
-}
-#[test]
-fn test_from_begins_after() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-06-01"]);
-  assert_eq!(true, filtered);
-}
-#[test]
-fn test_from_begins_before_ends_after() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-07-01"]);
-  assert_eq!(true, filtered);
-}
-#[test]
-fn test_from_week_before() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-W17" ]);
-  assert_eq!(true, filtered);
-}
-#[test]
-fn test_from_week_after() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-W30" ]);
-  assert_eq!(false, filtered);
-}
-#[test]
-fn test_from_redundant() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-06-01", "from", "2007-08-01"]);
-  assert_eq!(false, filtered);
-}
-#[test]
-fn test_to_ends_before() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-08-01"]);
-  assert_eq!(true, filtered);
-}
-#[test]
-fn test_to_begins_after() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-06-01"]);
-  assert_eq!(false, filtered);
-}
-#[test]
-fn test_to_begins_before_ends_after() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-07-01"]);
-  assert_eq!(true, filtered);
-}
-#[test]
-fn test_to_week_before() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-W17" ]);
-  assert_eq!(false, filtered);
-}
-#[test]
-fn test_to_week_after() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-W30" ]);
-  assert_eq!(true, filtered);
-}
-#[test]
-fn test_to_begins_redundant() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-06-01", "to", "2007-08-01"]);
-  assert_eq!(false, filtered);
+mod tests {
+  use selectors::test::test_filter_event;
+  use testdata;
+  #[test]
+  fn test_from_ends_before() {
+    // DTSTART: 2007-06-28
+    // DTEND: 2007-07-09
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-08-01"]);
+    assert_eq!(false, filtered)
+  }
+  #[test]
+  fn test_from_begins_after() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-06-01"]);
+    assert_eq!(true, filtered);
+  }
+  #[test]
+  fn test_from_begins_before_ends_after() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-07-01"]);
+    assert_eq!(true, filtered);
+  }
+  #[test]
+  fn test_from_week_before() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-W17" ]);
+    assert_eq!(true, filtered);
+  }
+  #[test]
+  fn test_from_week_after() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-W30" ]);
+    assert_eq!(false, filtered);
+  }
+  #[test]
+  fn test_from_redundant() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-06-01", "from", "2007-08-01"]);
+    assert_eq!(false, filtered);
+  }
+  #[test]
+  fn test_to_ends_before() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-08-01"]);
+    assert_eq!(true, filtered);
+  }
+  #[test]
+  fn test_to_begins_after() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-06-01"]);
+    assert_eq!(false, filtered);
+  }
+  #[test]
+  fn test_to_begins_before_ends_after() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-07-01"]);
+    assert_eq!(true, filtered);
+  }
+  #[test]
+  fn test_to_week_before() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-W17" ]);
+    assert_eq!(false, filtered);
+  }
+  #[test]
+  fn test_to_week_after() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-W30" ]);
+    assert_eq!(true, filtered);
+  }
+  #[test]
+  fn test_to_begins_redundant() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-06-01", "to", "2007-08-01"]);
+    assert_eq!(false, filtered);
+  }
 }

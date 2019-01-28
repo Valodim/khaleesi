@@ -15,7 +15,7 @@ pub fn do_show(_args: &[&str]) -> KhResult<()> {
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use testutils::*;

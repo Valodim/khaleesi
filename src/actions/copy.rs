@@ -20,7 +20,7 @@ pub fn do_copy(_args: &[&str]) -> KhResult<()> {
 
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use assert_fs::prelude::*;

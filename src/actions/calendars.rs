@@ -9,7 +9,7 @@ pub fn action_list_calendars(_args: &[String]) -> Result<(), String> {
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use testutils;

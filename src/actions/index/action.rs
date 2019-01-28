@@ -160,7 +160,7 @@ fn prepare_index_dir(indexdir: &Path, clear_index_dir: bool) -> Result<(), std::
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use testutils::prepare_testdir;

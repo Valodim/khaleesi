@@ -37,7 +37,7 @@ fn write_cursorfile_to_stdout() {
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use testutils;

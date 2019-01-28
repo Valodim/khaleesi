@@ -27,7 +27,7 @@ impl FromStr for RangeFilter {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
   use selectors::test::test_filter_event_index;
   use testdata;
 

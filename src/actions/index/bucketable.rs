@@ -88,64 +88,69 @@ where K: cmp::Eq + hash::Hash,
   }
 }
 
-#[test]
-fn merge_test() {
-  let mut map_a: HashMap<&str, Vec<String>> = HashMap::new();
-  let mut map_b: HashMap<&str, Vec<String>> = HashMap::new();
+#[cfg(test)]
+mod tests {
+  use super::*;
 
-  let key = "key";
-  map_a.insert(&key, vec!["a".to_string(), "b".to_string()]);
-  map_b.insert(&key, vec!["c".to_string(), "d".to_string()]);
+  #[test]
+  fn merge_test() {
+    let mut map_a: HashMap<&str, Vec<String>> = HashMap::new();
+    let mut map_b: HashMap<&str, Vec<String>> = HashMap::new();
 
-  map_a.merge(map_b);
-  assert_eq!(map_a.get(&key).unwrap(), &vec!["a".to_string(), "b".to_string(), "c".to_string(), "d".to_string()]);
-}
+    let key = "key";
+    map_a.insert(&key, vec!["a".to_string(), "b".to_string()]);
+    map_b.insert(&key, vec!["c".to_string(), "d".to_string()]);
 
-#[test]
-fn buckets_multi_day_allday() {
-  use testdata;
-  use std::path::PathBuf;
+    map_a.merge(map_b);
+    assert_eq!(map_a.get(&key).unwrap(), &vec!["a".to_string(), "b".to_string(), "c".to_string(), "d".to_string()]);
+  }
 
-  let path = PathBuf::from("test/path");
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
+  #[test]
+  fn buckets_multi_day_allday() {
+    use testdata;
+    use std::path::PathBuf;
 
-  let event_buckets = cal.get_principal_event().get_buckets().unwrap();
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, Some(&path)).unwrap();
 
-  assert_eq!(2, event_buckets.len());
+    let event_buckets = cal.get_principal_event().get_buckets().unwrap();
 
-  let mut bucket_names = event_buckets.keys().collect::<Vec<&String>>();
-  bucket_names.sort_unstable();
-  assert_eq!(vec!("2007-W26", "2007-W27"), bucket_names);
+    assert_eq!(2, event_buckets.len());
 
-  let cal_buckets = cal.get_buckets().unwrap();
-  assert_eq!(event_buckets, cal_buckets);
-}
+    let mut bucket_names = event_buckets.keys().collect::<Vec<&String>>();
+    bucket_names.sort_unstable();
+    assert_eq!(vec!("2007-W26", "2007-W27"), bucket_names);
 
-#[test]
-fn buckets_single_event() {
-  use testdata;
-  use std::path::PathBuf;
+    let cal_buckets = cal.get_buckets().unwrap();
+    assert_eq!(event_buckets, cal_buckets);
+  }
 
-  let path = PathBuf::from("test/path");
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, Some(&path)).unwrap();
+  #[test]
+  fn buckets_single_event() {
+    use testdata;
+    use std::path::PathBuf;
 
-  let comp_buckets = cal.get_buckets().unwrap();
-  assert_eq!(vec!("1997-W13"), comp_buckets.keys().collect::<Vec<&String>>());
-}
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, Some(&path)).unwrap();
 
-#[test]
-fn buckets_simple_recurring_event() {
-  use testdata;
-  use std::path::PathBuf;
+    let comp_buckets = cal.get_buckets().unwrap();
+    assert_eq!(vec!("1997-W13"), comp_buckets.keys().collect::<Vec<&String>>());
+  }
 
-  let path = PathBuf::from("test/path");
-  let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, Some(&path)).unwrap();
+  #[test]
+  fn buckets_simple_recurring_event() {
+    use testdata;
+    use std::path::PathBuf;
 
-  let event = cal.get_principal_event();
-  let event_buckets = event.get_buckets().unwrap();
-  let cal_buckets = cal.get_buckets().unwrap();
-  assert_eq!(event_buckets, cal_buckets);
-  let mut cal_bucket_names = cal_buckets.keys().collect::<Vec<&String>>();
-  cal_bucket_names.sort_unstable();
-  assert_eq!(vec!("2018-W41", "2018-W42", "2018-W43", "2018-W44", "2018-W45", "2018-W46", "2018-W47", "2018-W48", "2018-W49", "2018-W50"), cal_bucket_names);
+    let path = PathBuf::from("test/path");
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, Some(&path)).unwrap();
+
+    let event = cal.get_principal_event();
+    let event_buckets = event.get_buckets().unwrap();
+    let cal_buckets = cal.get_buckets().unwrap();
+    assert_eq!(event_buckets, cal_buckets);
+    let mut cal_bucket_names = cal_buckets.keys().collect::<Vec<&String>>();
+    cal_bucket_names.sort_unstable();
+    assert_eq!(vec!("2018-W41", "2018-W42", "2018-W43", "2018-W44", "2018-W45", "2018-W46", "2018-W47", "2018-W48", "2018-W49", "2018-W50"), cal_bucket_names);
+  }
 }

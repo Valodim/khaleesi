@@ -20,7 +20,7 @@ pub fn action_get_calendars() -> KhResult<()> {
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use testutils;

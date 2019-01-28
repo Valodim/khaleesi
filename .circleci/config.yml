@@ -53,23 +53,16 @@ jobs:
       - run:
           name: Run coverage for unit tests
           command: |
-            # hack - order by size to assign flags (unit tests are smaller)
-            flags=( unit integration );
-            for file in $(ls --sort=size -r ./target/debug/khaleesi-*); do
-              if [[ -f "$file" && -x "$file" ]]; then
-                flag=${flags[0]};
-                flags=("${flags[@]:1}"); # shift array by 1
-                if [[ -z "$flag" ]]; then
-                  echo "Error, no flag left!";
-                  break;
-                fi
-                echo "Running coverage for: $file, flag $flag";
-                kcov --verify --include-path $(pwd) --exclude-pattern=tests \
-                    target/coverage/$(basename $file) \
-                  $file --quiet
-                # -c deletes coverage data after submission
-                bash <(curl -s https://codecov.io/bash) -c -F $flag;
-              fi
+            # hack - find biggest binary in dir
+            testsuite=$(ls --sort=size ./target/debug/khaleesi-* | head -n 1)
+            flags=( tests integration );
+            for flag in ${flags[@]}; do
+              echo "Running coverage for $flag";
+              kcov --verify --include-path $(pwd) --exclude-pattern=tests \
+                  target/coverage/$flag \
+                  $testsuite --quiet ::${flag}::
+              # -c deletes coverage data after submission
+              bash <(curl -s https://codecov.io/bash) -c -F $flag;
             done
 workflows:
   version: 2

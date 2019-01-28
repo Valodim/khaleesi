@@ -30,7 +30,7 @@ fn edit(khline: &KhLine) -> KhResult<()> {
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use testutils::prepare_testdir;

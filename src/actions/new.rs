@@ -119,7 +119,7 @@ static TEMPLATE_EVENT: &str = indoc!("
 ");
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use assert_fs::prelude::*;
   use chrono::{TimeZone,Local};
   use predicates::prelude::*;

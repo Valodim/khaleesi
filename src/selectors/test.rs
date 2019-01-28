@@ -16,11 +16,15 @@ pub fn test_filter_event_index(event_str: &str, index: usize, args: &[&str]) -> 
   filters.is_selected_index(index, &event)
 }
 
-#[test]
-fn test_parse_range_check() {
-  let args = &["1:5"];
-  let ok = SelectFilters::parse_from_args_with_range(args);
-  let err = SelectFilters::parse_from_args(args);
-  assert!(ok.is_ok());
-  assert!(err.is_err());
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_parse_range_check() {
+    let args = &["1:5"];
+    let ok = SelectFilters::parse_from_args_with_range(args);
+    let err = SelectFilters::parse_from_args(args);
+    assert!(ok.is_ok());
+    assert!(err.is_err());
+  }
 }

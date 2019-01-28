@@ -42,25 +42,25 @@ impl Default for PropFilter {
 }
 
 #[cfg(test)]
-use super::test::test_filter_event;
-#[cfg(test)]
-use testdata;
+mod tests {
+  use super::test::test_filter_event;
+  use testdata;
 
-#[test]
-fn test_prop() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "TRANSP", "TRANSPARENT"]);
-  assert_eq!(true, filtered);
+  #[test]
+  fn test_prop() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "TRANSP", "TRANSPARENT"]);
+    assert_eq!(true, filtered);
+  }
+
+  #[test]
+  fn test_prop_nocase() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "tRaNsP", "tRaNsPaReNt"]);
+    assert_eq!(true, filtered);
+  }
+
+  #[test]
+  fn test_prop_negative() {
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "TRANSP", "nonexistent term"]);
+    assert_eq!(false, filtered);
+  }
 }
-
-#[test]
-fn test_prop_nocase() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "tRaNsP", "tRaNsPaReNt"]);
-  assert_eq!(true, filtered);
-}
-
-#[test]
-fn test_prop_negative() {
-  let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "TRANSP", "nonexistent term"]);
-  assert_eq!(false, filtered);
-}
-

@@ -34,7 +34,7 @@ fn write_seqfile_to_stdout() {
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use assert_fs::prelude::*;

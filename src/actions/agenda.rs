@@ -179,7 +179,7 @@ impl IcalVEvent {
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
   use testdata;
   use testutils::*;
