@@ -126,19 +126,14 @@ impl FromStr for IcalTime {
   type Err = String;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
-    let c_str = CString::new(s).unwrap();
-    let time = unsafe {
+    unsafe {
+      let c_str = CString::new(s).unwrap();
       let time = ical::icaltime_from_string(c_str.as_ptr());
-      if ical::icaltime_is_null_time(time) != 0 {
-        Some(time)
+      if ical::icaltime_is_null_time(time) == 0 {
+        Ok(IcalTime { time })
       } else {
-        None
+        Err(format!("Could not parse time {}", s))
       }
-    };
-    if let Some(time) = time {
-      Ok(IcalTime { time })
-    } else {
-      return Err(format!("Could not parse time {}", s));
     }
   }
 }
@@ -253,7 +248,26 @@ mod tests {
   }
 
   #[test]
-  fn test_with_timezone_xxx() {
+  fn test_local() {
+    testdata::setup();
+    let time = IcalTime::local();
+    assert_eq!("20130101T020203", time.to_string());
+  }
+
+  #[test]
+  fn test_parse() {
+    let time = "20130101T010203Z".parse::<IcalTime>().unwrap();
+    assert_eq!("20130101T010203Z", time.to_string());
+  }
+
+  #[test]
+  fn test_parse_negative() {
+    let time = "201XXX01T010203Z".parse::<IcalTime>();
+    assert!(time.is_err());
+  }
+
+  #[test]
+  fn test_with_timezone() {
     let utc = IcalTime::utc();
     let tz = IcalTimeZone::from_name("US/Eastern").unwrap();
 
@@ -262,6 +276,12 @@ mod tests {
     assert_eq!("US/Eastern", time.get_timezone().unwrap().get_name());
     assert_eq!("20121231T200203", time.to_string());
     assert_eq!(1357002123, time.timestamp());
+  }
+
+  #[test]
+  fn test_get_timezone_negative() {
+    let time = IcalTime::floating_ymd(2018, 02, 03);
+    assert!(time.get_timezone().is_none());
   }
 
   #[test]
@@ -283,6 +303,43 @@ mod tests {
     assert_eq!("20140101", time.to_string());
   }
 
+  #[test]
+  fn test_into_utc_date() {
+    let time = IcalTimeZone::utc().ymd(2014, 02, 02);
+    let date: Date<Utc> = time.into();
+    assert_eq!(Utc.ymd(2014, 02, 02), date);
+  }
+
+  #[test]
+  fn test_into_utc_datetime() {
+    let time = IcalTimeZone::utc().ymd(2014, 02, 02).and_hms(13, 37, 00);
+    let datetime: DateTime<Utc> = time.into();
+    assert_eq!(Utc.ymd(2014, 02, 02).and_hms(13, 37, 00), datetime);
+  }
+
+  #[test]
+  fn test_into_local_date() {
+    testdata::setup();
+    let time = IcalTimeZone::local().ymd(2014, 02, 02);
+    let date: Date<Local> = time.into();
+    assert_eq!(Local.ymd(2014, 02, 02), date);
+  }
+
+  #[test]
+  fn test_into_local_datetime() {
+    testdata::setup();
+    let time = IcalTimeZone::local().ymd(2014, 02, 02).and_hms(13, 37, 00);
+    let datetime: DateTime<Local> = time.into();
+    assert_eq!(Local.ymd(2014, 02, 02).and_hms(13, 37, 00), datetime);
+  }
+
+  #[test]
+  fn test_into_local_datetime_utc() {
+    testdata::setup();
+    let time = IcalTimeZone::utc().ymd(2014, 02, 02).and_hms(13, 37, 00);
+    let datetime: DateTime<Local> = time.into();
+    assert_eq!(Local.ymd(2014, 02, 02).and_hms(14, 37, 00), datetime);
+  }
 
   #[test]
   fn test_add() {
@@ -292,5 +349,17 @@ mod tests {
     let sum = now + duration;
 
     assert_eq!(1357002123 + 123, sum.timestamp());
+  }
+
+  #[test]
+  fn test_pred() {
+    let time = IcalTime::utc();
+    assert_eq!("20121231T010203Z", time.pred().to_string());
+  }
+
+  #[test]
+  fn test_succ() {
+    let time = IcalTime::utc();
+    assert_eq!("20130102T010203Z", time.succ().to_string());
   }
 }
