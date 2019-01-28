@@ -1,8 +1,7 @@
 use defaults;
-use icalwrap::IcalVCalendar;
+use icalwrap::{IcalVCalendar,IcalTime,IcalTimeZone};
 use khline::KhLine;
-use utils::{misc,fileutil,dateutil};
-use chrono::{DateTime,Local};
+use utils::{misc,fileutil};
 
 use KhResult;
 use cursorfile;
@@ -10,8 +9,8 @@ use calendars;
 
 struct EventProperties {
   calendar: String,
-  from: DateTime<Local>,
-  to: DateTime<Local>,
+  from: IcalTime,
+  to: IcalTime,
   summary: String,
   location: String
 }
@@ -29,18 +28,22 @@ impl EventProperties {
     Ok(EventProperties{ calendar, from, to, summary, location })
   }
 
-  fn parse_from(arg: &str) -> KhResult<DateTime<Local>> {
+  fn parse_from(arg: &str) -> KhResult<IcalTime> {
     if arg.is_empty() {
       Err("no start date/time given")?
     };
-    Ok(dateutil::datetime_from_str(arg)?)
+    let time = arg.parse::<IcalTime>()?;
+    let timezone = IcalTimeZone::local();
+    Ok(time.with_timezone(&timezone))
   }
 
-  fn parse_to(arg: &str) -> KhResult<DateTime<Local>> {
+  fn parse_to(arg: &str) -> KhResult<IcalTime> {
     if arg.is_empty() {
       Err("no end date/time given")?
     };
-    Ok(dateutil::datetime_from_str(arg)?)
+    let time = arg.parse::<IcalTime>()?;
+    let timezone = IcalTimeZone::local();
+    Ok(time.with_timezone(&timezone))
   }
 
   fn parse_location(arg: &str) -> KhResult<String> {
@@ -96,8 +99,8 @@ pub fn do_new(args: &[&str]) -> KhResult<()> {
 impl IcalVCalendar {
   fn with_eventprops(self, ep: &EventProperties) -> Self {
     self
-      .with_dtstart(&ep.from.into())
-      .with_dtend(&ep.to.into())
+      .with_dtstart(&ep.from)
+      .with_dtend(&ep.to)
       .with_summary(&ep.summary)
       .with_location(&ep.location)
   }
@@ -121,7 +124,6 @@ static TEMPLATE_EVENT: &str = indoc!("
 #[cfg(test)]
 mod integration {
   use assert_fs::prelude::*;
-  use chrono::{TimeZone,Local};
   use predicates::prelude::*;
 
   use super::*;
@@ -171,8 +173,8 @@ mod integration {
   #[test]
   fn test_parse_from() {
     testdata::setup();
-    let from = EventProperties::parse_from("2017-07-14T17:45").unwrap();
-    let expected = Local.ymd(2017, 7, 14).and_hms(17, 45, 0);
+    let from = EventProperties::parse_from("2017-07-14T17:45:00").unwrap();
+    let expected = IcalTime::floating_ymd(2017, 7, 14).and_hms(17, 45, 0);
     assert_eq!(expected, from);
   }
 
@@ -187,8 +189,8 @@ mod integration {
   #[test]
   fn test_parse_to() {
     testdata::setup();
-    let to = EventProperties::parse_to("2017-07-14T17:45").unwrap();
-    let expected = Local.ymd(2017, 7, 14).and_hms(17, 45, 0);
+    let to = EventProperties::parse_to("2017-07-14T17:45:00").unwrap();
+    let expected = IcalTime::floating_ymd(2017, 7, 14).and_hms(17, 45, 0);
     assert_eq!(expected, to);
   }
 
@@ -203,7 +205,7 @@ mod integration {
   #[test]
   fn test_parse_from_args() {
     let _testdir = testutils::prepare_testdir("testdir_two_cals");
-    let args = &["second", "2017-11-03T12:30", "2017-11-07T11:11", "summary text", "location text"];
+    let args = &["second", "2017-11-03T12:30:00", "2017-11-07T11:11:00", "summary text", "location text"];
     let ep = EventProperties::parse_from_args(args).unwrap();
     assert_eq!("second".to_string(), ep.calendar);
     assert_eq!("summary text".to_string(), ep.summary);
@@ -222,11 +224,17 @@ mod integration {
     testdata::setup();
 
     let calendar = "foo".to_string();
-    let from = Local.ymd(2015, 04, 17).and_hms(8, 17, 3);
-    let to = Local.ymd(2015, 05, 17).and_hms(8, 17, 3);
+    let from = IcalTime::floating_ymd(2015, 04, 17).and_hms(8, 17, 3);
+    let to = IcalTime::floating_ymd(2015, 05, 17).and_hms(8, 17, 3);
     let summary = "summary";
     let location = "home";
-    let ep = EventProperties { calendar, from, to, summary: summary.to_string(), location: location.to_string() };
+    let ep = EventProperties {
+      calendar,
+      from: from.clone(),
+      to: to.clone(),
+      summary: summary.to_string(),
+      location: location.to_string(),
+    };
 
     let _testdir = testutils::prepare_testdir("testdir");
     let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
@@ -235,8 +243,8 @@ mod integration {
       .with_eventprops(&ep);
 
     let event = cal.get_principal_event();
-    assert_eq!(from, Into::<DateTime<Local>>::into(event.get_dtstart().unwrap()));
-    assert_eq!(to, Into::<DateTime<Local>>::into(event.get_dtend().unwrap()));
+    assert_eq!(Some(from), event.get_dtstart());
+    assert_eq!(Some(to), event.get_dtend());
     assert_eq!(summary, event.get_summary().unwrap());
     assert_eq!(location, event.get_location().unwrap());
   }
@@ -245,7 +253,7 @@ mod integration {
   fn test_do_new() {
     let testdir = testutils::prepare_testdir("testdir_two_cals");
 
-    let args = &["second", "2017-11-03T12:30", "2017-11-07T11:11", "summary text", "location text"];
+    let args = &["second", "2017-11-03T12:30:00", "2017-11-07T11:11:00", "summary text", "location text"];
 
     let result = do_new(args);
     assert!(result.is_ok());
