@@ -1,4 +1,4 @@
-use backtrace::{Backtrace, BacktraceFrame};
+use backtrace::Backtrace;
 use std::error::Error;
 use std::fmt;
 
@@ -24,6 +24,7 @@ impl KhError {
 
 #[cfg(debug_assertions)]
 fn backtrace_strip_foreign(backtrace: Backtrace) -> Backtrace {
+  use backtrace::BacktraceFrame;
   let backtrace: Vec<BacktraceFrame> = backtrace.into();
   backtrace
     .into_iter()
@@ -44,7 +45,7 @@ impl fmt::Display for KhError {
   }
   #[cfg(not(debug_assertions))]
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f , "{}\n{:?}", self.msg, self.backtrace)
+    write!(f , "{}", self.msg)
   }
 }
 
