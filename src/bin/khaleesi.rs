@@ -25,9 +25,14 @@ fn main() {
   let args: Vec<String> = env::args().collect();
   let config = Config::read_config();
 
-  let binary_name = &args[0];
-  let args = &args[1..].iter().map(|s| s.as_str()).collect::<Vec<&str>>();
-  let result = main_internal(binary_name, args, &config);
+  let binary_name = &args[0].split('/').last().unwrap();
+  let mut args = args[1..].iter().map(|s| s.as_str()).collect::<Vec<&str>>();
+  if *binary_name != "khaleesi" && binary_name.starts_with("kh") {
+    let command = &binary_name[2..];
+    args.push(command);
+    args.rotate_right(1);
+  }
+  let result = main_internal(binary_name, &args[..], &config);
   if let Err(error) = result {
     error!("{}", error)
   }
