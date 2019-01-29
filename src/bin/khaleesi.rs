@@ -22,6 +22,13 @@ fn main() {
   //            3 => LevelFilter::Debug,
   //            _ => LevelFilter::Trace,
 
+  #[cfg(not(debug_assertions))] {
+    if let Some(dir) = dirs::home_dir() {
+      use khaleesi::defaults;
+      defaults::set_khaleesi_dir(&dir);
+    }
+  }
+
   let args: Vec<String> = env::args().collect();
   let config = Config::read_config();
 

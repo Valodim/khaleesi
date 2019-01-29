@@ -34,6 +34,7 @@ extern crate maplit;
 extern crate atty;
 extern crate backtrace;
 extern crate chrono;
+extern crate dirs;
 extern crate fs2;
 extern crate itertools;
 extern crate libc;
