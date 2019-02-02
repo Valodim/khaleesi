@@ -3,12 +3,17 @@ extern crate atty;
 use cursorfile;
 use utils::stdioutils;
 use KhResult;
+use khline::KhLine;
+use seqfile;
 
-pub fn do_cursor(_args: &[&str]) -> KhResult<()> {
+pub fn do_cursor(args: &[&str]) -> KhResult<()> {
   if !stdioutils::is_stdin_tty() {
     write_stdin_to_cursorfile()?;
   } else {
     //println!("stdin is tty")
+    if args.len() > 0 && args[0] == "prev" {
+      return cursor_sequence_prev();
+    }
   }
 
   if !stdioutils::is_stdout_tty() || stdioutils::is_stdin_tty() {
@@ -34,6 +39,19 @@ fn write_cursorfile_to_stdout() {
   if let Ok(cursor) = cursorfile::read_cursorfile() {
     khprintln!("{}", cursor);
   }
+}
+
+fn cursor_sequence_prev() -> KhResult<()> {
+  let cursor_event = cursorfile::read_cursorfile()?.to_event().unwrap();
+  let mut seq = seqfile::read_seqfile_backwards()?
+    .map(|line| line.parse::<KhLine>().unwrap());
+  seq.find(|line| line.matches(&cursor_event));
+  if let Some(next_elem) = seq.next() {
+    cursorfile::write_cursorfile(&next_elem.to_string())?;
+  } else {
+    warn!("Already at end of sequence");
+  }
+  Ok(())
 }
 
 #[cfg(test)]
