@@ -4,8 +4,9 @@ use std::io;
 use defaults::*;
 use khline::KhLine;
 use utils::fileutil;
+use KhResult;
 
-pub fn write_cursorfile(line: &str) -> io::Result<()> {
+pub fn write_cursorfile(line: &str) -> KhResult<()> {
   let tmpfilename = get_datafile("tmpcursor");
 
   fileutil::write_file(&tmpfilename, line)?;

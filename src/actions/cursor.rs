@@ -5,14 +5,24 @@ use utils::stdioutils;
 use KhResult;
 use khline::KhLine;
 use seqfile;
+use icalwrap::IcalVEvent;
+
+enum Direction {
+  Up,
+  Down,
+}
 
 pub fn do_cursor(args: &[&str]) -> KhResult<()> {
   if !stdioutils::is_stdin_tty() {
     write_stdin_to_cursorfile()?;
   } else {
     //println!("stdin is tty")
-    if args.len() > 0 && args[0] == "prev" {
-      return cursor_sequence_prev();
+    if !args.is_empty() {
+      match args[0] {
+        "prev" => return cursor_sequence_move(&Direction::Up),
+        "next" => return cursor_sequence_move(&Direction::Down),
+        &_ => {}
+      }
     }
   }
 
@@ -41,17 +51,33 @@ fn write_cursorfile_to_stdout() {
   }
 }
 
-fn cursor_sequence_prev() -> KhResult<()> {
+fn cursor_sequence_move(direction: &Direction) -> KhResult<()> {
   let cursor_event = cursorfile::read_cursorfile()?.to_event().unwrap();
-  let mut seq = seqfile::read_seqfile_backwards()?
-    .map(|line| line.parse::<KhLine>().unwrap());
-  seq.find(|line| line.matches(&cursor_event));
-  if let Some(next_elem) = seq.next() {
-    cursorfile::write_cursorfile(&next_elem.to_string())?;
-  } else {
-    warn!("Already at end of sequence");
+  let next_elem = match direction {
+    Direction::Up => cursor_sequence_prev(&cursor_event),
+    Direction::Down => cursor_sequence_next(&cursor_event)
+  };
+  match next_elem {
+    Some(next_elem) => cursorfile::write_cursorfile(&next_elem.to_string()),
+    None => {
+      warn!("Already at end of sequence");
+      Ok(())
+    }
   }
-  Ok(())
+}
+
+fn cursor_sequence_next(cursor_event: &IcalVEvent) -> Option<KhLine> {
+  let mut seq = seqfile::read_seqfile().unwrap()
+    .map(|line| line.parse::<KhLine>().unwrap());
+  seq.find(|line| line.matches(cursor_event));
+  seq.next()
+}
+
+fn cursor_sequence_prev(cursor_event: &IcalVEvent) -> Option<KhLine> {
+  let mut seq = seqfile::read_seqfile_backwards().unwrap()
+    .map(|line| line.parse::<KhLine>().unwrap());
+  seq.find(|line| line.matches(cursor_event));
+  seq.next()
 }
 
 #[cfg(test)]
