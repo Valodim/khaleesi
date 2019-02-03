@@ -50,16 +50,16 @@ fn write_cursorfile_to_stdout() {
 }
 
 fn cursor_sequence_move(direction: &Direction) -> KhResult<()> {
-  let cursor_event = cursorfile::read_cursorfile()?.to_event().unwrap();
+  let cursor_event = cursorfile::read_cursorfile()?;
   let mut seq = seqfile::read_seqfile_khlines()?;
   let next_elem = match direction {
     Direction::Up => {
       let mut seq_rev = seq.rev();
-      seq_rev.find(|line| line.matches(&cursor_event));
+      seq_rev.find(|line| line == &cursor_event);
       seq_rev.next()
     },
     Direction::Down => {
-      seq.find(|line| line.matches(&cursor_event));
+      seq.find(|line| line == &cursor_event);
       seq.next()
     }
   };
