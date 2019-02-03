@@ -46,18 +46,11 @@ pub fn write_cal(cal: &IcalVCalendar) -> io::Result<()> {
   }
 }
 
-pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl Iterator<Item = String>> {
+pub fn read_lines_from_file(filepath: &Path) -> io::Result<impl DoubleEndedIterator<Item = String>> {
   let f = fs::File::open(filepath)?;
   let f = BufReader::new(f);
   let lines: Result<Vec<String>, io::Error> = f.lines().collect();
   lines.map(|result| result.into_iter())
-}
-
-pub fn read_lines_from_file_backwards(filepath: &Path) -> io::Result<impl Iterator<Item = String>> {
-  let f = fs::File::open(filepath)?;
-  let f = BufReader::new(f);
-  let lines: Result<Vec<String>, io::Error> = f.lines().collect();
-  lines.map(|result| result.into_iter().rev())
 }
 
 pub fn read_file_to_string(path: &Path) -> io::Result<String> {

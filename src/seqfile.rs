@@ -15,16 +15,10 @@ pub fn write_to_seqfile(lines: &str) -> io::Result<()> {
   Ok(())
 }
 
-pub fn read_seqfile() -> io::Result<impl Iterator<Item = String>> {
+pub fn read_seqfile() -> io::Result<impl DoubleEndedIterator<Item = String>> {
   let seqfile = get_seqfile();
   debug!("Reading sequence file: {}", seqfile.to_string_lossy());
   fileutil::read_lines_from_file(&seqfile)
-}
-
-pub fn read_seqfile_backwards() -> io::Result<impl Iterator<Item = String>> {
-  let seqfile = get_seqfile();
-  debug!("Reading sequence file: {}", seqfile.to_string_lossy());
-  fileutil::read_lines_from_file_backwards(&seqfile)
 }
 
 #[cfg(test)]
@@ -43,18 +37,6 @@ mod tests {
     seqfile_read.push('\n');
 
     let predicate = predicate::str::similar(seqfile_read);
-    testdir.child(".khaleesi/seq").assert(predicate);
-  }
-
-  #[test]
-  fn read_seqfile_backwards_test() {
-    let testdir = prepare_testdir("testdir_with_seq");
-    let mut seqfile_read: Vec<String> = read_seqfile_backwards().unwrap().collect();
-    seqfile_read.reverse();
-    let mut seqfile_string = seqfile_read.join("\n");
-    seqfile_string.push('\n');
-
-    let predicate = predicate::str::similar(seqfile_string);
     testdir.child(".khaleesi/seq").assert(predicate);
   }
 

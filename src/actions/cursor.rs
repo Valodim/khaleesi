@@ -5,7 +5,6 @@ use utils::stdioutils;
 use KhResult;
 use khline::KhLine;
 use seqfile;
-use icalwrap::IcalVEvent;
 
 enum Direction {
   Up,
@@ -53,10 +52,20 @@ fn write_cursorfile_to_stdout() {
 
 fn cursor_sequence_move(direction: &Direction) -> KhResult<()> {
   let cursor_event = cursorfile::read_cursorfile()?.to_event().unwrap();
+  let mut seq = seqfile::read_seqfile()?
+    .map(|line| line.parse::<KhLine>().unwrap());
   let next_elem = match direction {
-    Direction::Up => cursor_sequence_prev(&cursor_event),
-    Direction::Down => cursor_sequence_next(&cursor_event)
+    Direction::Up => {
+      let mut seq_rev = seq.rev();
+      seq_rev.find(|line| line.matches(&cursor_event));
+      seq_rev.next()
+    },
+    Direction::Down => {
+      seq.find(|line| line.matches(&cursor_event));
+      seq.next()
+    }
   };
+
   match next_elem {
     Some(next_elem) => cursorfile::write_cursorfile(&next_elem.to_string()),
     None => {
@@ -64,20 +73,6 @@ fn cursor_sequence_move(direction: &Direction) -> KhResult<()> {
       Ok(())
     }
   }
-}
-
-fn cursor_sequence_next(cursor_event: &IcalVEvent) -> Option<KhLine> {
-  let mut seq = seqfile::read_seqfile().unwrap()
-    .map(|line| line.parse::<KhLine>().unwrap());
-  seq.find(|line| line.matches(cursor_event));
-  seq.next()
-}
-
-fn cursor_sequence_prev(cursor_event: &IcalVEvent) -> Option<KhLine> {
-  let mut seq = seqfile::read_seqfile_backwards().unwrap()
-    .map(|line| line.parse::<KhLine>().unwrap());
-  seq.find(|line| line.matches(cursor_event));
-  seq.next()
 }
 
 #[cfg(test)]
