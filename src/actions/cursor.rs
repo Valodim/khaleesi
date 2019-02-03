@@ -3,7 +3,6 @@ extern crate atty;
 use cursorfile;
 use utils::stdioutils;
 use KhResult;
-use khline::KhLine;
 use seqfile;
 
 enum Direction {
@@ -52,8 +51,7 @@ fn write_cursorfile_to_stdout() {
 
 fn cursor_sequence_move(direction: &Direction) -> KhResult<()> {
   let cursor_event = cursorfile::read_cursorfile()?.to_event().unwrap();
-  let mut seq = seqfile::read_seqfile()?
-    .map(|line| line.parse::<KhLine>().unwrap());
+  let mut seq = seqfile::read_seqfile_khlines()?;
   let next_elem = match direction {
     Direction::Up => {
       let mut seq_rev = seq.rev();
