@@ -7,7 +7,7 @@ use icalwrap::{IcalVCalendar,IcalVEvent,IcalTime};
 use utils::{fileutil,dateutil};
 use defaults;
 
-#[derive(PartialEq,Eq)]
+#[derive(PartialEq,Eq,Debug)]
 pub struct KhLine {
   pub path: PathBuf,
   time: Option<IcalTime>,
