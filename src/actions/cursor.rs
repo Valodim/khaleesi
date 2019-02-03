@@ -5,7 +5,6 @@ use utils::stdioutils;
 use KhResult;
 use seqfile;
 
-#[derive(Debug)]
 enum Direction {
   Up,
   Down,
