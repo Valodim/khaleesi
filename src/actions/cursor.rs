@@ -5,6 +5,7 @@ use utils::stdioutils;
 use KhResult;
 use seqfile;
 
+#[derive(Debug)]
 enum Direction {
   Up,
   Down,
@@ -90,6 +91,26 @@ mod integration {
     do_cursor(&[]).unwrap();
 
     testdir.child(".khaleesi/cursor").assert(expected_str);
+  }
+
+  #[test]
+  fn test_cursor_sequence_move_next() {
+    let testdir = testutils::prepare_testdir("testdir_with_seq_and_cursor");
+    do_cursor(&["next"]).unwrap();
+
+    let out = "1182988800 .khaleesi/cal/rfc_multi_day_allday.ics";
+    let predicate = predicate::str::similar(out);
+    testdir.child(".khaleesi/cursor").assert(predicate);
+  }
+
+  #[test]
+  fn test_cursor_sequence_move_prev_at_end() {
+    let testdir = testutils::prepare_testdir("testdir_with_seq_and_cursor");
+    do_cursor(&["prev"]).unwrap();
+
+    let out = "1544740200 .khaleesi/cal/twodaysacrossbuckets.ics\n";
+    let predicate = predicate::str::similar(out);
+    testdir.child(".khaleesi/cursor").assert(predicate);
   }
 
   #[test]
