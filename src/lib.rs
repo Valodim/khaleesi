@@ -30,6 +30,9 @@ extern crate predicates;
 #[cfg(test)]
 #[macro_use]
 extern crate maplit;
+#[cfg(test)]
+#[macro_use]
+extern crate pretty_assertions;
 
 extern crate atty;
 extern crate backtrace;
