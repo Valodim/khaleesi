@@ -40,7 +40,7 @@ impl Config {
 
 impl CalendarConfig {
   pub fn get_style_for_calendar(&self) -> yansi::Style {
-    let mut style = Style::new();
+    let mut style = Style::default();
     if let Some(color) = self.color {
       style = style.fg(Color::Fixed(color));
     }

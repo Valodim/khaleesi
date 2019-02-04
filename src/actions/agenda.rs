@@ -97,7 +97,7 @@ fn maybe_print_date_line(config: &Config, date: Date<Local>, start_date: Date<Lo
 }
 
 fn print_date_line(date: Date<Local>) {
-  let style_heading = Style::new().bold();
+  let style_heading = Style::default().bold();
   khprintln!("{}, {}", style_heading.paint(date.format("%Y-%m-%d")), date.format("%A"));
 }
 
