@@ -1,6 +1,7 @@
 use assert_fs::prelude::*;
 use assert_fs::TempDir;
-use std::path::PathBuf;
+use assert_fs::fixture::{ChildPath, FixtureError};
+use std::path::{PathBuf,Path};
 use std::fs;
 
 use defaults;
@@ -20,4 +21,10 @@ pub fn prepare_testdir(template: &str) -> TempDir {
   let testdir = prepare_testdir_empty();
   testdir.child(".khaleesi/").copy_from(path_to(template), &["*"]).unwrap();
   testdir
+}
+
+pub fn touch_testfile(testdir: &TempDir, relative_path: &Path) -> Result<ChildPath, FixtureError> {
+  let testfile = testdir.child(relative_path);
+  testfile.touch()?;
+  Ok(testfile)
 }

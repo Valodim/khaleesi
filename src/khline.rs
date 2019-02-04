@@ -91,12 +91,22 @@ impl FromStr for KhLine {
   fn from_str(s: &str) -> Result<Self, Self::Err> {
     let parts: Vec<&str> = s.splitn(2, ' ').collect();
     if let Some(time) = dateutil::datetime_from_timestamp(parts[0]) {
-      let path = PathBuf::from(parts[1]);
+      let path = to_filepath_checked(parts[1])?;
       Ok(Self::new(&path, Some(time.into())))
     } else {
-      let path = PathBuf::from(parts[0]);
+      let path = to_filepath_checked(parts[0])?;
       Ok(Self::new(&path, None))
     }
+  }
+}
+
+fn to_filepath_checked(path_str: &str) -> Result<PathBuf, String> {
+
+  let path = PathBuf::from(path_str);
+  if defaults::get_caldir().join(path.clone()).is_file() {
+    Ok(path)
+  } else {
+    Err("path is not a file".to_string())
   }
 }
 
@@ -112,22 +122,28 @@ mod tests {
 
   #[test]
   fn test_parse_absolute() {
-    let khline_str = "1182988800 /x/y/z.ics";
+    let testdir = prepare_testdir_empty();
+    let khline_str = "1182988800 ".to_string() + &testdir.path().to_string_lossy() + "/x/y/z.ics";
+
+    let testfile = touch_testfile(&testdir, &PathBuf::from("x/y/z.ics")).unwrap();
 
     let khline = khline_str.parse::<KhLine>().unwrap();
 
-    assert_eq!(PathBuf::from("/x/y/z.ics"), khline.path);
+    assert_eq!(testfile.path(), khline.path);
     assert_eq!(1182988800, khline.get_time().unwrap().timestamp());
     assert_eq!(khline_str, khline.to_string());
   }
 
   #[test]
   fn test_parse_absolute_no_timestamp() {
-    let khline_str = "/x/y/z.ics";
+    let testdir = prepare_testdir_empty();
+    let khline_str = testdir.path().to_string_lossy() + "/x/y/z.ics";
+
+    let testfile = touch_testfile(&testdir, &PathBuf::from("x/y/z.ics")).unwrap();
 
     let khline = khline_str.parse::<KhLine>().unwrap();
 
-    assert_eq!(PathBuf::from("/x/y/z.ics"), khline.path);
+    assert_eq!(testfile.path(), khline.path);
     assert_eq!(None, khline.time);
     assert_eq!(khline_str, khline.to_string());
   }
@@ -137,9 +153,14 @@ mod tests {
     let testdir = prepare_testdir_empty();
     let khline_str = "x/y.ics";
 
+    let mut path = PathBuf::from(defaults::DATADIR);
+    path.push(defaults::CALDIR);
+    path.push(khline_str);
+    let testfile = touch_testfile(&testdir, &path).unwrap();
+
     let khline = khline_str.parse::<KhLine>().unwrap();
 
-    assert_eq!(testdir.child(".khaleesi/cal/x/y.ics").path(), khline.path);
+    assert_eq!(testfile.path(), khline.path);
     assert_eq!(None, khline.time);
     assert_eq!(khline_str, khline.to_string());
   }
@@ -147,11 +168,17 @@ mod tests {
   #[test]
   fn test_parse_relative_timestamp() {
     let testdir = prepare_testdir_empty();
-    let khline_str = "1182988800 x/y.ics";
+    let filepath = "x/y.ics";
+    let khline_str = "1182988800 ".to_owned() + filepath;
 
+    let mut path = PathBuf::from(defaults::DATADIR);
+    path.push(defaults::CALDIR);
+    path.push(filepath);
+
+    let testfile = touch_testfile(&testdir, &path).unwrap();
     let khline = khline_str.parse::<KhLine>().unwrap();
 
-    assert_eq!(testdir.child(".khaleesi/cal/x/y.ics").path(), khline.path);
+    assert_eq!(testfile.path(), khline.path);
     assert_eq!(1182988800, khline.get_time().unwrap().timestamp());
     assert_eq!(khline_str, khline.to_string());
   }
@@ -174,6 +201,12 @@ mod tests {
     let khline = KhLine::from(&cal);
 
     assert_eq!(String::from("1182988800 test/path"), khline.to_string());
+  }
+
+  #[test]
+  fn test_empty_string() {
+    let khline = "".parse::<KhLine>();
+    assert!(khline.is_err());
   }
 
   #[test]
