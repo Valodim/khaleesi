@@ -1,5 +1,3 @@
-extern crate atty;
-
 use crate::cursorfile;
 use crate::utils::stdioutils;
 use crate::KhResult;

@@ -1,5 +1,4 @@
-#[macro_use]
-mod macros;
+#[macro_use] mod macros;
 
 pub mod errors;
 pub type KhResult<T> = Result<T,errors::KhError>;
@@ -17,45 +16,30 @@ pub mod input;
 pub mod selectors;
 pub mod seqfile;
 pub mod utils;
-#[cfg(test)]
-pub mod testutils;
+#[cfg(test)] pub mod testutils;
+#[cfg(test)] pub mod testdata;
 
-#[cfg(test)]
-pub mod testdata;
-extern crate tempfile;
-#[cfg(test)]
-extern crate assert_fs;
-#[cfg(test)]
-extern crate predicates;
-#[cfg(test)]
-#[macro_use]
-extern crate maplit;
-#[cfg(test)]
-#[macro_use]
-extern crate pretty_assertions;
+#[cfg(test)] use assert_fs;
+#[cfg(test)] use predicates;
+#[cfg(test)] #[macro_use] extern crate maplit;
+#[cfg(test)] #[macro_use] extern crate pretty_assertions;
 
-extern crate atty;
-extern crate backtrace;
-extern crate chrono;
-extern crate dirs;
-extern crate fs2;
-extern crate itertools;
-extern crate libc;
-extern crate libical_sys as ical;
-extern crate stderrlog;
-extern crate uuid;
-extern crate walkdir;
-extern crate yansi;
+use atty;
+use backtrace;
+use chrono;
+use dirs;
+use fs2;
+use itertools;
+use libc;
+use ical;
+use stderrlog;
+use tempfile;
+use uuid;
+use walkdir;
+use yansi;
+use toml;
 
-#[macro_use]
-extern crate serde_derive;
-extern crate toml;
-
-#[macro_use]
-extern crate log;
-
-#[macro_use]
-extern crate indoc;
-
-#[macro_use]
-extern crate lazy_static;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate log;
+#[macro_use] extern crate indoc;
+#[macro_use] extern crate lazy_static;

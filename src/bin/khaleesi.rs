@@ -1,8 +1,4 @@
-extern crate khaleesi;
-extern crate stderrlog;
-
-#[macro_use]
-extern crate log;
+use log::error;
 
 use khaleesi::config::Config;
 use khaleesi::actions::*;
