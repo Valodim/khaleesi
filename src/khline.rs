@@ -11,6 +11,7 @@ use defaults;
 pub struct KhLine {
   pub path: PathBuf,
   time: Option<IcalTime>,
+  index: Option<usize>,
 }
 
 impl KhLine {
@@ -20,7 +21,7 @@ impl KhLine {
     } else {
       path.to_path_buf()
     };
-    Self { path, time }
+    Self { path, time, index: None }
   }
 
   pub fn to_cal(&self) -> io::Result<IcalVCalendar> {
@@ -36,6 +37,10 @@ impl KhLine {
       event = event.with_internal_timestamp(time);
     }
     Ok(event)
+  }
+
+  pub fn with_index(self, index: usize) -> Self {
+    Self { path: self.path, time: self.time, index: Some(index) }
   }
 
   pub fn matches(&self, event: &IcalVEvent) -> bool {
@@ -62,7 +67,7 @@ impl From<&IcalVEvent> for KhLine {
     let path = event.get_parent().unwrap().get_path().unwrap().to_path_buf();
     let time = event.get_dtstart();
 
-    KhLine{ path, time }
+    KhLine{ path, time, index: None }
   }
 }
 
@@ -108,6 +113,21 @@ fn to_filepath_checked(path_str: &str) -> Result<PathBuf, String> {
   } else {
     Err("path is not a file".to_string())
   }
+}
+
+pub fn lines_to_khlines(lines: impl Iterator<Item = String>) -> impl Iterator<Item = KhLine> {
+  lines.map(|line| line.parse::<KhLine>()).flatten()
+}
+
+pub fn lines_to_khlines_indexed(lines: impl Iterator<Item = String>) -> impl Iterator<Item = KhLine> {
+  lines
+    .enumerate()
+    .map(|(index, line)| line.parse::<KhLine>().map(|khline| khline.with_index(index)))
+    .flatten()
+}
+
+pub fn khlines_to_events(lines: impl Iterator<Item = KhLine>) -> impl Iterator<Item = IcalVEvent> {
+  lines.map(|line| line.to_event()).flatten()
 }
 
 #[cfg(test)]

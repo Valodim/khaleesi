@@ -9,26 +9,25 @@ use config::{Config,CalendarConfig};
 use khline::KhLine;
 use KhResult;
 
-pub fn show_events(config: &Config, _args: &[&str]) -> KhResult<()> {
-  let mut lines = input::default_input_khlines()?;
+pub fn show_events(config: &Config, args: &[&str]) -> KhResult<()> {
+  let mut events = input::selection(args)?;
 
   let cursor = cursorfile::read_cursorfile().ok();
-  show_events_cursor(config, &mut lines, cursor.as_ref());
+  show_events_cursor(config, &mut events, cursor.as_ref());
 
   Ok(())
 }
 
 pub fn show_events_cursor(
   config: &Config,
-  lines: &mut Iterator<Item = KhLine>,
+  events: &mut Iterator<Item = IcalVEvent>,
   cursor: Option<&KhLine>,
 ) {
 
   let mut not_over_yet: Vec<(usize, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
-  let mut cals_iter = lines
+  let mut cals_iter = events
     .enumerate()
-    .map(|(i, khline)| {
-      let event = khline.to_event().unwrap();
+    .map(|(i, event)| {
       let config = event.get_parent().unwrap().get_calendar_name().and_then(|name| config.get_config_for_calendar(&name));
       (i, event, config)
     })

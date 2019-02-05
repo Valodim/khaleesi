@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use khline::{KhLine,khlines_to_events};
 use icalwrap::IcalVEvent;
 
 use self::daterange::{SelectFilterFrom,SelectFilterTo};
@@ -117,5 +118,16 @@ impl SelectFilters {
 
   pub fn is_selected_index(&self, index: usize, event: &IcalVEvent) -> bool {
     self.filter_index(index) && self.line_is_from(event) && self.line_is_to(event) && self.others(event)
+  }
+
+  pub fn filter_khlines(
+    self,
+    khlines: impl Iterator<Item = KhLine>,
+  ) -> impl Iterator<Item = IcalVEvent> {
+    let events = khlines_to_events(khlines);
+    events
+      .enumerate()
+      .filter(move |(index, event)| self.is_selected_index(*index, event))
+      .map(|(_, event)| event)
   }
 }
