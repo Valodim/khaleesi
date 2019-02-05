@@ -19,25 +19,10 @@ pub mod utils;
 #[cfg(test)] pub mod testutils;
 #[cfg(test)] pub mod testdata;
 
-#[cfg(test)] use assert_fs;
-#[cfg(test)] use predicates;
 #[cfg(test)] #[macro_use] extern crate maplit;
 #[cfg(test)] #[macro_use] extern crate pretty_assertions;
 
-use atty;
-use backtrace;
-use chrono;
-use dirs;
-use fs2;
-use itertools;
-use libc;
 use ical;
-use stderrlog;
-use tempfile;
-use uuid;
-use walkdir;
-use yansi;
-use toml;
 
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate log;
