@@ -3,9 +3,9 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
-use khline::KhLine;
-use KhResult;
-use utils::stdioutils;
+use crate::khline::KhLine;
+use crate::KhResult;
+use crate::utils::stdioutils;
 
 pub fn edit_loop(path: &Path) -> KhResult<()> {
   loop {

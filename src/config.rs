@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use toml;
 use yansi::{self,Style,Color};
 
-use defaults;
-use utils::fileutil as utils;
+use crate::defaults;
+use crate::utils::fileutil as utils;
 
 #[derive(Deserialize,Debug,PartialEq)]
 #[serde(default)]
@@ -69,7 +69,7 @@ impl Default for Config {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use testutils;
+  use crate::testutils;
 
   #[test]
   fn test_read_config_none() {

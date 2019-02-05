@@ -1,5 +1,5 @@
-use utils::fileutil;
-use defaults;
+use crate::utils::fileutil;
+use crate::defaults;
 
 pub fn calendar_list() -> Vec<String> {
   let caldir = defaults::get_caldir();
@@ -20,7 +20,7 @@ pub fn calendar_list() -> Vec<String> {
 mod tests {
   use super::*;
 
-  use testutils;
+  use crate::testutils;
 
   #[test]
   fn test() {

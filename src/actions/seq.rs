@@ -1,6 +1,6 @@
-use seqfile;
-use utils::stdioutils;
-use KhResult;
+use crate::seqfile;
+use crate::utils::stdioutils;
+use crate::KhResult;
 
 pub fn action_seq(_args: &[&str]) -> KhResult<()> {
   if !stdioutils::is_stdin_tty() {
@@ -39,8 +39,8 @@ mod integration {
 
   use assert_fs::prelude::*;
   use predicates::prelude::*;
-  use testutils;
-  use utils::stdioutils;
+  use crate::testutils;
+  use crate::utils::stdioutils;
 
   #[test]
   fn test_with_stdin() {

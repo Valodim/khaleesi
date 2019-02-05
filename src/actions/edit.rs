@@ -1,11 +1,11 @@
 use tempfile::NamedTempFile;
 
-use backup::backup;
-use edit;
-use input;
-use khline::KhLine;
-use utils::fileutil;
-use KhResult;
+use crate::backup::backup;
+use crate::edit;
+use crate::input;
+use crate::khline::KhLine;
+use crate::utils::fileutil;
+use crate::KhResult;
 
 pub fn do_edit(_args: &[&str]) -> KhResult<()> {
   let khline = input::default_input_khline()?;
@@ -33,8 +33,8 @@ fn edit(khline: &KhLine) -> KhResult<()> {
 mod integration {
   use super::*;
 
-  use testutils::prepare_testdir;
-  use icalwrap::IcalComponent;
+  use crate::testutils::prepare_testdir;
+  use crate::icalwrap::IcalComponent;
 
   #[test]
   fn edit_test() {

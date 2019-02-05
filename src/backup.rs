@@ -3,8 +3,8 @@ use std::fs;
 use chrono::Local;
 use std::path::{Path,PathBuf};
 
-use defaults;
-use khline::KhLine;
+use crate::defaults;
+use crate::khline::KhLine;
 
 pub fn backup(khline: &KhLine) -> io::Result<PathBuf> {
   let backupdir = defaults::get_backupdir();
@@ -42,7 +42,7 @@ fn prepare_backup_dir(backupdir: &Path) -> io::Result<()> {
 mod tests {
   use super::*;
 
-  use testutils::prepare_testdir;
+  use crate::testutils::prepare_testdir;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
 

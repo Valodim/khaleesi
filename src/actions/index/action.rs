@@ -1,17 +1,17 @@
 use chrono::prelude::*;
-use icalwrap::*;
+use crate::icalwrap::*;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path,PathBuf};
 use std::time::SystemTime;
 use walkdir::DirEntry;
 
-use defaults::*;
+use crate::defaults::*;
 use super::indextime;
-use utils::fileutil;
-use utils::lock;
-use utils::misc;
-use KhResult;
+use crate::utils::fileutil;
+use crate::utils::lock;
+use crate::utils::misc;
+use crate::KhResult;
 
 pub fn action_index(mut args: &[&str]) -> KhResult<()> {
   let reindex = !args.is_empty() && args[0] == "--reindex";
@@ -115,7 +115,7 @@ fn read_buckets(ics_files: impl Iterator<Item = PathBuf>) -> HashMap<String, Vec
       Ok(content) => {
         total_files += 1;
         match IcalVCalendar::from_str(&content, Some(&file)) {
-          Ok(mut cal) => add_buckets_for_calendar(&mut buckets, &cal),
+          Ok(cal) => add_buckets_for_calendar(&mut buckets, &cal),
           Err(error) => error!("{:?}: {}", file, error)
         }
       }
@@ -163,7 +163,7 @@ fn prepare_index_dir(indexdir: &Path, clear_index_dir: bool) -> Result<(), std::
 mod integration {
   use super::*;
 
-  use testutils::prepare_testdir;
+  use crate::testutils::prepare_testdir;
   use assert_fs::prelude::*;
 
   #[test]

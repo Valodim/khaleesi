@@ -1,10 +1,10 @@
 use std::fs::rename;
 use std::io;
 
-use defaults::*;
-use khline::KhLine;
-use utils::fileutil;
-use KhResult;
+use crate::defaults::*;
+use crate::khline::KhLine;
+use crate::utils::fileutil;
+use crate::KhResult;
 
 pub fn write_cursorfile(line: &str) -> KhResult<()> {
   let tmpfilename = get_datafile("tmpcursor");
@@ -34,10 +34,10 @@ mod tests {
 
   use std::fs;
 
-  use testutils::*;
+  use crate::testutils::*;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
-  use utils::fileutil;
+  use crate::utils::fileutil;
 
   #[test]
   fn read_cursorfile_ok() {

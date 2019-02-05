@@ -1,5 +1,5 @@
-use calendars;
-use KhResult;
+use crate::calendars;
+use crate::KhResult;
 
 pub fn action_get(args: &[&str]) -> KhResult<()> {
   if args.is_empty() {
@@ -23,8 +23,8 @@ pub fn action_get_calendars() -> KhResult<()> {
 mod integration {
   use super::*;
 
-  use testutils;
-  use utils::stdioutils;
+  use crate::testutils;
+  use crate::utils::stdioutils;
 
   #[test]
   fn test_get_calendars() {

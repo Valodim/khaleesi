@@ -2,9 +2,9 @@ use chrono::{Local, Date, Datelike, Duration};
 use std::collections::HashMap;
 use std::{hash, cmp};
 
-use icalwrap::{IcalVEvent, IcalVCalendar};
-use utils::misc;
-use khline::KhLine;
+use crate::icalwrap::{IcalVEvent, IcalVCalendar};
+use crate::utils::misc;
+use crate::khline::KhLine;
 
 pub trait Bucketable {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String>;
@@ -107,7 +107,7 @@ mod tests {
 
   #[test]
   fn buckets_multi_day_allday() {
-    use testdata;
+    use crate::testdata;
     use std::path::PathBuf;
 
     let path = PathBuf::from("test/path");
@@ -127,7 +127,7 @@ mod tests {
 
   #[test]
   fn buckets_single_event() {
-    use testdata;
+    use crate::testdata;
     use std::path::PathBuf;
 
     let path = PathBuf::from("test/path");
@@ -139,7 +139,7 @@ mod tests {
 
   #[test]
   fn buckets_simple_recurring_event() {
-    use testdata;
+    use crate::testdata;
     use std::path::PathBuf;
 
     let path = PathBuf::from("test/path");

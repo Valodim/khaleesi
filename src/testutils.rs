@@ -4,7 +4,7 @@ use assert_fs::fixture::{ChildPath, FixtureError};
 use std::path::{PathBuf,Path};
 use std::fs;
 
-use defaults;
+use crate::defaults;
 
 pub fn path_to(artifact: &str) -> PathBuf {
   [env!("CARGO_MANIFEST_DIR"), "testdata", artifact].iter().collect()

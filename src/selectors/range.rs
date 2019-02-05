@@ -28,8 +28,8 @@ impl FromStr for RangeFilter {
 
 #[cfg(test)]
 mod tests {
-  use selectors::test::test_filter_event_index;
-  use testdata;
+  use crate::selectors::test::test_filter_event_index;
+  use crate::testdata;
 
   #[test]
   fn test_index_single() {

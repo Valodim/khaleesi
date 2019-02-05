@@ -1,6 +1,6 @@
 use super::*;
 
-use icalwrap::IcalVEvent;
+use crate::icalwrap::IcalVEvent;
 
 pub struct GrepFilter {
   terms: Vec<String>
@@ -47,7 +47,7 @@ impl Default for GrepFilter {
 #[cfg(test)]
 mod tests {
   use super::test::test_filter_event;
-  use testdata;
+  use crate::testdata;
 
   #[test]
   fn test_grep() {

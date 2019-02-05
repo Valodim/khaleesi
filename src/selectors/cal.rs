@@ -1,6 +1,6 @@
 use super::*;
 
-use icalwrap::IcalVEvent;
+use crate::icalwrap::IcalVEvent;
 
 pub struct CalendarFilter {
   cal_names: Vec<String>
@@ -35,7 +35,7 @@ impl Default for CalendarFilter {
 #[cfg(test)]
 mod tests {
   use super::test::test_filter_event;
-  use testdata;
+  use crate::testdata;
   use std::path::PathBuf;
 
   #[test]

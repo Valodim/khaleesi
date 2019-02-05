@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use super::*;
 
-use icalwrap::IcalVEvent;
-use icalwrap::IcalComponent;
+use crate::icalwrap::IcalVEvent;
+use crate::icalwrap::IcalComponent;
 
 pub struct PropFilter {
   terms: HashMap<String,Vec<String>>
@@ -44,7 +44,7 @@ impl Default for PropFilter {
 #[cfg(test)]
 mod tests {
   use super::test::test_filter_event;
-  use testdata;
+  use crate::testdata;
 
   #[test]
   fn test_prop() {

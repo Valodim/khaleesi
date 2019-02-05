@@ -2,7 +2,7 @@ use std::fs;
 use std::io::{Read,Write};
 use chrono::prelude::*;
 
-use defaults::*;
+use crate::defaults::*;
 
 pub fn write_index_time(index_time: &DateTime<Utc>) {
   let mut timefile = fs::File::create(get_indextimefile()).unwrap();
@@ -21,7 +21,7 @@ pub fn get_index_time() -> Option<DateTime<Utc>> {
 mod tests {
   use super::*;
 
-  use testutils;
+  use crate::testutils;
   use assert_fs::prelude::*;
 
   #[test]

@@ -248,7 +248,7 @@ pub fn setup() {
 }
 
 #[cfg(test)]
-use icalwrap::{IcalVCalendar,IcalVEvent};
+use crate::icalwrap::{IcalVCalendar,IcalVEvent};
 #[cfg(test)]
 use std::path::Path;
 #[cfg(test)]

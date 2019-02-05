@@ -15,7 +15,7 @@ macro_rules! khprint {
 macro_rules! khprintln {
   () => ({
     #[cfg(test)] {
-      use utils::stdioutils;
+      use crate::utils::stdioutils;
       stdioutils::test_stdout_write("\n");
     }
     println!();
@@ -23,7 +23,7 @@ macro_rules! khprintln {
   ($($arg:tt)*) => ({
     let line = format!($($arg)*);
     #[cfg(test)] {
-      use utils::stdioutils;
+      use crate::utils::stdioutils;
       stdioutils::test_stdout_write(&line);
       stdioutils::test_stdout_write("\n");
     }

@@ -1,11 +1,11 @@
-use defaults;
-use icalwrap::{IcalVCalendar,IcalTime,IcalTimeZone};
-use khline::KhLine;
-use utils::{misc,fileutil};
+use crate::defaults;
+use crate::icalwrap::{IcalVCalendar,IcalTime,IcalTimeZone};
+use crate::khline::KhLine;
+use crate::utils::{misc,fileutil};
 
-use KhResult;
-use cursorfile;
-use calendars;
+use crate::KhResult;
+use crate::cursorfile;
+use crate::calendars;
 
 struct EventProperties {
   calendar: String,
@@ -127,8 +127,8 @@ mod integration {
   use predicates::prelude::*;
 
   use super::*;
-  use testutils;
-  use testdata;
+  use crate::testutils;
+  use crate::testdata;
 
   #[test]
   fn test_parse_calendar() {

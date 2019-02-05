@@ -1,6 +1,6 @@
-use input;
-use utils::fileutil;
-use KhResult;
+use crate::input;
+use crate::utils::fileutil;
+use crate::KhResult;
 
 pub fn do_show(_args: &[&str]) -> KhResult<()> {
   info!("do_show");
@@ -18,8 +18,8 @@ pub fn do_show(_args: &[&str]) -> KhResult<()> {
 mod integration {
   use super::*;
 
-  use testutils::*;
-  use utils::stdioutils::*;
+  use crate::testutils::*;
+  use crate::utils::stdioutils::*;
 
   #[test]
   fn test_() {

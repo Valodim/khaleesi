@@ -1,6 +1,6 @@
 use std::ops::{Deref,Add};
 use std::ffi::{CStr,CString};
-use ical;
+use crate::ical;
 use std::fmt::{Error,Display,Formatter};
 use std::str::FromStr;
 use std::cmp::Ordering;

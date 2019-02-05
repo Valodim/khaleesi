@@ -1,8 +1,8 @@
 use std::ops::{Add,Deref};
 use std::ffi::{CStr,CString};
 use chrono::{Date,DateTime,TimeZone,Utc,Local};
-use ical;
-use utils::dateutil;
+use crate::ical;
+use crate::utils::dateutil;
 use super::IcalTimeZone;
 use super::IcalDuration;
 use super::TZ_MUTEX;
@@ -227,7 +227,7 @@ impl From<IcalTime> for DateTime<Utc> {
 mod tests {
   use super::*;
 
-  use testdata;
+  use crate::testdata;
 
   #[test]
   fn test_now() {

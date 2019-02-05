@@ -3,7 +3,7 @@ use std::ffi::CStr;
 use std::fmt;
 
 use super::icalcomponent::IcalComponent;
-use ical;
+use crate::ical;
 
 pub struct IcalProperty<'a> {
   pub ptr: *mut ical::icalproperty,

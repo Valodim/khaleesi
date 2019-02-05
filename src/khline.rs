@@ -3,9 +3,9 @@ use std::io;
 use std::path::{PathBuf,Path};
 use std::str::FromStr;
 
-use icalwrap::{IcalVCalendar,IcalVEvent,IcalTime};
-use utils::{fileutil,dateutil};
-use defaults;
+use crate::icalwrap::{IcalVCalendar,IcalVEvent,IcalTime};
+use crate::utils::{fileutil,dateutil};
+use crate::defaults;
 
 #[derive(PartialEq,Eq,Debug)]
 pub struct KhLine {
@@ -136,9 +136,9 @@ mod tests {
 
   use assert_fs::prelude::*;
 
-  use testdata;
-  use testutils::*;
-  use icalwrap::IcalVCalendar;
+  use crate::testdata;
+  use crate::testutils::*;
+  use crate::icalwrap::IcalVCalendar;
 
   #[test]
   fn test_parse_absolute() {

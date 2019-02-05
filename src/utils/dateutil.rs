@@ -2,7 +2,7 @@ use chrono::*;
 
 use std::path::PathBuf;
 use std::env;
-use utils::fileutil;
+use crate::utils::fileutil;
 
 pub fn date_from_str(date_str: &str) -> ParseResult<Date<Local>> {
   if date_str  == "today" || date_str == "now" {
@@ -54,7 +54,7 @@ pub fn now() -> DateTime<Utc> {
 
 #[cfg(test)]
 pub fn now() -> DateTime<Utc> {
-  use testdata;
+  use crate::testdata;
   *testdata::now_test
 }
 
@@ -83,7 +83,7 @@ pub fn datetime_from_timestamp(timestamp: &str) -> Option<DateTime<Local>> {
 mod tests {
   use super::*;
 
-  use testdata;
+  use crate::testdata;
 
   #[test]
   fn test_date_from_str() {

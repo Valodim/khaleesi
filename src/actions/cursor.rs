@@ -1,9 +1,9 @@
 extern crate atty;
 
-use cursorfile;
-use utils::stdioutils;
-use KhResult;
-use seqfile;
+use crate::cursorfile;
+use crate::utils::stdioutils;
+use crate::KhResult;
+use crate::seqfile;
 
 enum Direction {
   Up,
@@ -77,7 +77,7 @@ fn cursor_sequence_move(direction: &Direction) -> KhResult<()> {
 mod integration {
   use super::*;
 
-  use testutils;
+  use crate::testutils;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
 

@@ -2,12 +2,12 @@ use chrono::{DateTime, Datelike, TimeZone, Local, Date};
 use yansi::{Style};
 use itertools::Itertools;
 
-use cursorfile;
-use icalwrap::*;
-use input;
-use config::{Config,CalendarConfig};
-use khline::KhLine;
-use KhResult;
+use crate::cursorfile;
+use crate::icalwrap::*;
+use crate::input;
+use crate::config::{Config,CalendarConfig};
+use crate::khline::KhLine;
+use crate::KhResult;
 
 pub fn show_events(config: &Config, args: &[&str]) -> KhResult<()> {
   let mut events = input::selection(args)?;
@@ -180,10 +180,10 @@ impl IcalVEvent {
 #[cfg(test)]
 mod integration {
   use super::*;
-  use testdata;
-  use testutils::*;
-  use utils::stdioutils;
-  use config::Config;
+  use crate::testdata;
+  use crate::testutils::*;
+  use crate::utils::stdioutils;
+  use crate::config::Config;
 
   use chrono::{Local, TimeZone};
 

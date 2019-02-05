@@ -1,5 +1,5 @@
-use input;
-use KhResult;
+use crate::input;
+use crate::KhResult;
 
 pub fn do_modify(args: &[&str]) -> KhResult<()> {
   info!("do_modify");

@@ -1,11 +1,11 @@
 use std::io;
 
-use seqfile;
-use cursorfile;
-use khline::{KhLine,khlines_to_events,lines_to_khlines};
-use utils::stdioutils;
-use icalwrap::IcalVEvent;
-use selectors::SelectFilters;
+use crate::seqfile;
+use crate::cursorfile;
+use crate::khline::{KhLine,lines_to_khlines,khlines_to_events};
+use crate::utils::stdioutils;
+use crate::icalwrap::IcalVEvent;
+use crate::selectors::SelectFilters;
 
 pub fn selection(args: &[&str]) -> Result<Box<dyn Iterator<Item = IcalVEvent>>, String> {
   if args.is_empty() {
@@ -60,7 +60,7 @@ pub fn default_input_khline() -> io::Result<KhLine> {
 mod tests {
   use super::*;
 
-  use utils::stdioutils;
+  use crate::utils::stdioutils;
 
   #[test]
   fn test_default_input_khline() {

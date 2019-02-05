@@ -5,7 +5,7 @@ use super::IcalVCalendar;
 use super::IcalTime;
 use super::IcalTimeZone;
 use super::IcalDuration;
-use ical;
+use crate::ical;
 
 pub struct IcalVEvent {
   ptr: *mut ical::icalcomponent,
@@ -219,7 +219,7 @@ extern "C" fn recur_callback(
 #[cfg(test)]
 mod tests {
   use super::*;
-  use testdata;
+  use crate::testdata;
   use chrono::NaiveDate;
 
   #[test]

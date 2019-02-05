@@ -1,7 +1,7 @@
-use icalwrap::{IcalComponent,IcalProperty};
+use crate::icalwrap::{IcalComponent,IcalProperty};
 use std::path::Path;
-use input;
-use KhResult;
+use crate::input;
+use crate::KhResult;
 
 pub fn prettyprint() -> KhResult<()> {
   let lines = input::default_input_khlines()?;

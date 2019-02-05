@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use khline::KhLine;
-use KhResult;
+use crate::khline::KhLine;
+use crate::KhResult;
 
 pub fn action_unroll(args: &[&str]) -> KhResult<()> {
   let file = &args[0];

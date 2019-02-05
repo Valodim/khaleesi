@@ -2,8 +2,8 @@ use chrono::*;
 use std::cmp;
 use std::str::FromStr;
 
-use utils::dateutil;
-use utils::misc;
+use crate::utils::dateutil;
+use crate::utils::misc;
 
 pub struct SelectFilterFrom {
   pub date: Option<Date<Local>>,
@@ -95,8 +95,8 @@ impl Default for SelectFilterFrom {
 
 #[cfg(test)]
 mod tests {
-  use selectors::test::test_filter_event;
-  use testdata;
+  use crate::selectors::test::test_filter_event;
+  use crate::testdata;
   #[test]
   fn test_from_ends_before() {
     // DTSTART: 2007-06-28

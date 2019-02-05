@@ -1,8 +1,8 @@
-use input;
-use utils::fileutil;
-use utils::misc;
+use crate::input;
+use crate::utils::fileutil;
+use crate::utils::misc;
 
-use KhResult;
+use crate::KhResult;
 
 pub fn do_copy(_args: &[&str]) -> KhResult<()> {
   let khline = input::default_input_khline()?;
@@ -24,9 +24,9 @@ mod integration {
   use super::*;
 
   use assert_fs::prelude::*;
-  use khline::KhLine;
-  use testutils::prepare_testdir;
-  use utils::stdioutils;
+  use crate::khline::KhLine;
+  use crate::testutils::prepare_testdir;
+  use crate::utils::stdioutils;
   use predicates::prelude::*;
 
   #[test]

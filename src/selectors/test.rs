@@ -1,5 +1,5 @@
 use super::*;
-use testdata;
+use crate::testdata;
 use std::path::Path;
 
 pub fn test_filter_event(event_str: &str, path: Option<&Path>, args: &[&str]) -> bool {

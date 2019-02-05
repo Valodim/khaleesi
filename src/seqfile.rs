@@ -1,11 +1,11 @@
 use std::fs::rename;
 use std::io;
 
-use defaults::*;
-use khline::KhLine;
-use utils::fileutil;
-use KhResult;
-use errors::KhError;
+use crate::defaults::*;
+use crate::khline::KhLine;
+use crate::utils::fileutil;
+use crate::KhResult;
+use crate::errors::KhError;
 
 pub fn write_to_seqfile(lines: &str) -> io::Result<()> {
   let tmpfilename = get_datafile("tmpseq");
@@ -36,7 +36,7 @@ pub fn read_seqfile_khlines() -> KhResult<impl DoubleEndedIterator<Item = KhLine
 mod tests {
   use super::*;
 
-  use testutils::prepare_testdir;
+  use crate::testutils::prepare_testdir;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
   use itertools::Itertools;

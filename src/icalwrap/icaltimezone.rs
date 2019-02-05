@@ -1,8 +1,8 @@
 use std::ops::Deref;
 use std::ffi::{CString,CStr};
-use ical;
+use crate::ical;
 
-use utils::dateutil;
+use crate::utils::dateutil;
 use super::IcalTime;
 
 pub struct IcalTimeZone {
@@ -73,7 +73,7 @@ impl IcalTimeZone {
 mod tests {
   use super::*;
 
-  use testdata;
+  use crate::testdata;
 
   #[test]
   fn test_utc() {

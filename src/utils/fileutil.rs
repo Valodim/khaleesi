@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use std::{fs, io};
 use std::fs::OpenOptions;
 
-use icalwrap::IcalVCalendar;
+use crate::icalwrap::IcalVCalendar;
 
 pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
   use walkdir::WalkDir;
@@ -64,7 +64,7 @@ pub fn read_file_to_string(path: &Path) -> io::Result<String> {
 mod tests {
   use super::*;
 
-  use testutils::prepare_testdir;
+  use crate::testutils::prepare_testdir;
   use assert_fs::prelude::*;
 
   #[test]

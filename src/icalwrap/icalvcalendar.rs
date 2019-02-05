@@ -6,7 +6,7 @@ use std::io;
 use super::IcalVEvent;
 use super::IcalComponent;
 use super::IcalTime;
-use ical;
+use crate::ical;
 
 pub struct IcalVCalendar {
   comp: Rc<IcalComponentOwner>,
@@ -367,7 +367,7 @@ impl Drop for IcalComponentOwner {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use testdata;
+  use crate::testdata;
 
   #[test]
   fn test_from_str_empty() {
