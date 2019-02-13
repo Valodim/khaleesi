@@ -251,6 +251,7 @@ mod integration {
 
   #[test]
   fn test_do_new() {
+    testdata::setup();
     let testdir = testutils::prepare_testdir("testdir_two_cals");
 
     let args = &["second", "2017-11-03T12:30:00", "2017-11-07T11:11:00", "summary text", "location text"];
