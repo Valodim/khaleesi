@@ -368,6 +368,7 @@ impl Drop for IcalComponentOwner {
 mod tests {
   use super::*;
   use crate::testdata;
+  use chrono::{Local,TimeZone};
 
   #[test]
   fn test_from_str_empty() {
@@ -524,6 +525,21 @@ mod tests {
 
     let event = new_cal.get_principal_event();
     assert_eq!(timestamp, event.get_dtstart().unwrap())
+  }
+
+  #[test]
+  fn test_with_dtstart_timezone() {
+    testdata::setup();
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+
+    let local_date = Local.ymd(2018, 1, 1).and_hms(11, 30, 20);
+    let timestamp = IcalTime::from(local_date);
+
+    let new_cal = cal.with_dtstart(&timestamp);
+
+    let event = new_cal.get_principal_event();
+    assert_eq!(timestamp, event.get_dtstart().unwrap());
+    assert_eq!("Europe/Berlin", event.get_dtstart().unwrap().get_timezone().unwrap().get_name());
   }
 
   #[test]

@@ -176,6 +176,7 @@ mod integration {
     let from = EventProperties::parse_from("2017-07-14T17:45:00").unwrap();
     let expected = IcalTime::floating_ymd(2017, 7, 14).and_hms(17, 45, 0);
     assert_eq!(expected, from);
+    assert_eq!("Europe/Berlin", from.get_timezone().unwrap().get_name());
   }
 
   #[test]
