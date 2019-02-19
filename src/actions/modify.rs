@@ -6,11 +6,10 @@ use crate::utils::fileutil::write_cal;
 pub fn do_modify(args: &[&str]) -> KhResult<()> {
   info!("do_modify");
 
-  let khlines = input::default_input_khlines()?;
-
   if args.len() >= 2 && args[0] == "removeprop" && args[1] == "xlicerror" {
     let dry_run = args.len() >= 3 && args[2] == "--dry-run";
 
+    let khlines = input::default_input_khlines()?;
     for khline in khlines {
       let cal = khline.to_cal()?.with_remove_property("X-LIC-ERROR");
       if cal.1 > 0 {
