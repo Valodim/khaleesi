@@ -20,6 +20,8 @@ pub fn do_delete(_args: &[&str]) -> KhResult<()> {
 }
 
 fn ask_really_delete(path: &PathBuf) -> bool {
+  if cfg!(test) { return true };
+
   println!("Really delete {:#?}? y/n:", path);
 
   match stdioutils::read_single_char_from_stdin().unwrap() {
