@@ -8,7 +8,9 @@ use crate::khline::KhLine;
 
 pub fn backup(khline: &KhLine) -> io::Result<PathBuf> {
   let backupdir = defaults::get_backupdir();
-  let backup_path = backupdir.join(with_timestamp(khline.get_normalized_path()));
+  let backup_path = backupdir
+    .join(format!("{}", Local::now().format("%FT%T")))
+    .join(khline.get_normalized_path());
 
   if backup_path == khline.path {
     Err(io::Error::new(io::ErrorKind::Other, "backup dir same as source dir"))
@@ -18,15 +20,6 @@ pub fn backup(khline: &KhLine) -> io::Result<PathBuf> {
     fs::copy(&khline.path, backup_path.clone())?;
     Ok(backup_path.clone())
   }
-}
-
-fn with_timestamp(path: &Path) -> PathBuf {
-  let mut filename = path.file_stem().unwrap().to_owned();
-  filename.push(format!("_{}", Local::now().format("%FT%T")));
-  let mut pathbuf = path.to_path_buf();
-  pathbuf.set_file_name(filename);
-  pathbuf.set_extension("ics");
-  pathbuf
 }
 
 fn prepare_backup_dir(backupdir: &Path) -> io::Result<()> {
