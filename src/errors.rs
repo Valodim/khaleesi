@@ -68,22 +68,8 @@ impl From<String> for KhError {
   }
 }
 
-impl From<Box<dyn Error>> for KhError {
-  fn from(e: Box<dyn Error>) -> KhError {
-    let description = e.to_string();
-    KhError::new(&description, Some(e))
-  }
-}
-
 impl From<::std::io::Error> for KhError {
   fn from(e: ::std::io::Error) -> KhError {
-    let description = e.to_string();
-    KhError::new(&description, Some(Box::new(e)))
-  }
-}
-
-impl From<chrono::ParseError> for KhError {
-  fn from(e: chrono::ParseError) -> KhError {
     let description = e.to_string();
     KhError::new(&description, Some(Box::new(e)))
   }
