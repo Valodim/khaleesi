@@ -8,7 +8,7 @@ pub fn do_modify(args: &[&str]) -> KhResult<()> {
 
   let khlines = input::default_input_khlines()?;
 
-  if args[0] == "removeprop" && args[1] == "xlicerror" {
+  if args.len() >= 2 && args[0] == "removeprop" && args[1] == "xlicerror" {
     let dry_run = args.len() >= 3 && args[2] == "--dry-run";
 
     for khline in khlines {
@@ -95,5 +95,12 @@ mod tests {
     ");
     let predicate = predicate::str::similar(expected);
     testdir.child(".khaleesi/cal/xlicerror.ics").assert(predicate);
+  }
+
+  #[test]
+  fn test_do_modify_negative() {
+    let args = ["nonsense"];
+
+    assert!(do_modify(&args).is_ok());
   }
 }
