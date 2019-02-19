@@ -67,4 +67,33 @@ mod tests {
     let predicate = predicate::str::similar(expected);
     testdir.child(".khaleesi/cal/xlicerror.ics").assert(predicate);
   }
+
+  #[test]
+  fn test_do_modify_dry_run() {
+    let testdir = prepare_testdir("testdir_with_xlicerror");
+    let args = ["removeprop", "xlicerror", "--dry-run"];
+
+    do_modify(&args).unwrap();
+
+    let expected = indoc!("
+      BEGIN:VCALENDAR
+      PRODID:CommuniGate Pro 6.2.5
+      VERSION:2.0
+      BEGIN:VEVENT
+      DTSTAMP:20180813T160004Z
+      UID:1c441c1b-8ca7-4898-b670-49ce30a7137b
+      SEQUENCE:2
+      SUMMARY:some summary
+      DTSTART:20161007T073000Z
+      DTEND:20161007T160000Z
+      LAST-MODIFIED:20161018T095049Z
+      CREATED:20161018T094913Z
+      PRIORITY:5
+      X-LIC-ERROR;X-LIC-ERRORTYPE=VALUE-PARSE-ERROR:No value for SUMMARY property. Removing entire property:
+      END:VEVENT
+      END:VCALENDAR
+    ");
+    let predicate = predicate::str::similar(expected);
+    testdir.child(".khaleesi/cal/xlicerror.ics").assert(predicate);
+  }
 }
