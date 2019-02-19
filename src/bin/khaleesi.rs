@@ -58,6 +58,7 @@ fn main_internal(binary_name: &str, args: &[&str], config: &Config) -> KhResult<
       "index" => index::action_index(args),
       "list" => list::list_by_args(args),
       "modify" => modify::do_modify(args),
+      "delete" => delete::do_delete(args),
       "select" => select::select_by_args(args),
       "seq" => seq::action_seq(args),
       "pretty" => prettyprint::prettyprint(),
