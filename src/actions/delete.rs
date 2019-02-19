@@ -1,6 +1,7 @@
-//use crate::input;
+use crate::input;
+use crate::backup::backup;
 use crate::KhResult;
-use crate::cursorfile;
+use crate::khline::KhLine;
 use crate::utils::stdioutils;
 
 use std::path::PathBuf;
@@ -9,11 +10,19 @@ use std::fs::remove_file;
 pub fn do_delete(_args: &[&str]) -> KhResult<()> {
   info!("do_delete");
 
-  let cursor_khline = cursorfile::read_cursorfile()?;
+  let cursor_khline = input::default_input_khline()?;
 
-  if ask_really_delete(&cursor_khline.path) {
-    remove_file(cursor_khline.path.clone())?;
-    info!("deleted {:#?}", cursor_khline.path);
+  delete_file(cursor_khline)
+}
+
+fn delete_file(khline: KhLine) -> KhResult<()> {
+
+  if ask_really_delete(&khline.path) {
+    let backup_path = backup(&khline).unwrap();
+    info!("Backup written to {}", backup_path.display());
+
+    remove_file(khline.path.clone())?;
+    info!("deleted {:#?}", khline.get_normalized_path());
   }
 
   Ok(())
@@ -34,12 +43,9 @@ fn ask_really_delete(path: &PathBuf) -> bool {
 mod tests {
   use super::*;
 
-  use std::fs;
-
   use crate::testutils::*;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
-  use crate::utils::fileutil;
 
   #[test]
   fn test_do_delete_cursor() {
@@ -55,7 +61,7 @@ mod tests {
   #[test]
   #[should_panic]
   fn test_do_delete_no_cursor() {
-    let testdir = prepare_testdir("testdir");
+    let _testdir = prepare_testdir("testdir");
 
     do_delete(&[]).unwrap();
   }
