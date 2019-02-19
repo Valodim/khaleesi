@@ -1,6 +1,9 @@
 //use crate::input;
 use crate::KhResult;
 use crate::cursorfile;
+use crate::utils::stdioutils;
+
+use std::path::PathBuf;
 use std::fs::remove_file;
 
 pub fn do_delete(_args: &[&str]) -> KhResult<()> {
@@ -8,11 +11,21 @@ pub fn do_delete(_args: &[&str]) -> KhResult<()> {
 
   let cursor_khline = cursorfile::read_cursorfile()?;
 
-  let path = cursor_khline.path;  
-
-  remove_file(path)?;
+  if ask_really_delete(&cursor_khline.path) {
+    remove_file(cursor_khline.path.clone())?;
+    info!("deleted {:#?}", cursor_khline.path);
+  }
 
   Ok(())
+}
+
+fn ask_really_delete(path: &PathBuf) -> bool {
+  println!("Really delete {:#?}? y/n:", path);
+
+  match stdioutils::read_single_char_from_stdin().unwrap() {
+    'y' => true,
+    _ => false
+  }
 }
 
 #[cfg(test)]
