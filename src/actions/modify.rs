@@ -1,7 +1,7 @@
-use crate::input;
-use crate::KhResult;
 use crate::backup::backup;
+use crate::input;
 use crate::utils::fileutil::write_cal;
+use crate::KhResult;
 
 pub fn do_modify(args: &[&str]) -> KhResult<()> {
   info!("do_modify");
@@ -46,7 +46,8 @@ mod integration {
 
     do_modify(&args).unwrap();
 
-    let expected = indoc!("
+    let expected = indoc!(
+      "
       BEGIN:VCALENDAR
       PRODID:CommuniGate Pro 6.2.5
       VERSION:2.0
@@ -62,9 +63,13 @@ mod integration {
       PRIORITY:5
       END:VEVENT
       END:VCALENDAR
-    ").replace("\n", "\r\n");
+    "
+    )
+    .replace("\n", "\r\n");
     let predicate = predicate::str::similar(expected);
-    testdir.child(".khaleesi/cal/xlicerror.ics").assert(predicate);
+    testdir
+      .child(".khaleesi/cal/xlicerror.ics")
+      .assert(predicate);
   }
 
   #[test]
@@ -93,7 +98,9 @@ mod integration {
       END:VCALENDAR
     ");
     let predicate = predicate::str::similar(expected);
-    testdir.child(".khaleesi/cal/xlicerror.ics").assert(predicate);
+    testdir
+      .child(".khaleesi/cal/xlicerror.ics")
+      .assert(predicate);
   }
 
   #[test]
