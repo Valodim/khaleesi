@@ -50,15 +50,15 @@ fn main_internal(binary_name: &str, args: &[&str], config: &Config) -> KhResult<
     let args = &args[1..];
     match cmd {
       "agenda" => agenda::show_events(&config, args),
-      "get" => get::action_get(args),
       "copy" => copy::do_copy(args),
       "cursor" => cursor::do_cursor(args),
-      "new" => new::do_new(args),
+      "delete" => delete::do_delete(args),
       "edit" => edit::do_edit(args),
+      "get" => get::action_get(args),
       "index" => index::action_index(args),
       "list" => list::list_by_args(args),
       "modify" => modify::do_modify(args),
-      "delete" => delete::do_delete(args),
+      "new" => new::do_new(args),
       "select" => select::select_by_args(args),
       "seq" => seq::action_seq(args),
       "pretty" => prettyprint::prettyprint(),
