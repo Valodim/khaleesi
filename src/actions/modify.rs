@@ -32,7 +32,7 @@ pub fn do_modify(args: &[&str]) -> KhResult<()> {
 }
 
 #[cfg(test)]
-mod tests {
+mod integration {
   use super::*;
 
   use crate::testutils::*;
