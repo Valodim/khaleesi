@@ -29,9 +29,9 @@ pub fn do_undo(_args: &[&str]) -> KhResult<()> {
   Ok(())
 }
 
-fn restore_file(source_dir: &PathBuf, file_path: &PathBuf) -> KhResult<()> {
+fn restore_file(source_prefix: &PathBuf, file_path: &PathBuf) -> KhResult<()> {
   let caldir = defaults::get_caldir();
-  let path_in_cal = file_path.strip_prefix(source_dir.clone())?;
+  let path_in_cal = file_path.strip_prefix(source_prefix.clone())?;
 
   let mut target_path = caldir.clone();
   target_path.push(path_in_cal);
@@ -73,6 +73,24 @@ fn ask_overwrite(path: &Path) -> bool {
 }
 
 #[cfg(test)]
+mod test{
+  use super::*;
+
+  use crate::khline::KhLine;
+  use crate::testutils::prepare_testdir;
+  use crate::utils::stdioutils;
+  use assert_fs::prelude::*;
+  use predicates::prelude::*;
+
+  #[test]
+  fn test_get_most_recent_backup() {
+    let testdir = prepare_testdir("testdir_with_backup");
+    let result = get_most_recent_backup().unwrap();
+    assert_eq!("my_calendar", result.file_name().unwrap().to_str().unwrap());
+  }
+}
+
+#[cfg(test)]
 mod integration {
   use super::*;
 
@@ -83,11 +101,11 @@ mod integration {
   use predicates::prelude::*;
 
   #[test]
+  #[ignore]
   fn test_do_undo() {
     let testdir = prepare_testdir("testdir_with_backup");
     let result = do_undo(&[]);
 
-    result.unwrap();
     //assert!(result.is_ok());
   }
 }
