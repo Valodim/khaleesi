@@ -42,6 +42,8 @@ fn restore_file_from_backup(source_prefix: &PathBuf, file_path: &PathBuf) -> KhR
   }
   println!("{:?}", file_path);
   println!("{:?}", target_path);
+  fs::create_dir_all(&target_path.parent().ok_or_else(|| "error creating calendar directory")?)?;
+
   fs::copy(file_path, &target_path)?;
   info!("Restore {} to {}", file_path.display(), target_path.display());
 
