@@ -23,25 +23,28 @@ pub fn do_undo(_args: &[&str]) -> KhResult<()> {
     .collect();
 
   for file_path in files {
-    restore_file(&source_dir, &file_path)?;
+    restore_file_from_backup(&source_dir, &file_path)?;
   };
 
   Ok(())
 }
 
-fn restore_file(source_prefix: &PathBuf, file_path: &PathBuf) -> KhResult<()> {
+fn restore_file_from_backup(source_prefix: &PathBuf, file_path: &PathBuf) -> KhResult<()> {
   let caldir = defaults::get_caldir();
-  let path_in_cal = file_path.strip_prefix(source_prefix.clone())?;
+  let path_in_cal = file_path.strip_prefix(source_prefix)?;
 
   let mut target_path = caldir.clone();
   target_path.push(path_in_cal);
 
   if target_path.exists() && !ask_overwrite(&target_path) {
     info!("ignoring {}", target_path.display());
-  } else {
-    fs::copy(file_path.clone(), target_path.clone())?;
-    info!("Restore {} to {}", file_path.display(), target_path.display());
-  };
+    return Ok(());
+  }
+  println!("{:?}", file_path);
+  println!("{:?}", target_path);
+  fs::copy(file_path, &target_path)?;
+  info!("Restore {} to {}", file_path.display(), target_path.display());
+
   Ok(())
 }
 
@@ -84,9 +87,27 @@ mod test{
 
   #[test]
   fn test_get_most_recent_backup() {
-    let testdir = prepare_testdir("testdir_with_backup");
+    let _testdir = prepare_testdir("testdir_with_backup");
     let result = get_most_recent_backup().unwrap();
-    assert_eq!("my_calendar", result.file_name().unwrap().to_str().unwrap());
+    assert_eq!("backup_id", result.file_name().unwrap().to_str().unwrap());
+  }
+
+  #[test]
+  #[should_panic]
+  fn test_get_most_recent_backup_negative() {
+    let _testdir = prepare_testdir("testdir");
+    get_most_recent_backup().unwrap();
+  }
+
+  #[test]
+  fn test_restore_file_from_backup() {
+    let testdir = prepare_testdir("testdir_with_backup");
+    let source_file = testdir.child(".khaleesi/backup/backup_id/my_calendar/twodaysacrossbuckets.ics");
+    let source_folder = testdir.child(".khaleesi/backup/backup_id");
+    let target_folder = testdir.child(".khaleesi/cal/my_calendar/twodaysacrossbuckets.ics");
+
+    let result = restore_file_from_backup(&source_folder.path().to_path_buf(), &source_file.path().to_path_buf()).unwrap();
+    target_folder.assert(predicate::path::exists());
   }
 }
 
@@ -101,11 +122,8 @@ mod integration {
   use predicates::prelude::*;
 
   #[test]
-  #[ignore]
   fn test_do_undo() {
     let testdir = prepare_testdir("testdir_with_backup");
-    let result = do_undo(&[]);
-
-    //assert!(result.is_ok());
+    do_undo(&[]).unwrap();
   }
 }
