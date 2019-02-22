@@ -1,14 +1,10 @@
-use crate::backup;
 use crate::defaults;
-use crate::input;
-use crate::utils::fileutil;
-use crate::utils::misc;
 use crate::KhResult;
 use crate::utils::stdioutils;
 
 use std::fs;
 use std::path::{Path, PathBuf};
-use walkdir::{DirEntry, WalkDir};
+use walkdir::WalkDir;
 
 pub fn do_undo(_args: &[&str]) -> KhResult<()> {
   let backupdir = defaults::get_backupdir();
@@ -66,6 +62,7 @@ fn get_most_recent_backup() -> KhResult<PathBuf> {
 }
 
 fn ask_overwrite(path: &Path) -> bool {
+  if cfg!(test) { return true};
   println!("File exists:\n{}", path.display());
   println!("Overwrite? y/n:");
 
@@ -85,4 +82,11 @@ mod integration {
   use assert_fs::prelude::*;
   use predicates::prelude::*;
 
+  #[test]
+  fn test_do_undo() {
+    let testdir = prepare_testdir("testdir_with_backup");
+    let result = do_undo(&[]);
+
+    assert!(result.is_ok());
+  }
 }
