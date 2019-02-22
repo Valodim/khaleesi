@@ -68,6 +68,13 @@ impl From<String> for KhError {
   }
 }
 
+impl From<std::path::StripPrefixError> for KhError {
+  fn from(e: std::path::StripPrefixError) -> KhError {
+    let description = e.to_string();
+    KhError::new(&description, Some(Box::new(e)))
+  }
+}
+
 impl From<::std::io::Error> for KhError {
   fn from(e: ::std::io::Error) -> KhError {
     let description = e.to_string();

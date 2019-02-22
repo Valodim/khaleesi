@@ -12,4 +12,5 @@ pub mod prettyprint;
 pub mod select;
 pub mod seq;
 pub mod show;
+pub mod undo;
 pub mod unroll;

@@ -63,6 +63,7 @@ fn main_internal(binary_name: &str, args: &[&str], config: &Config) -> KhResult<
       "seq" => seq::action_seq(args),
       "pretty" => prettyprint::prettyprint(),
       "show" => show::do_show(args),
+      "undo" => undo::do_undo(args),
       "unroll" => unroll::action_unroll(args),
       _  => { print_usage(cmd); Ok(()) }
     }
