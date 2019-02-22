@@ -87,6 +87,7 @@ mod integration {
     let testdir = prepare_testdir("testdir_with_backup");
     let result = do_undo(&[]);
 
-    assert!(result.is_ok());
+    result.unwrap();
+    //assert!(result.is_ok());
   }
 }
