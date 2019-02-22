@@ -13,19 +13,8 @@ use walkdir::{DirEntry, WalkDir};
 pub fn do_undo(_args: &[&str]) -> KhResult<()> {
   let backupdir = defaults::get_backupdir();
 
-  let mut dirs: Vec<PathBuf> = backupdir
-    .read_dir()?
-    .filter_map(|result| result.ok())
-    .map(|dir_entry| dir_entry.path())
-    .collect();
+  let source_dir = get_most_recent_backup()?;
 
-  if dirs.len() < 1 {
-    Err("there are no backups, nothing to undo!".to_string())?;
-  }
-  dirs.sort_unstable();
-
-  //source_dir is most recent
-  let source_dir = dirs.pop().unwrap().to_path_buf();
   let backup_id = source_dir.strip_prefix(backupdir)?;
 
   info!("Restoring {:?}", backup_id);
@@ -37,23 +26,43 @@ pub fn do_undo(_args: &[&str]) -> KhResult<()> {
     .map(|x| x.path().to_path_buf())
     .collect();
 
-  let caldir = defaults::get_caldir();
   for file_path in files {
-    let path_in_cal = file_path.strip_prefix(source_dir.clone())?;
-
-    let mut target_path = caldir.clone();
-    target_path.push(path_in_cal);
-
-    if target_path.exists() && !ask_overwrite(&target_path) {
-      info!("ignoring {}", target_path.display());
-    } else {
-      fs::copy(file_path.clone(), target_path.clone())?;
-      info!("Restore {} to {}", file_path.display(), target_path.display());
-    }
-  }
-
+    restore_file(&source_dir, &file_path)?;
+  };
 
   Ok(())
+}
+
+fn restore_file(source_dir: &PathBuf, file_path: &PathBuf) -> KhResult<()> {
+  let caldir = defaults::get_caldir();
+  let path_in_cal = file_path.strip_prefix(source_dir.clone())?;
+
+  let mut target_path = caldir.clone();
+  target_path.push(path_in_cal);
+
+  if target_path.exists() && !ask_overwrite(&target_path) {
+    info!("ignoring {}", target_path.display());
+  } else {
+    fs::copy(file_path.clone(), target_path.clone())?;
+    info!("Restore {} to {}", file_path.display(), target_path.display());
+  };
+  Ok(())
+}
+
+fn get_most_recent_backup() -> KhResult<PathBuf> {
+  let backupdir = defaults::get_backupdir();
+  let mut dirs: Vec<PathBuf> = backupdir
+    .read_dir()?
+    .filter_map(|result| result.ok())
+    .map(|dir_entry| dir_entry.path())
+    .collect();
+
+  if dirs.len() < 1 {
+    Err("there are no backups, nothing to undo!".to_string())?;
+  }
+  //source_dir is most recent
+  dirs.sort_unstable();
+  Ok(dirs.pop().unwrap().to_path_buf())
 }
 
 fn ask_overwrite(path: &Path) -> bool {
