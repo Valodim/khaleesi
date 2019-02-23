@@ -15,21 +15,19 @@ pub fn do_undo(_args: &[&str]) -> KhResult<()> {
 
   info!("Restoring {:?}", backup_id);
 
-  let files: Vec<PathBuf> = WalkDir::new(source_dir.clone())
+  let files = WalkDir::new(source_dir.clone())
     .into_iter()
     .flatten()
-    .filter(|dir_entry| dir_entry.path().is_file())
-    .map(|x| x.path().to_path_buf())
-    .collect();
+    .filter(|dir_entry| dir_entry.path().is_file());
 
-  for file_path in files {
-    restore_file_from_backup(&source_dir, &file_path)?;
+  for file in files {
+    restore_file_from_backup(&source_dir, &file.path())?;
   };
 
   Ok(())
 }
 
-fn restore_file_from_backup(source_prefix: &PathBuf, file_path: &PathBuf) -> KhResult<()> {
+fn restore_file_from_backup(source_prefix: &Path, file_path: &Path) -> KhResult<()> {
   let caldir = defaults::get_caldir();
   let path_in_cal = file_path.strip_prefix(source_prefix)?;
 
@@ -78,7 +76,7 @@ fn ask_overwrite(path: &Path) -> bool {
 }
 
 #[cfg(test)]
-mod test{
+mod tests {
   use super::*;
 
   use crate::khline::KhLine;
@@ -108,7 +106,7 @@ mod test{
     let source_folder = testdir.child(".khaleesi/backup/backup_id");
     let target_folder = testdir.child(".khaleesi/cal/my_calendar/twodaysacrossbuckets.ics");
 
-    let result = restore_file_from_backup(&source_folder.path().to_path_buf(), &source_file.path().to_path_buf()).unwrap();
+    let result = restore_file_from_backup(source_folder.path(), source_file.path()).unwrap();
     target_folder.assert(predicate::path::exists());
   }
 }
