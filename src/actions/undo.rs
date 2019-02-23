@@ -38,11 +38,9 @@ fn restore_file_from_backup(source_prefix: &Path, file_path: &Path) -> KhResult<
     info!("ignoring {}", target_path.display());
     return Ok(());
   }
-  println!("{:?}", file_path);
-  println!("{:?}", target_path);
   fs::create_dir_all(&target_path.parent().ok_or_else(|| "error creating calendar directory")?)?;
-
   fs::copy(file_path, &target_path)?;
+
   info!("Restore {} to {}", file_path.display(), target_path.display());
 
   Ok(())
@@ -50,18 +48,12 @@ fn restore_file_from_backup(source_prefix: &Path, file_path: &Path) -> KhResult<
 
 fn get_most_recent_backup() -> KhResult<PathBuf> {
   let backupdir = defaults::get_backupdir();
-  let mut dirs: Vec<PathBuf> = backupdir
+  backupdir
     .read_dir()?
     .filter_map(|result| result.ok())
     .map(|dir_entry| dir_entry.path())
-    .collect();
-
-  if dirs.len() < 1 {
-    Err("there are no backups, nothing to undo!".to_string())?;
-  }
-  //source_dir is most recent
-  dirs.sort_unstable();
-  Ok(dirs.pop().unwrap().to_path_buf())
+    .max()
+    .ok_or("there are no backups, nothing to undo!".into())
 }
 
 fn ask_overwrite(path: &Path) -> bool {
