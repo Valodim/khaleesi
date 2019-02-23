@@ -71,9 +71,7 @@ fn ask_overwrite(path: &Path) -> bool {
 mod tests {
   use super::*;
 
-  use crate::khline::KhLine;
   use crate::testutils::prepare_testdir;
-  use crate::utils::stdioutils;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
 
@@ -98,7 +96,7 @@ mod tests {
     let source_folder = testdir.child(".khaleesi/backup/backup_id");
     let target_folder = testdir.child(".khaleesi/cal/my_calendar/twodaysacrossbuckets.ics");
 
-    let result = restore_file_from_backup(source_folder.path(), source_file.path()).unwrap();
+    restore_file_from_backup(source_folder.path(), source_file.path()).unwrap();
     target_folder.assert(predicate::path::exists());
   }
 }
@@ -107,9 +105,7 @@ mod tests {
 mod integration {
   use super::*;
 
-  use crate::khline::KhLine;
   use crate::testutils::prepare_testdir;
-  use crate::utils::stdioutils;
   use assert_fs::prelude::*;
   use predicates::prelude::*;
 
@@ -117,5 +113,7 @@ mod integration {
   fn test_do_undo() {
     let testdir = prepare_testdir("testdir_with_backup");
     do_undo(&[]).unwrap();
+    let target_folder = testdir.child(".khaleesi/cal/my_calendar/twodaysacrossbuckets.ics");
+    target_folder.assert(predicate::path::exists());
   }
 }
