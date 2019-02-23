@@ -94,10 +94,22 @@ mod tests {
     let testdir = prepare_testdir("testdir_with_backup");
     let source_file = testdir.child(".khaleesi/backup/backup_id/my_calendar/twodaysacrossbuckets.ics");
     let source_folder = testdir.child(".khaleesi/backup/backup_id");
-    let target_folder = testdir.child(".khaleesi/cal/my_calendar/twodaysacrossbuckets.ics");
+    let target_file = testdir.child(".khaleesi/cal/my_calendar/twodaysacrossbuckets.ics");
 
     restore_file_from_backup(source_folder.path(), source_file.path()).unwrap();
-    target_folder.assert(predicate::path::exists());
+    target_file.assert(predicate::path::exists());
+  }
+
+  #[test]
+  fn test_restore_file_from_backup_overwrite() {
+    let testdir = prepare_testdir("testdir_with_backup");
+    let source_file = testdir.child(".khaleesi/backup/backup_id/my_calendar/twodaysacrossbuckets.ics");
+    let source_folder = testdir.child(".khaleesi/backup/backup_id");
+    let target_file = testdir.child(".khaleesi/cal/my_calendar/twodaysacrossbuckets.ics");
+    target_file.touch().unwrap();
+
+    restore_file_from_backup(source_folder.path(), source_file.path()).unwrap();
+    target_file.assert(predicate::path::exists());
   }
 }
 
