@@ -41,6 +41,9 @@ pub enum Command {
   /// Create new event
   #[structopt(name = "new")]
   New(New),
+  /// Select from the index
+  #[structopt(name = "select")]
+  Select(Select),
 }
 
 #[derive(Debug, StructOpt)]
@@ -77,6 +80,13 @@ pub struct Index {
 
 #[derive(Debug, StructOpt)]
 pub struct List {
+  /// the arguments for the selection
+  #[structopt(name = "args")]
+  pub args: Vec<String>,
+}
+
+#[derive(Debug, StructOpt)]
+pub struct Select {
   /// the arguments for the selection
   #[structopt(name = "args")]
   pub args: Vec<String>,

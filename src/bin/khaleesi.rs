@@ -53,7 +53,9 @@ fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
     }
     //      "modify" => modify::do_modify(args),
     cli::Command::New(x) => new::do_new(x),
-    //      "select" => select::select_by_args(args),
+    cli::Command::Select(x) => {
+      select::select_by_args(&x.args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>())
+    }
     //      "seq" => seq::action_seq(args),
     //      "pretty" => prettyprint::prettyprint(),
     //      "show" => show::do_show(args),
