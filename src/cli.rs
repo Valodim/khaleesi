@@ -44,6 +44,12 @@ pub enum Command {
   /// Select from the index
   #[structopt(name = "select")]
   Select(Select),
+  /// Interact with the sequence
+  #[structopt(name = "seq")]
+  Seq,
+  /// Show the raw ical file of an event
+  #[structopt(name = "show")]
+  Show,
 }
 
 #[derive(Debug, StructOpt)]

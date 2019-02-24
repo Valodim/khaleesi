@@ -56,7 +56,7 @@ fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
     cli::Command::Select(x) => {
       select::select_by_args(&x.args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>())
     }
-    //      "seq" => seq::action_seq(args),
+    cli::Command::Seq => seq::action_seq(),
     //      "pretty" => prettyprint::prettyprint(),
     //      "show" => show::do_show(args),
     //      "undo" => undo::do_undo(args),

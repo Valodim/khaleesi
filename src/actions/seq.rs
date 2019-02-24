@@ -2,7 +2,7 @@ use crate::seqfile;
 use crate::utils::stdioutils;
 use crate::KhResult;
 
-pub fn action_seq(_args: &[&str]) -> KhResult<()> {
+pub fn action_seq() -> KhResult<()> {
   if !stdioutils::is_stdin_tty() {
     write_stdin_to_seqfile()?;
   } else {
@@ -47,7 +47,7 @@ mod integration {
     let testdir = testutils::prepare_testdir_empty();
     stdioutils::test_stdin_write("hi\nthere");
 
-    action_seq(&[]).unwrap();
+    action_seq().unwrap();
 
     testdir.child(".khaleesi/seq").assert("hi\nthere\n");
   }
@@ -56,7 +56,7 @@ mod integration {
   fn test_no_stdin() {
     let testdir = testutils::prepare_testdir("testdir_with_seq");
 
-    action_seq(&[]).unwrap();
+    action_seq().unwrap();
     let out = stdioutils::test_stdout_clear();
 
     let predicate = predicate::str::similar(out);
@@ -69,7 +69,7 @@ mod integration {
     stdioutils::test_stdin_write("hi\nthere");
     stdioutils::test_stdout_set_tty(false);
 
-    action_seq(&[]).unwrap();
+    action_seq().unwrap();
     let out = stdioutils::test_stdout_clear();
 
     testdir.child(".khaleesi/seq").assert("hi\nthere\n");
