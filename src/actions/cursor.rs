@@ -16,8 +16,8 @@ pub fn do_cursor(args: &Cursor) -> KhResult<()> {
     //println!("stdin is tty")
     if let Some(direction) = &args.direction {
       match direction {
-        CursorDirection::Prev => return cursor_sequence_move(&Direction::Up),
-        CursorDirection::Next => return cursor_sequence_move(&Direction::Down),
+        CursorDirection::prev => return cursor_sequence_move(&Direction::Up),
+        CursorDirection::next => return cursor_sequence_move(&Direction::Down),
         &_ => {}
       }
     };
@@ -95,7 +95,7 @@ mod integration {
   #[test]
   fn test_cursor_sequence_move_next() {
     let testdir = testutils::prepare_testdir("testdir_with_seq_and_cursor");
-    let args = Cursor{direction: Some(CursorDirection::Next)};
+    let args = Cursor{direction: Some(CursorDirection::next)};
     do_cursor(&args).unwrap();
 
     let out = "1182988800 rfc_multi_day_allday.ics";
@@ -106,7 +106,7 @@ mod integration {
   #[test]
   fn test_cursor_sequence_move_prev_at_end() {
     let testdir = testutils::prepare_testdir("testdir_with_seq_and_cursor");
-    let args = Cursor{direction: Some(CursorDirection::Prev)};
+    let args = Cursor{direction: Some(CursorDirection::prev)};
     do_cursor(&args).unwrap();
 
     let out = "1544740200 twodaysacrossbuckets.ics\n";
