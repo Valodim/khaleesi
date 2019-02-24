@@ -2,7 +2,7 @@ use crate::cursorfile;
 use crate::utils::stdioutils;
 use crate::KhResult;
 use crate::seqfile;
-use crate::cli::Cursor;
+use crate::cli::{Cursor,Direction as CursorDirection};
 
 enum Direction {
   Up,
@@ -15,9 +15,9 @@ pub fn do_cursor(args: &Cursor) -> KhResult<()> {
   } else {
     //println!("stdin is tty")
     if let Some(direction) = &args.direction {
-      match direction.as_str() {
-        "prev" => return cursor_sequence_move(&Direction::Up),
-        "next" => return cursor_sequence_move(&Direction::Down),
+      match direction {
+        CursorDirection::Prev => return cursor_sequence_move(&Direction::Up),
+        CursorDirection::Next => return cursor_sequence_move(&Direction::Down),
         &_ => {}
       }
     };

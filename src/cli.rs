@@ -45,7 +45,24 @@ pub struct Agenda {
 pub struct Cursor {
   /// Move the cursor on the selection. Uses "next" and "prev".
   #[structopt(name = "direction")]
-  pub direction: Option<String>,
+  pub direction: Option<Direction>,
+}
+
+#[derive(Debug, StructOpt)]
+pub enum Direction {
+  Next,
+  Prev,
+}
+
+impl std::str::FromStr for Direction{
+  type Err = String;
+  fn from_str(s: &str) -> Result<Self, <Self as std::str::FromStr>::Err> {
+    match s {
+      "prev" => Ok(Direction::Prev),
+      "next" => Ok(Direction::Next),
+      &_ => Err("Expected 'prev' or 'next'".to_string())
+    }
+  }
 }
 
 #[derive(Debug, StructOpt)]
