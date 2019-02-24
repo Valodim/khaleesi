@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
-  author = "me",
+  author = "",
   name = "khalessi",
   about = "Command line calendar tool."
 )]
@@ -18,43 +18,43 @@ pub struct CommandLine {
 #[derive(Debug, StructOpt)]
 pub enum Command {
   /// Show agenda view
-  #[structopt(name = "agenda")]
+  #[structopt(name = "agenda", author = "")]
   Agenda(Agenda),
   /// Copy event
-  #[structopt(name = "copy")]
+  #[structopt(name = "copy", author = "")]
   Copy,
   /// Interact with the cursor
-  #[structopt(name = "cursor")]
+  #[structopt(name = "cursor", author = "")]
   Cursor(Cursor),
   /// Delete event
-  #[structopt(name = "delete")]
+  #[structopt(name = "delete", author = "")]
   Delete,
   /// Edit event
-  #[structopt(name = "edit")]
+  #[structopt(name = "edit", author = "")]
   Edit,
   /// Rebuild index
-  #[structopt(name = "index")]
+  #[structopt(name = "index", author = "")]
   Index(Index),
   /// Select from the sequence
-  #[structopt(name = "list")]
+  #[structopt(name = "list", author = "")]
   List(List),
   /// Create new event
-  #[structopt(name = "new")]
+  #[structopt(name = "new", author = "")]
   New(New),
   /// Select from the index
-  #[structopt(name = "select")]
+  #[structopt(name = "select", author = "")]
   Select(Select),
   /// Interact with the sequence
-  #[structopt(name = "seq")]
+  #[structopt(name = "seq", author = "")]
   Seq,
   /// Show the raw ical file of an event
-  #[structopt(name = "show")]
+  #[structopt(name = "show", author = "")]
   Show,
   /// undo the most recent action
-  #[structopt(name = "undo")]
+  #[structopt(name = "undo", author = "")]
   Undo,
   /// Unroll a recurring event
-  #[structopt(name = "unroll")]
+  #[structopt(name = "unroll", author = "")]
   Unroll(Unroll),
 }
 
