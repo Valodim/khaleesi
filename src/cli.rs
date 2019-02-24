@@ -27,8 +27,11 @@ pub enum Command {
   #[structopt(name = "cursor")]
   Cursor(Cursor),
   /// Delete event
-  #[structopt(name = "copy")]
+  #[structopt(name = "delete")]
   Delete,
+  /// Edit event
+  #[structopt(name = "edit")]
+  Edit,
   /// Rebuild index
   #[structopt(name = "index")]
   Index(Index),

@@ -7,7 +7,7 @@ use crate::khline::KhLine;
 use crate::utils::fileutil;
 use crate::KhResult;
 
-pub fn do_edit(_args: &[&str]) -> KhResult<()> {
+pub fn do_edit() -> KhResult<()> {
   let khline = input::default_input_khline()?;
   edit(&khline)
 }
