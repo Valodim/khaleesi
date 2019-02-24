@@ -35,6 +35,9 @@ pub enum Command {
   /// Rebuild index
   #[structopt(name = "index")]
   Index(Index),
+  /// Select from the sequence
+  #[structopt(name = "list")]
+  List(List),
 }
 
 #[derive(Debug, StructOpt)]
@@ -78,4 +81,11 @@ pub struct Index {
   /// index path
   #[structopt(name = "path", parse(from_os_str))]
   pub path: Option<PathBuf>,
+}
+
+#[derive(Debug, StructOpt)]
+pub struct List {
+  /// the arguments for the selection
+  #[structopt(name = "args")]
+  pub args: Vec<String>,
 }
