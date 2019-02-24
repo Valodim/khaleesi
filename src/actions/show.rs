@@ -2,7 +2,7 @@ use crate::input;
 use crate::utils::fileutil;
 use crate::KhResult;
 
-pub fn do_show(_args: &[&str]) -> KhResult<()> {
+pub fn do_show() -> KhResult<()> {
   info!("do_show");
   let lines = input::default_input_khlines()?;
 
@@ -25,7 +25,7 @@ mod integration {
   fn test_() {
     let _testdir = prepare_testdir("testdir_with_seq");
 
-    do_show(&[]).unwrap();
+    do_show().unwrap();
 
     let stdout = test_stdout_clear();
     assert_eq!(784, stdout.len());

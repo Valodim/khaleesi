@@ -58,7 +58,7 @@ fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
     }
     cli::Command::Seq => seq::action_seq(),
     //      "pretty" => prettyprint::prettyprint(),
-    //      "show" => show::do_show(args),
+    cli::Command::Show => show::do_show(),
     //      "undo" => undo::do_undo(args),
     //      "unroll" => unroll::action_unroll(args),
     _ => {
