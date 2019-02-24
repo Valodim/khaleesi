@@ -1,14 +1,13 @@
 use log::error;
 
 use khaleesi::actions::*;
+use khaleesi::cli;
 use khaleesi::config::Config;
 use khaleesi::KhResult;
 
 use std::env;
-use std::path::PathBuf;
 use structopt::StructOpt;
 
-use khaleesi::cli;
 
 fn main() {
   //let clap_args = CommandLine::clap().get_matches();

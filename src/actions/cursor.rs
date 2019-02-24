@@ -18,7 +18,6 @@ pub fn do_cursor(args: &Cursor) -> KhResult<()> {
       match direction {
         CursorDirection::prev => return cursor_sequence_move(&Direction::Up),
         CursorDirection::next => return cursor_sequence_move(&Direction::Down),
-        &_ => {}
       }
     };
   }

@@ -62,17 +62,6 @@ arg_enum! {
   }
 }
 
-//impl std::str::FromStr for Direction{
-//  type Err = String;
-//  fn from_str(s: &str) -> Result<Self, <Self as std::str::FromStr>::Err> {
-//    match s {
-//      "prev" => Ok(Direction::Prev),
-//      "next" => Ok(Direction::Next),
-//      &_ => Err("Expected 'prev' or 'next'".to_string())
-//    }
-//  }
-//}
-
 #[derive(Debug, StructOpt)]
 pub struct Index {
   /// Rebuild index
