@@ -20,12 +20,15 @@ pub enum Command {
   /// Show agenda view
   #[structopt(name = "agenda")]
   Agenda(Agenda),
-  /// Rebuild index
-  #[structopt(name = "index")]
-  Index(Index),
   /// Copy event
   #[structopt(name = "copy")]
   Copy,
+  /// Interact with the cursor
+  #[structopt(name = "cursor")]
+  Cursor(Cursor),
+  /// Rebuild index
+  #[structopt(name = "index")]
+  Index(Index),
 }
 
 #[derive(Debug, StructOpt)]
@@ -33,6 +36,13 @@ pub struct Agenda {
   /// Show agenda view 
   #[structopt(name = "args")]
   pub args: Vec<String>,
+}
+
+#[derive(Debug, StructOpt)]
+pub struct Cursor {
+  /// Move the cursor on the selection. Uses "next" and "prev".
+  #[structopt(name = "direction")]
+  pub direction: Option<String>,
 }
 
 #[derive(Debug, StructOpt)]
