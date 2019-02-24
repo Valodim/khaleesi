@@ -45,7 +45,7 @@ fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
     }
     cli::Command::Copy => copy::do_copy(),
     cli::Command::Cursor(x) => cursor::do_cursor(x),
-    //      "delete" => delete::do_delete(args),
+    cli::Command::Delete => delete::do_delete(),
     //      "edit" => edit::do_edit(args),
     //      "get" => get::action_get(args),
     cli::Command::Index(x) => index::action_index(x),

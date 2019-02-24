@@ -7,7 +7,7 @@ use crate::utils::stdioutils;
 use std::path::PathBuf;
 use std::fs::remove_file;
 
-pub fn do_delete(_args: &[&str]) -> KhResult<()> {
+pub fn do_delete() -> KhResult<()> {
   info!("do_delete");
 
   let cursor_khline = input::default_input_khline()?;

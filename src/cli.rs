@@ -26,6 +26,9 @@ pub enum Command {
   /// Interact with the cursor
   #[structopt(name = "cursor")]
   Cursor(Cursor),
+  /// Delete event
+  #[structopt(name = "copy")]
+  Delete,
   /// Rebuild index
   #[structopt(name = "index")]
   Index(Index),
