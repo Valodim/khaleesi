@@ -43,7 +43,7 @@ fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
     cli::Command::Agenda(x) => {
       agenda::show_events(&config, &x.args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>())
     }
-    //      "copy" => copy::do_copy(args),
+    cli::Command::Copy => copy::do_copy(),
     //      "cursor" => cursor::do_cursor(args),
     //      "delete" => delete::do_delete(args),
     //      "edit" => edit::do_edit(args),

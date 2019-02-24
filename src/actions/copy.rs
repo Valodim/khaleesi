@@ -4,7 +4,7 @@ use crate::utils::misc;
 
 use crate::KhResult;
 
-pub fn do_copy(_args: &[&str]) -> KhResult<()> {
+pub fn do_copy() -> KhResult<()> {
   let khline = input::default_input_khline()?;
 
   let uid = &misc::make_new_uid();

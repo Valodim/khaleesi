@@ -8,7 +8,7 @@ use std::path::PathBuf;
   about = "Command line calendar tool."
 )]
 pub struct CommandLine {
-  /// Verbosity
+  /// verbosity
   #[structopt(short = "v", parse(from_occurrences))]
   pub verbosity: u64,
   #[structopt(subcommand)]
@@ -22,7 +22,10 @@ pub enum Command {
   Agenda(Agenda),
   /// Rebuild index
   #[structopt(name = "index")]
-  Index(Index)
+  Index(Index),
+  /// Copy event
+  #[structopt(name = "copy")]
+  Copy,
 }
 
 #[derive(Debug, StructOpt)]
