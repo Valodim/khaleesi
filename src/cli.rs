@@ -38,6 +38,9 @@ pub enum Command {
   /// Select from the sequence
   #[structopt(name = "list")]
   List(List),
+  /// Create new event
+  #[structopt(name = "new")]
+  New(New),
 }
 
 #[derive(Debug, StructOpt)]
@@ -77,4 +80,23 @@ pub struct List {
   /// the arguments for the selection
   #[structopt(name = "args")]
   pub args: Vec<String>,
+}
+
+#[derive(Debug, StructOpt)]
+pub struct New {
+  /// the calendar
+  #[structopt(name = "calendar")]
+  pub calendar: String,
+  /// from
+  #[structopt(name = "from")]
+  pub from: String,
+  /// to
+  #[structopt(name = "to")]
+  pub to: String,
+  /// summary
+  #[structopt(name = "summary")]
+  pub summary: String,
+  /// location
+  #[structopt(name = "location")]
+  pub location: String,
 }

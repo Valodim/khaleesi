@@ -52,7 +52,7 @@ fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
       list::list_by_args(&x.args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>())
     }
     //      "modify" => modify::do_modify(args),
-    //      "new" => new::do_new(args),
+    cli::Command::New(x) => new::do_new(x),
     //      "select" => select::select_by_args(args),
     //      "seq" => seq::action_seq(args),
     //      "pretty" => prettyprint::prettyprint(),
