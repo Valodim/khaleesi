@@ -48,11 +48,7 @@ fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
     //      "delete" => delete::do_delete(args),
     //      "edit" => edit::do_edit(args),
     //      "get" => get::action_get(args),
-    cli::Command::Index(x) => {
-      println!("{:?}", x);
-      //index::action_index(),
-      Ok(())
-    }
+    cli::Command::Index(x) => index::action_index(x),
     //      "list" => list::list_by_args(args),
     //      "modify" => modify::do_modify(args),
     //      "new" => new::do_new(args),

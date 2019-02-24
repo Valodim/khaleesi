@@ -39,6 +39,5 @@ pub struct Index {
   pub reindex: bool,
   /// index path
   #[structopt(name = "path", parse(from_os_str))]
-  //TODO for some reason, this is parsed as an &str
   pub path: Option<PathBuf>,
 }

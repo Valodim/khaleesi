@@ -6,23 +6,19 @@ use std::path::{Path,PathBuf};
 use std::time::SystemTime;
 use walkdir::DirEntry;
 
-use structopt::clap::ArgMatches;
-
 use crate::defaults::*;
 use super::indextime;
 use crate::utils::fileutil;
 use crate::utils::lock;
 use crate::utils::misc;
 use crate::KhResult;
+use crate::cli::Index;
 
-pub fn action_index(args: &ArgMatches) -> KhResult<()> {
-  let reindex = args.is_present("reindex");
-  //let reindex = !args.is_empty() && args[0] == "--reindex";
-  let indexpath = if args.is_present("path") {
-//    args.value_of("path").unwrap()
-    get_caldir()
-  } else {
-    get_caldir()
+pub fn action_index(args: &Index) -> KhResult<()> {
+  let reindex = args.reindex;
+  let indexpath = match &args.path {
+    Some(path) => path.clone(),
+    None => get_caldir(),
   };
 
   index_dir(&indexpath, reindex)
