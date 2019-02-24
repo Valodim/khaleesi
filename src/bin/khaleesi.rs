@@ -29,25 +29,11 @@ enum Index {
 }
 
 fn main() {
-  let matches = Khaleesi::clap().get_matches();
-  println!("{:?}", matches);
+  let args = Khaleesi::clap().get_matches();
+  println!("{:?}", args);
 
-  let opt = Khaleesi::from_args();
-  println!("{:?}", opt);
-
-  stderrlog::new()
-    .timestamp(stderrlog::Timestamp::Off)
-    .verbosity({
-      println!("Value for -v: {}", matches.occurrences_of("verbosity"));
-      1 + matches.occurrences_of("verbosity") as usize
-    })
-    .init()
-    .unwrap();
-  //            0 => LevelFilter::Error,
-  //            1 => LevelFilter::Warn,
-  //            2 => LevelFilter::Info,
-  //            3 => LevelFilter::Debug,
-  //            _ => LevelFilter::Trace,
+  //let opt = Khaleesi::from_args();
+  //println!("{:?}", opt);
 
   #[cfg(not(debug_assertions))]
   {
@@ -55,7 +41,12 @@ fn main() {
       use khaleesi::defaults;
       defaults::set_khaleesi_dir(&dir);
     }
+    init_logger(1 + args.occurrences_of("verbosity"));
   }
+
+  //set default log level to INFO in debug builds
+  #[cfg(debug_assertions)]
+  init_logger(3 + args.occurrences_of("verbosity"));
 
   //let args: Vec<String> = env::args().collect();
   //let config = Config::read_config();
@@ -103,6 +94,20 @@ fn main_internal(binary_name: &str, args: &[&str], config: &Config) -> KhResult<
       }
     }
   }
+}
+
+fn init_logger(verbose: u64) {
+  stderrlog::new()
+    .timestamp(stderrlog::Timestamp::Off)
+    .verbosity(verbose as usize)
+    .init()
+    .unwrap();
+  //            0 => LevelFilter::Error,
+  //            1 => LevelFilter::Warn,
+  //            2 => LevelFilter::Info,
+  //            3 => LevelFilter::Debug,
+  //            _ => LevelFilter::Trace,
+
 }
 
 fn print_usage(name: &str) {
