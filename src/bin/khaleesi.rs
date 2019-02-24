@@ -5,11 +5,6 @@ use khaleesi::config::Config;
 use khaleesi::KhResult;
 
 use std::env;
-
-#[macro_use]
-extern crate structopt;
-
-use std::path::PathBuf;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
