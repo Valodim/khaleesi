@@ -5,46 +5,17 @@ use khaleesi::config::Config;
 use khaleesi::KhResult;
 
 use std::env;
-use structopt::clap::ArgMatches;
+use std::path::PathBuf;
 use structopt::StructOpt;
 
-#[derive(Debug, StructOpt)]
-#[structopt(name = "khalessi", about = "Command line calendar tool.")]
-struct Khaleesi {
-  /// Verbosity
-  #[structopt(short = "v", parse(from_occurrences))]
-  verbosity: u64,
-  #[structopt(subcommand)]
-  cmd: Command,
-}
-
-#[derive(Debug, StructOpt)]
-enum Command {
-  /// Show agenda view
-  #[structopt(name = "agenda")]
-  Agenda {
-    /// Rebuild index
-    #[structopt(name = "args")]
-    args: Vec<String>,
-  },
-  /// Rebuild index
-  #[structopt(name = "index")]
-  Index {
-    /// Rebuild index
-    #[structopt(short = "r", long = "reindex")]
-    reindex: bool,
-    /// index path
-    #[structopt(parse(from_os_str))]
-    path: Option<PathBuf>
-  },
-}
+use khaleesi::cli;
 
 fn main() {
-  let args = Khaleesi::clap().get_matches();
-  println!("{:?}", args);
+  //let clap_args = CommandLine::clap().get_matches();
+  //println!("{:?}", clap_args);
 
-  //let opt = Khaleesi::from_args();
-  //println!("{:?}", opt);
+  let args = cli::CommandLine::from_args();
+  println!("{:?}", args);
 
   #[cfg(not(debug_assertions))]
   {
@@ -52,41 +23,36 @@ fn main() {
       use khaleesi::defaults;
       defaults::set_khaleesi_dir(&dir);
     }
-    init_logger(1 + args.occurrences_of("verbosity"));
+    init_logger(1 + args.verbosity);
   }
 
   //set default log level to INFO in debug builds
   #[cfg(debug_assertions)]
-  init_logger(3 + args.occurrences_of("verbosity"));
+  init_logger(3 + args.verbosity);
 
   let config = Config::read_config();
 
-  //let args: Vec<String> = env::args().collect();
-  //let binary_name = &args[0].split('/').last().unwrap();
-  //let mut args = args[1..].iter().map(|s| s.as_str()).collect::<Vec<&str>>();
-  //if *binary_name != "khaleesi" && binary_name.starts_with("kh") {
-  //  let command = &binary_name[2..];
-  //  args.push(command);
-  //  args.rotate_right(1);
-  //}
   let result = main_internal(&args, &config);
   if let Err(error) = result {
     error!("{}", error)
   }
 }
 
-fn main_internal(args: &ArgMatches, config: &Config) -> KhResult<()> {
-  match args.subcommand() {
-    ("agenda", Some(sub_args)) => {
-      let args = sub_args.values_of("args").map_or_else(|| Vec::new(), |x| x.collect::<Vec<&str>>());
-      agenda::show_events(&config, &args)
+fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
+  match &args.cmd {
+    cli::Command::Agenda(x) => {
+      agenda::show_events(&config, &x.args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>())
     }
     //      "copy" => copy::do_copy(args),
     //      "cursor" => cursor::do_cursor(args),
     //      "delete" => delete::do_delete(args),
     //      "edit" => edit::do_edit(args),
     //      "get" => get::action_get(args),
-    ("index", Some(sub_args))  => index::action_index(sub_args),
+    cli::Command::Index(x) => {
+      println!("{:?}", x);
+      //index::action_index(),
+      Ok(())
+    }
     //      "list" => list::list_by_args(args),
     //      "modify" => modify::do_modify(args),
     //      "new" => new::do_new(args),

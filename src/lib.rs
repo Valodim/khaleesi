@@ -6,6 +6,7 @@ pub type KhResult<T> = Result<T,errors::KhError>;
 pub mod actions;
 pub mod backup;
 pub mod calendars;
+pub mod cli;
 pub mod config;
 pub mod cursorfile;
 pub mod defaults;
