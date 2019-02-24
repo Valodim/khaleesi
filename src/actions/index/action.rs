@@ -162,12 +162,20 @@ mod integration {
 
   use crate::testutils::prepare_testdir;
   use assert_fs::prelude::*;
+  use crate::cli::CommandLine;
+  use crate::cli::Command::Index;
+  use structopt::StructOpt;
 
   #[test]
+  #[ignore]
   fn test_index() {
     let testdir = prepare_testdir("testdir");
 
-    action_index(&[]).unwrap();
+    //TODO This is not thread safe
+    let args = CommandLine::from_iter(&["index"]);
+    if let Index(x) = args.cmd {
+      action_index(&x).unwrap();
+    }
 
     testdir.child(".khaleesi/index/2018-W50").assert("1544740200 twodaysacrossbuckets.ics\n");
     testdir.child(".khaleesi/index/2018-W51").assert("1544740200 twodaysacrossbuckets.ics\n");

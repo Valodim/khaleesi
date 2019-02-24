@@ -51,7 +51,7 @@ mod tests {
   fn test_do_delete_cursor() {
     let testdir = prepare_testdir("testdir_with_cursor");
 
-    do_delete(&[]).unwrap();
+    do_delete().unwrap();
 
     let predicate = predicate::path::missing();
     testdir.child(".khaleesi/cal/twodaysacrossbuckets").assert(predicate);
@@ -63,6 +63,6 @@ mod tests {
   fn test_do_delete_no_cursor() {
     let _testdir = prepare_testdir("testdir");
 
-    do_delete(&[]).unwrap();
+    do_delete().unwrap();
   }
 }

@@ -34,7 +34,7 @@ mod integration {
     let testdir = prepare_testdir("testdir");
     stdioutils::test_stdin_write("twodaysacrossbuckets.ics");
 
-    do_copy(&[]).unwrap();
+    do_copy().unwrap();
 
     let child = testdir.child(".khaleesi/cal/11111111-2222-3333-4444-444444444444@khaleesi.ics");
     child.assert(predicate::path::exists());

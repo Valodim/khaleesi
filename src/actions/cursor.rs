@@ -86,7 +86,8 @@ mod integration {
     let expected_str = "hi there";
     stdioutils::test_stdin_write(expected_str);
 
-    do_cursor(&[]).unwrap();
+    let args = Cursor{direction: None};
+    do_cursor(&args).unwrap();
 
     testdir.child(".khaleesi/cursor").assert(expected_str);
   }
@@ -94,7 +95,8 @@ mod integration {
   #[test]
   fn test_cursor_sequence_move_next() {
     let testdir = testutils::prepare_testdir("testdir_with_seq_and_cursor");
-    do_cursor(&["next"]).unwrap();
+    let args = Cursor{direction: Some(CursorDirection::Next)};
+    do_cursor(&args).unwrap();
 
     let out = "1182988800 rfc_multi_day_allday.ics";
     let predicate = predicate::str::similar(out);
@@ -104,7 +106,8 @@ mod integration {
   #[test]
   fn test_cursor_sequence_move_prev_at_end() {
     let testdir = testutils::prepare_testdir("testdir_with_seq_and_cursor");
-    do_cursor(&["prev"]).unwrap();
+    let args = Cursor{direction: Some(CursorDirection::Prev)};
+    do_cursor(&args).unwrap();
 
     let out = "1544740200 twodaysacrossbuckets.ics\n";
     let predicate = predicate::str::similar(out);
@@ -117,7 +120,8 @@ mod integration {
     let expected_str = "hi\nthere";
     stdioutils::test_stdin_write(expected_str);
 
-    let result = do_cursor(&[]);
+    let args = Cursor{direction: None};
+    let result = do_cursor(&args);
 
     assert!(result.is_err());
     //testdir.child(".khaleesi/cursor").assert(expected_str);
@@ -127,7 +131,8 @@ mod integration {
   fn test_no_stdin() {
     let testdir = testutils::prepare_testdir("testdir_with_cursor");
 
-    do_cursor(&[]).unwrap();
+    let args = Cursor{direction: None};
+    do_cursor(&args).unwrap();
     let out = stdioutils::test_stdout_clear();
 
     let predicate = predicate::str::similar(out);
