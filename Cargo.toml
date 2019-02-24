@@ -24,6 +24,7 @@ fs2 = "0.4.3"
 lazy_static = "1.2.0"
 backtrace = "0.3"
 dirs = "1.0.4"
+structopt = "0.2.14"
 
 [dev-dependencies]
 assert_fs = "0.11.3"
