@@ -33,6 +33,9 @@ enum Command {
     /// Rebuild index
     #[structopt(short = "r", long = "reindex")]
     reindex: bool,
+    /// index path
+    #[structopt(parse(from_os_str))]
+    path: Option<PathBuf>
   },
 }
 
