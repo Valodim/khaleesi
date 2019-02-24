@@ -6,7 +6,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-pub fn do_undo(_args: &[&str]) -> KhResult<()> {
+pub fn do_undo() -> KhResult<()> {
   let backupdir = defaults::get_backupdir();
 
   let source_dir = get_most_recent_backup()?;
@@ -124,7 +124,7 @@ mod integration {
   #[test]
   fn test_do_undo() {
     let testdir = prepare_testdir("testdir_with_backup");
-    do_undo(&[]).unwrap();
+    do_undo().unwrap();
     let target_folder = testdir.child(".khaleesi/cal/my_calendar/twodaysacrossbuckets.ics");
     target_folder.assert(predicate::path::exists());
   }

@@ -2,10 +2,10 @@ use std::path::Path;
 
 use crate::khline::KhLine;
 use crate::KhResult;
+use crate::cli::Unroll;
 
-pub fn action_unroll(args: &[&str]) -> KhResult<()> {
-  let file = &args[0];
-  let filepath = Path::new(file);
+pub fn action_unroll(args: &Unroll) -> KhResult<()> {
+  let filepath = &args.path;
   do_unroll(filepath)?;
 
   Ok(())

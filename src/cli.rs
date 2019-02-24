@@ -50,6 +50,12 @@ pub enum Command {
   /// Show the raw ical file of an event
   #[structopt(name = "show")]
   Show,
+  /// undo the most recent action
+  #[structopt(name = "undo")]
+  Undo,
+  /// Unroll a recurring event
+  #[structopt(name = "unroll")]
+  Unroll(Unroll),
 }
 
 #[derive(Debug, StructOpt)]
@@ -96,6 +102,13 @@ pub struct Select {
   /// the arguments for the selection
   #[structopt(name = "args")]
   pub args: Vec<String>,
+}
+
+#[derive(Debug, StructOpt)]
+pub struct Unroll {
+  /// The file to unroll
+  #[structopt(name = "path", parse(from_os_str))]
+  pub path: PathBuf,
 }
 
 #[derive(Debug, StructOpt)]
