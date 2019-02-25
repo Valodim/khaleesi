@@ -40,12 +40,19 @@ mod integration {
   use assert_fs::prelude::*;
   use predicates::prelude::*;
 
+  use crate::cli::CommandLine;
+  use crate::cli::ModifyArgs;
+  use crate::cli::Command::Modify;
+  use structopt::StructOpt;
+
   #[test]
   fn test_do_modify() {
     let testdir = prepare_testdir("testdir_with_xlicerror");
-    let args = ["removeprop", "xlicerror"];
 
-    do_modify(&args).unwrap();
+    let args = CommandLine::from_iter(&["khaleesi", "modify", "remove-xlicerror"]);
+    if let Modify(x) = args.cmd {
+      do_modify(&x).unwrap();
+    }
 
     let expected = indoc!(
       "
@@ -76,9 +83,11 @@ mod integration {
   #[test]
   fn test_do_modify_dry_run() {
     let testdir = prepare_testdir("testdir_with_xlicerror");
-    let args = ["removeprop", "xlicerror", "--dry-run"];
 
-    do_modify(&args).unwrap();
+    let args = CommandLine::from_iter(&["khaleesi", "modify", "--dry-run", "remove-xlicerror"]);
+    if let Modify(x) = args.cmd {
+      do_modify(&x).unwrap();
+    }
 
     let expected = indoc!("
       BEGIN:VCALENDAR
@@ -104,10 +113,12 @@ mod integration {
       .assert(predicate);
   }
 
-  #[test]
-  fn test_do_modify_negative() {
-    let args = ["nonsense"];
-
-    assert!(do_modify(&args).is_ok());
-  }
+//  #[test]
+//  fn test_do_modify_negative() {
+//
+//    let args = CommandLine::from_iter(&["khaleesi", "modify", "nonsense"]);
+//    if let Modify(x) = args.cmd {
+//      assert!(do_modify(&x).is_ok());
+//    }
+//  }
 }
