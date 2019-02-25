@@ -32,6 +32,9 @@ pub enum Command {
   /// Edit event
   #[structopt(name = "edit", author = "")]
   Edit,
+  /// Get info about the calendar data
+  #[structopt(name = "get", author = "")]
+  Get(Get),
   /// Rebuild index
   #[structopt(name = "index", author = "")]
   Index(Index),
@@ -77,6 +80,21 @@ arg_enum! {
   pub enum Direction {
     next,
     prev,
+  }
+}
+
+#[derive(Debug, StructOpt)]
+pub struct Get {
+  /// Show information about this
+  #[structopt(name = "query", raw(possible_values = "&GetArgs::variants()"))]
+  pub query: GetArgs,
+}
+
+
+arg_enum! {
+#[derive(Debug)]
+  pub enum GetArgs{
+    calendars,
   }
 }
 

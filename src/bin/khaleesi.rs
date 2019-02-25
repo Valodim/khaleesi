@@ -46,7 +46,7 @@ fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
     cli::Command::Cursor(x) => cursor::do_cursor(x),
     cli::Command::Delete => delete::do_delete(),
     cli::Command::Edit => edit::do_edit(),
-    //      "get" => get::action_get(args),
+    cli::Command::Get(x) => get::action_get(x),
     cli::Command::Index(x) => index::action_index(x),
     cli::Command::List(x) => {
       list::list_by_args(&x.args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>())
