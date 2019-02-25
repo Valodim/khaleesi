@@ -41,7 +41,6 @@ mod integration {
   use predicates::prelude::*;
 
   use crate::cli::CommandLine;
-  use crate::cli::ModifyArgs;
   use crate::cli::Command::Modify;
   use structopt::StructOpt;
 

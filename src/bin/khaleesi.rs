@@ -5,14 +5,9 @@ use khaleesi::cli;
 use khaleesi::config::Config;
 use khaleesi::KhResult;
 
-use std::env;
 use structopt::StructOpt;
 
-
 fn main() {
-  //let clap_args = CommandLine::clap().get_matches();
-  //println!("{:?}", clap_args);
-
   let args = cli::CommandLine::from_args();
 
   #[cfg(not(debug_assertions))]
@@ -40,9 +35,10 @@ fn main() {
 
 fn main_internal(args: &cli::CommandLine, config: &Config) -> KhResult<()> {
   match &args.cmd {
-    cli::Command::Agenda(x) => {
-      agenda::show_events(&config, &x.args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>())
-    }
+    cli::Command::Agenda(x) => agenda::show_events(
+      &config,
+      &x.args.iter().map(|x| x.as_ref()).collect::<Vec<&str>>(),
+    ),
     cli::Command::Copy => copy::do_copy(),
     cli::Command::Cursor(x) => cursor::do_cursor(x),
     cli::Command::Delete => delete::do_delete(),
@@ -76,11 +72,4 @@ fn init_logger(verbose: u64) {
   //            2 => LevelFilter::Info,
   //            3 => LevelFilter::Debug,
   //            _ => LevelFilter::Trace,
-}
-
-fn print_usage(name: &str) {
-  error!(
-    "Usage: {} index|select|list|agenda|copy|new|edit|show",
-    name
-  )
 }
