@@ -4,7 +4,7 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 #[structopt(
   author = "",
-  name = "khaleessi",
+  name = "khaleesi",
   about = "Command line calendar tool.",
   raw(setting = "structopt::clap::AppSettings::VersionlessSubcommands")
 )]
@@ -58,7 +58,7 @@ pub enum Command {
   /// Show the raw ical file of an event
   #[structopt(name = "show", author = "")]
   Show,
-  /// undo the most recent action
+  /// Undo the most recent action
   #[structopt(name = "undo", author = "")]
   Undo,
   /// Unroll a recurring event
