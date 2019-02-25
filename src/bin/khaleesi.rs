@@ -1,4 +1,4 @@
-use log::error;
+use log::{debug, error};
 
 use khaleesi::actions::*;
 use khaleesi::cli;
@@ -14,7 +14,6 @@ fn main() {
   //println!("{:?}", clap_args);
 
   let args = cli::CommandLine::from_args();
-  println!("{:?}", args);
 
   #[cfg(not(debug_assertions))]
   {
@@ -28,6 +27,8 @@ fn main() {
   //set default log level to INFO in debug builds
   #[cfg(debug_assertions)]
   init_logger(3 + args.verbosity);
+
+  debug!("{:?}", args);
 
   let config = Config::read_config();
 
