@@ -1,13 +1,14 @@
-use structopt::StructOpt;
 use std::path::PathBuf;
+use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
   author = "",
-  name = "khalessi",
+  name = "khaleessi",
   about = "Command line calendar tool.",
-  raw(setting = "structopt::clap::AppSettings::VersionlessSubcommands"),
+  raw(setting = "structopt::clap::AppSettings::VersionlessSubcommands")
 )]
+
 pub struct CommandLine {
   /// verbosity
   #[structopt(short = "v", parse(from_occurrences))]

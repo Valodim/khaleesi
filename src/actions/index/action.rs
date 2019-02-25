@@ -167,12 +167,10 @@ mod integration {
   use structopt::StructOpt;
 
   #[test]
-  #[ignore]
   fn test_index() {
     let testdir = prepare_testdir("testdir");
 
-    //TODO This is not thread safe
-    let args = CommandLine::from_iter(&["index"]);
+    let args = CommandLine::from_iter(&["khaleesi", "index"]);
     if let Index(x) = args.cmd {
       action_index(&x).unwrap();
     }
