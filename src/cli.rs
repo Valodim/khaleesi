@@ -5,7 +5,8 @@ use std::path::PathBuf;
 #[structopt(
   author = "",
   name = "khalessi",
-  about = "Command line calendar tool."
+  about = "Command line calendar tool.",
+  raw(setting = "structopt::clap::AppSettings::VersionlessSubcommands"),
 )]
 pub struct CommandLine {
   /// verbosity
