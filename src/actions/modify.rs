@@ -2,30 +2,31 @@ use crate::backup::backup;
 use crate::input;
 use crate::utils::fileutil::write_cal;
 use crate::KhResult;
+use crate::cli::{ModifyCommand, ModifyArgs};
 
-pub fn do_modify(args: &[&str]) -> KhResult<()> {
+pub fn do_modify(args: &ModifyArgs) -> KhResult<()> {
   info!("do_modify");
 
-  if args.len() >= 2 && args[0] == "removeprop" && args[1] == "xlicerror" {
-    let dry_run = args.len() >= 3 && args[2] == "--dry-run";
+  match &args.modify_cmd {
+    ModifyCommand::RemoveXlicerror => {
+      let dry_run = args.dry_run;
 
-    let khlines = input::default_input_khlines()?;
-    for khline in khlines {
-      let cal = khline.to_cal()?.with_remove_property("X-LIC-ERROR");
-      if cal.1 > 0 {
-        if !dry_run {
-          info!("Modifying {}", cal.0.get_path_as_string().unwrap());
+      let khlines = input::default_input_khlines()?;
+      for khline in khlines {
+        let (cal, count_removed) = khline.to_cal()?.with_remove_property("X-LIC-ERROR");
+        if count_removed > 0 {
+          if !dry_run {
+            info!("Modifying {}", cal.get_path_as_string().unwrap());
 
-          let backup_path = backup(&khline).unwrap();
-          info!("Backup written to {}", backup_path.display());
-          write_cal(&cal.0)?
-        } else {
-          info!("Would modify {}", cal.0.get_path_as_string().unwrap());
-        };
+            let backup_path = backup(&khline).unwrap();
+            info!("Backup written to {}", backup_path.display());
+            write_cal(&cal)?
+          } else {
+            info!("Would modify {}", cal.get_path_as_string().unwrap());
+          };
+        }
       }
     }
-  } else {
-    error!("not supported");
   }
 
   Ok(())

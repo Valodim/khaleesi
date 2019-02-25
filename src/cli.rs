@@ -43,6 +43,9 @@ pub enum Command {
   /// Select from the sequence
   #[structopt(name = "list", author = "")]
   List(ListArgs),
+  /// Modify an event
+  #[structopt(name = "modify", author = "")]
+  Modify(ModifyArgs),
   /// Create new event
   #[structopt(name = "new", author = "")]
   New(NewArgs),
@@ -114,6 +117,23 @@ pub struct ListArgs {
   /// the arguments for the selection
   #[structopt(name = "args")]
   pub args: Vec<String>,
+}
+
+#[derive(Debug, StructOpt)]
+pub struct ModifyArgs {
+  /// Rebuild index
+  #[structopt(short = "n", long = "dry-run")]
+  pub dry_run: bool,
+  /// index path
+  #[structopt(subcommand)]
+  pub modify_cmd: ModifyCommand,
+}
+
+#[derive(Debug, StructOpt)]
+pub enum ModifyCommand {
+  /// Show agenda view
+  #[structopt(name = "remove-xlicerror", author = "")]
+  RemoveXlicerror,
 }
 
 #[derive(Debug, StructOpt)]
