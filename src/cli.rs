@@ -20,13 +20,13 @@ pub struct CommandLine {
 pub enum Command {
   /// Show agenda view
   #[structopt(name = "agenda", author = "")]
-  Agenda(Agenda),
+  Agenda(AgendaArgs),
   /// Copy event
   #[structopt(name = "copy", author = "")]
   Copy,
   /// Interact with the cursor
   #[structopt(name = "cursor", author = "")]
-  Cursor(Cursor),
+  Cursor(CursorArgs),
   /// Delete event
   #[structopt(name = "delete", author = "")]
   Delete,
@@ -35,19 +35,19 @@ pub enum Command {
   Edit,
   /// Get info about the calendar data
   #[structopt(name = "get", author = "")]
-  Get(Get),
+  Get(GetArgs),
   /// Rebuild index
   #[structopt(name = "index", author = "")]
-  Index(Index),
+  Index(IndexArgs),
   /// Select from the sequence
   #[structopt(name = "list", author = "")]
-  List(List),
+  List(ListArgs),
   /// Create new event
   #[structopt(name = "new", author = "")]
-  New(New),
+  New(NewArgs),
   /// Select from the index
   #[structopt(name = "select", author = "")]
-  Select(Select),
+  Select(SelectArgs),
   /// Interact with the sequence
   #[structopt(name = "seq", author = "")]
   Seq,
@@ -59,19 +59,19 @@ pub enum Command {
   Undo,
   /// Unroll a recurring event
   #[structopt(name = "unroll", author = "")]
-  Unroll(Unroll),
+  Unroll(UnrollArgs),
 }
 
 #[derive(Debug, StructOpt)]
-pub struct Agenda {
-  /// Show agenda view 
+pub struct AgendaArgs {
+  /// Show agenda view
   #[structopt(name = "args")]
   pub args: Vec<String>,
 }
 
 #[derive(Debug, StructOpt)]
-pub struct Cursor {
-  /// Move the cursor on the selection. 
+pub struct CursorArgs {
+  /// Move the cursor on the selection.
   #[structopt(name = "direction", raw(possible_values = "&Direction::variants()"))]
   pub direction: Option<Direction>,
 }
@@ -85,22 +85,21 @@ arg_enum! {
 }
 
 #[derive(Debug, StructOpt)]
-pub struct Get {
+pub struct GetArgs {
   /// Show information about this
-  #[structopt(name = "query", raw(possible_values = "&GetArgs::variants()"))]
-  pub query: GetArgs,
+  #[structopt(name = "query", raw(possible_values = "&GetQueryArgs::variants()"))]
+  pub query: GetQueryArgs,
 }
-
 
 arg_enum! {
 #[derive(Debug)]
-  pub enum GetArgs{
+  pub enum GetQueryArgs{
     calendars,
   }
 }
 
 #[derive(Debug, StructOpt)]
-pub struct Index {
+pub struct IndexArgs {
   /// Rebuild index
   #[structopt(short = "r", long = "reindex")]
   pub reindex: bool,
@@ -110,28 +109,28 @@ pub struct Index {
 }
 
 #[derive(Debug, StructOpt)]
-pub struct List {
+pub struct ListArgs {
   /// the arguments for the selection
   #[structopt(name = "args")]
   pub args: Vec<String>,
 }
 
 #[derive(Debug, StructOpt)]
-pub struct Select {
+pub struct SelectArgs {
   /// the arguments for the selection
   #[structopt(name = "args")]
   pub args: Vec<String>,
 }
 
 #[derive(Debug, StructOpt)]
-pub struct Unroll {
+pub struct UnrollArgs {
   /// The file to unroll
   #[structopt(name = "path", parse(from_os_str))]
   pub path: PathBuf,
 }
 
 #[derive(Debug, StructOpt)]
-pub struct New {
+pub struct NewArgs {
   /// the calendar
   #[structopt(name = "calendar")]
   pub calendar: String,

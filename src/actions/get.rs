@@ -1,10 +1,10 @@
 use crate::calendars;
 use crate::KhResult;
-use crate::cli::{Get, GetArgs};
+use crate::cli::{GetArgs, GetQueryArgs};
 
-pub fn action_get(args: &Get) -> KhResult<()> {
+pub fn action_get(args: &GetArgs) -> KhResult<()> {
   match args.query {
-    GetArgs::calendars => action_get_calendars(),
+    GetQueryArgs::calendars => action_get_calendars(),
   }
 }
 
@@ -27,7 +27,7 @@ mod integration {
   fn test_get_calendars() {
     let _testdir = testutils::prepare_testdir("testdir_two_cals");
 
-    let args = Get { query: GetArgs::calendars };
+    let args = GetArgs { query: GetQueryArgs::calendars };
     action_get(&args).unwrap();
 
     assert_eq!("first\nsecond\nsecond/second_sub\n", stdioutils::test_stdout_clear());

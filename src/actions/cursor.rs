@@ -2,14 +2,14 @@ use crate::cursorfile;
 use crate::utils::stdioutils;
 use crate::KhResult;
 use crate::seqfile;
-use crate::cli::{Cursor,Direction as CursorDirection};
+use crate::cli::{CursorArgs,Direction as CursorDirection};
 
 enum Direction {
   Up,
   Down,
 }
 
-pub fn do_cursor(args: &Cursor) -> KhResult<()> {
+pub fn do_cursor(args: &CursorArgs) -> KhResult<()> {
   if !stdioutils::is_stdin_tty() {
     write_stdin_to_cursorfile()?;
   } else {
@@ -85,7 +85,7 @@ mod integration {
     let expected_str = "hi there";
     stdioutils::test_stdin_write(expected_str);
 
-    let args = Cursor{direction: None};
+    let args = CursorArgs{direction: None};
     do_cursor(&args).unwrap();
 
     testdir.child(".khaleesi/cursor").assert(expected_str);
@@ -94,7 +94,7 @@ mod integration {
   #[test]
   fn test_cursor_sequence_move_next() {
     let testdir = testutils::prepare_testdir("testdir_with_seq_and_cursor");
-    let args = Cursor{direction: Some(CursorDirection::next)};
+    let args = CursorArgs{direction: Some(CursorDirection::next)};
     do_cursor(&args).unwrap();
 
     let out = "1182988800 rfc_multi_day_allday.ics";
@@ -105,7 +105,7 @@ mod integration {
   #[test]
   fn test_cursor_sequence_move_prev_at_end() {
     let testdir = testutils::prepare_testdir("testdir_with_seq_and_cursor");
-    let args = Cursor{direction: Some(CursorDirection::prev)};
+    let args = CursorArgs{direction: Some(CursorDirection::prev)};
     do_cursor(&args).unwrap();
 
     let out = "1544740200 twodaysacrossbuckets.ics\n";
@@ -119,7 +119,7 @@ mod integration {
     let expected_str = "hi\nthere";
     stdioutils::test_stdin_write(expected_str);
 
-    let args = Cursor{direction: None};
+    let args = CursorArgs {direction: None};
     let result = do_cursor(&args);
 
     assert!(result.is_err());
@@ -130,7 +130,7 @@ mod integration {
   fn test_no_stdin() {
     let testdir = testutils::prepare_testdir("testdir_with_cursor");
 
-    let args = Cursor{direction: None};
+    let args = CursorArgs {direction: None};
     do_cursor(&args).unwrap();
     let out = stdioutils::test_stdout_clear();
 

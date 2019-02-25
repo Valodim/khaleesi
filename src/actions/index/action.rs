@@ -12,9 +12,9 @@ use crate::utils::fileutil;
 use crate::utils::lock;
 use crate::utils::misc;
 use crate::KhResult;
-use crate::cli::Index;
+use crate::cli::IndexArgs;
 
-pub fn action_index(args: &Index) -> KhResult<()> {
+pub fn action_index(args: &IndexArgs) -> KhResult<()> {
   let reindex = args.reindex;
   let indexpath = match &args.path {
     Some(path) => path.clone(),

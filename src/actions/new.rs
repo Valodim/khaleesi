@@ -2,7 +2,7 @@ use crate::defaults;
 use crate::icalwrap::{IcalVCalendar,IcalTime,IcalTimeZone};
 use crate::khline::KhLine;
 use crate::utils::{misc,fileutil};
-use crate::cli::New;
+use crate::cli::NewArgs;
 
 use crate::KhResult;
 use crate::cursorfile;
@@ -17,7 +17,7 @@ struct EventProperties {
 }
 
 impl EventProperties {
-  fn parse_from_args(args: &New) -> KhResult<EventProperties> {
+  fn parse_from_args(args: &NewArgs) -> KhResult<EventProperties> {
     let calendar = EventProperties::parse_calendar(&args.calendar)?;
     let from = EventProperties::parse_from(&args.from)?;
     let to = EventProperties::parse_to(&args.to)?;
@@ -70,7 +70,7 @@ impl EventProperties {
   }
 }
 
-pub fn do_new(args: &New) -> KhResult<()> {
+pub fn do_new(args: &NewArgs) -> KhResult<()> {
   let uid = misc::make_new_uid();
   let ep = EventProperties::parse_from_args(args)?;
 
@@ -204,7 +204,7 @@ mod integration {
   #[test]
   fn test_parse_from_args() {
     let _testdir = testutils::prepare_testdir("testdir_two_cals");
-    let args = New { calendar: "second".to_string(),
+    let args = NewArgs { calendar: "second".to_string(),
       from: "2017-11-03T12:30:00".to_string(),
       to: "2017-11-07T11:11:00".to_string(),
       summary: "summary text".to_string(),
@@ -258,7 +258,7 @@ mod integration {
     testdata::setup();
     let testdir = testutils::prepare_testdir("testdir_two_cals");
 
-    let args = New { calendar: "second".to_string(),
+    let args = NewArgs { calendar: "second".to_string(),
       from: "2017-11-03T12:30:00".to_string(),
       to: "2017-11-07T11:11:00".to_string(),
       summary: "summary text".to_string(),
