@@ -14,3 +14,4 @@ pub mod seq;
 pub mod show;
 pub mod undo;
 pub mod unroll;
+pub mod gen_completions;

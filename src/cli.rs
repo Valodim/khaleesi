@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 use structopt::StructOpt;
 
+use crate::actions::gen_completions::GenCompletionsArgs;
+
 #[derive(Debug, StructOpt)]
 #[structopt(
   author = "",
@@ -8,7 +10,6 @@ use structopt::StructOpt;
   about = "Command line calendar tool.",
   raw(setting = "structopt::clap::AppSettings::VersionlessSubcommands")
 )]
-
 pub struct CommandLine {
   /// verbosity
   #[structopt(short = "v", parse(from_occurrences))]
@@ -37,6 +38,9 @@ pub enum Command {
   /// Get info about the calendar data
   #[structopt(name = "get", author = "")]
   Get(GetArgs),
+  /// Print shell completions script to stdout
+  #[structopt(name = "gen-completions", author = "")]
+  GenCompletions(GenCompletionsArgs),
   /// Rebuild index
   #[structopt(name = "index", author = "")]
   Index(IndexArgs),
