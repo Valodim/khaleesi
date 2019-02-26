@@ -2,11 +2,29 @@ use crate::defaults;
 use crate::icalwrap::{IcalVCalendar,IcalTime,IcalTimeZone};
 use crate::khline::KhLine;
 use crate::utils::{misc,fileutil};
-use crate::cli::NewArgs;
-
 use crate::KhResult;
 use crate::cursorfile;
 use crate::calendars;
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+pub struct NewArgs {
+  /// the calendar
+  #[structopt(name = "calendar")]
+  pub calendar: String,
+  /// from
+  #[structopt(name = "from")]
+  pub from: String,
+  /// to
+  #[structopt(name = "to")]
+  pub to: String,
+  /// summary
+  #[structopt(name = "summary")]
+  pub summary: String,
+  /// location
+  #[structopt(name = "location")]
+  pub location: String,
+}
 
 struct EventProperties {
   calendar: String,

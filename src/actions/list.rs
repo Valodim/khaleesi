@@ -1,6 +1,14 @@
 use crate::selectors::SelectFilters;
 use crate::input;
 use crate::KhResult;
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+pub struct ListArgs {
+  /// the arguments for the selection
+  #[structopt(name = "args")]
+  pub args: Vec<String>,
+}
 
 pub fn list_by_args(args: &[&str]) -> KhResult<()> {
   let lines = input::default_input_khlines()?;

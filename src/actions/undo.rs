@@ -53,7 +53,7 @@ fn get_most_recent_backup() -> KhResult<PathBuf> {
     .filter_map(|result| result.ok())
     .map(|dir_entry| dir_entry.path())
     .max()
-    .ok_or("there are no backups, nothing to undo!".into())
+    .ok_or_else(|| "there are no backups, nothing to undo!".into())
 }
 
 fn ask_overwrite(path: &Path) -> bool {

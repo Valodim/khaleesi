@@ -1,6 +1,7 @@
 use chrono::{DateTime, Datelike, TimeZone, Local, Date};
 use yansi::{Style};
 use itertools::Itertools;
+use structopt::StructOpt;
 
 use crate::cursorfile;
 use crate::icalwrap::*;
@@ -8,6 +9,13 @@ use crate::input;
 use crate::config::{Config,CalendarConfig};
 use crate::khline::KhLine;
 use crate::KhResult;
+
+#[derive(Debug, StructOpt)]
+pub struct AgendaArgs {
+  /// Show agenda view
+  #[structopt(name = "args")]
+  pub args: Vec<String>,
+}
 
 pub fn show_events(config: &Config, args: &[&str]) -> KhResult<()> {
   let mut events = input::selection(args)?;

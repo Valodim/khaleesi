@@ -7,12 +7,11 @@ use std::time::SystemTime;
 use walkdir::DirEntry;
 
 use crate::defaults::*;
-use super::indextime;
+use super::{IndexArgs, indextime};
 use crate::utils::fileutil;
 use crate::utils::lock;
 use crate::utils::misc;
 use crate::KhResult;
-use crate::cli::IndexArgs;
 
 pub fn action_index(args: &IndexArgs) -> KhResult<()> {
   let reindex = args.reindex;

@@ -2,7 +2,24 @@ use crate::backup::backup;
 use crate::input;
 use crate::utils::fileutil::write_cal;
 use crate::KhResult;
-use crate::cli::{ModifyCommand, ModifyArgs};
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+pub struct ModifyArgs {
+  /// Rebuild index
+  #[structopt(short = "n", long = "dry-run")]
+  pub dry_run: bool,
+  /// index path
+  #[structopt(subcommand)]
+  pub modify_cmd: ModifyCommand,
+}
+
+#[derive(Debug, StructOpt)]
+pub enum ModifyCommand {
+  /// Show agenda view
+  #[structopt(name = "remove-xlicerror", author = "")]
+  RemoveXlicerror,
+}
 
 pub fn do_modify(args: &ModifyArgs) -> KhResult<()> {
   info!("do_modify");

@@ -5,6 +5,14 @@ use crate::selectors::{SelectFilters,daterange::SelectFilterFrom,daterange::Sele
 use crate::utils::fileutil as utils;
 use crate::khline::KhLine;
 use crate::KhResult;
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+pub struct SelectArgs {
+  /// the arguments for the selection
+  #[structopt(name = "args")]
+  pub args: Vec<String>,
+}
 
 impl SelectFilters {
   fn predicate_path_skip_while(&self) -> impl Fn(&PathBuf) -> bool + '_ {

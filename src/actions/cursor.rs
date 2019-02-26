@@ -2,7 +2,23 @@ use crate::cursorfile;
 use crate::utils::stdioutils;
 use crate::KhResult;
 use crate::seqfile;
-use crate::cli::{CursorArgs,Direction as CursorDirection};
+
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+pub struct CursorArgs {
+  /// Move the cursor on the selection.
+  #[structopt(name = "direction", raw(possible_values = "&CursorDirection::variants()"))]
+  pub direction: Option<CursorDirection>,
+}
+
+arg_enum! {
+#[derive(Debug)]
+  pub enum CursorDirection {
+    next,
+    prev,
+  }
+}
 
 enum Direction {
   Up,

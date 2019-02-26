@@ -1,6 +1,20 @@
 use crate::calendars;
 use crate::KhResult;
-use crate::cli::{GetArgs, GetQueryArgs};
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+pub struct GetArgs {
+  /// Show information about this
+  #[structopt(name = "query", raw(possible_values = "&GetQueryArgs::variants()"))]
+  pub query: GetQueryArgs,
+}
+
+arg_enum! {
+#[derive(Debug)]
+  pub enum GetQueryArgs{
+    calendars,
+  }
+}
 
 pub fn action_get(args: &GetArgs) -> KhResult<()> {
   match args.query {

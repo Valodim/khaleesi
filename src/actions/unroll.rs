@@ -1,8 +1,15 @@
-use std::path::Path;
+use std::path::{PathBuf, Path};
+use structopt::StructOpt;
 
 use crate::khline::KhLine;
 use crate::KhResult;
-use crate::cli::UnrollArgs;
+
+#[derive(Debug, StructOpt)]
+pub struct UnrollArgs {
+  /// The file to unroll
+  #[structopt(name = "path", parse(from_os_str))]
+  pub path: PathBuf,
+}
 
 pub fn action_unroll(args: &UnrollArgs) -> KhResult<()> {
   let filepath = &args.path;

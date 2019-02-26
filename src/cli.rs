@@ -1,7 +1,15 @@
-use std::path::PathBuf;
 use structopt::StructOpt;
 
 use crate::actions::gen_completions::GenCompletionsArgs;
+use crate::actions::agenda::AgendaArgs;
+use crate::actions::cursor::CursorArgs;
+use crate::actions::get::GetArgs;
+use crate::actions::index::IndexArgs;
+use crate::actions::list::ListArgs;
+use crate::actions::modify::ModifyArgs;
+use crate::actions::select::SelectArgs;
+use crate::actions::unroll::UnrollArgs;
+use crate::actions::new::NewArgs;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -68,107 +76,4 @@ pub enum Command {
   /// Unroll a recurring event
   #[structopt(name = "unroll", author = "")]
   Unroll(UnrollArgs),
-}
-
-#[derive(Debug, StructOpt)]
-pub struct AgendaArgs {
-  /// Show agenda view
-  #[structopt(name = "args")]
-  pub args: Vec<String>,
-}
-
-#[derive(Debug, StructOpt)]
-pub struct CursorArgs {
-  /// Move the cursor on the selection.
-  #[structopt(name = "direction", raw(possible_values = "&Direction::variants()"))]
-  pub direction: Option<Direction>,
-}
-
-arg_enum! {
-#[derive(Debug)]
-  pub enum Direction {
-    next,
-    prev,
-  }
-}
-
-#[derive(Debug, StructOpt)]
-pub struct GetArgs {
-  /// Show information about this
-  #[structopt(name = "query", raw(possible_values = "&GetQueryArgs::variants()"))]
-  pub query: GetQueryArgs,
-}
-
-arg_enum! {
-#[derive(Debug)]
-  pub enum GetQueryArgs{
-    calendars,
-  }
-}
-
-#[derive(Debug, StructOpt)]
-pub struct IndexArgs {
-  /// Rebuild index
-  #[structopt(short = "r", long = "reindex")]
-  pub reindex: bool,
-  /// index path
-  #[structopt(name = "path", parse(from_os_str))]
-  pub path: Option<PathBuf>,
-}
-
-#[derive(Debug, StructOpt)]
-pub struct ListArgs {
-  /// the arguments for the selection
-  #[structopt(name = "args")]
-  pub args: Vec<String>,
-}
-
-#[derive(Debug, StructOpt)]
-pub struct ModifyArgs {
-  /// Rebuild index
-  #[structopt(short = "n", long = "dry-run")]
-  pub dry_run: bool,
-  /// index path
-  #[structopt(subcommand)]
-  pub modify_cmd: ModifyCommand,
-}
-
-#[derive(Debug, StructOpt)]
-pub enum ModifyCommand {
-  /// Show agenda view
-  #[structopt(name = "remove-xlicerror", author = "")]
-  RemoveXlicerror,
-}
-
-#[derive(Debug, StructOpt)]
-pub struct SelectArgs {
-  /// the arguments for the selection
-  #[structopt(name = "args")]
-  pub args: Vec<String>,
-}
-
-#[derive(Debug, StructOpt)]
-pub struct UnrollArgs {
-  /// The file to unroll
-  #[structopt(name = "path", parse(from_os_str))]
-  pub path: PathBuf,
-}
-
-#[derive(Debug, StructOpt)]
-pub struct NewArgs {
-  /// the calendar
-  #[structopt(name = "calendar")]
-  pub calendar: String,
-  /// from
-  #[structopt(name = "from")]
-  pub from: String,
-  /// to
-  #[structopt(name = "to")]
-  pub to: String,
-  /// summary
-  #[structopt(name = "summary")]
-  pub summary: String,
-  /// location
-  #[structopt(name = "location")]
-  pub location: String,
 }
