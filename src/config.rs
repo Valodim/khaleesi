@@ -9,7 +9,8 @@ use crate::utils::fileutil as utils;
 #[serde(default)]
 pub struct Config {
   pub calendars: HashMap<String,CalendarConfig>,
-  pub agenda: AgendaConfig
+  pub agenda: AgendaConfig,
+  pub local_tz: Option<LocalTZConfig>
 }
 
 #[derive(Deserialize,Debug,PartialEq)]
@@ -22,6 +23,11 @@ pub struct AgendaConfig {
 #[derive(Deserialize,Debug,PartialEq)]
 pub struct CalendarConfig {
   pub color: Option<u8>
+}
+
+#[derive(Deserialize,Debug,PartialEq)]
+pub struct LocalTZConfig {
+  pub timezone: String
 }
 
 impl Config {
@@ -48,6 +54,12 @@ impl CalendarConfig {
   }
 }
 
+impl LocalTZConfig {
+  pub fn get_local_tz(&self) -> String {
+    self.timezone.clone()
+  }
+}
+
 impl Default for AgendaConfig {
   fn default() -> Self {
     AgendaConfig {
@@ -60,8 +72,9 @@ impl Default for AgendaConfig {
 impl Default for Config {
   fn default() -> Self {
     Config {
-      calendars: HashMap::new(),
       agenda: AgendaConfig::default(),
+      calendars: HashMap::new(),
+      local_tz: None,
     }
   }
 }
@@ -92,7 +105,8 @@ mod tests {
       agenda: AgendaConfig {
         print_week_separator: true,
         print_empty_days: false
-      }
+      },
+      local_tz: None,
     };
 
     assert_eq!(expected, config);
@@ -105,5 +119,13 @@ mod tests {
     let style = config.get_style_for_calendar();
 
     assert_eq!(Color::Fixed(81).style(), style);
+  }
+
+  #[test]
+  fn test_get_local_tz() {
+    let config = LocalTZConfig { timezone: "Europe/Berlin".to_string() };
+    let tz = config.get_local_tz();
+
+    assert_eq!("Europe/Berlin".to_string(), tz);
   }
 }

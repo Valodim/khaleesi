@@ -7,6 +7,8 @@ use khaleesi::KhResult;
 
 use structopt::StructOpt;
 
+use std::env;
+
 fn main() {
   let args = cli::CommandLine::from_args();
 
@@ -26,6 +28,8 @@ fn main() {
   debug!("{:?}", args);
 
   let config = Config::read_config();
+
+  init_local_timezone(&config);
 
   let result = main_internal(&args, &config);
   if let Err(error) = result {
@@ -73,4 +77,10 @@ fn init_logger(verbose: u64) {
   //            2 => LevelFilter::Info,
   //            3 => LevelFilter::Debug,
   //            _ => LevelFilter::Trace,
+}
+
+fn init_local_timezone(config: &Config) {
+  if let Some(local_tz_config) = &config.local_tz {
+    env::set_var("TZ", &local_tz_config.timezone);
+  }
 }
