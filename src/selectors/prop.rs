@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use super::*;
 
-use crate::icalwrap::IcalVEvent;
+use crate::khevent::KhEvent;
+//use crate::icalwrap::IcalVEvent;
 use crate::icalwrap::IcalComponent;
 
 pub struct PropFilter {
@@ -22,9 +23,9 @@ impl SelectFilter for PropFilter  {
     !self.terms.is_empty()
   }
 
-  fn includes(&self, event: &IcalVEvent) -> bool {
+  fn includes(&self, event: &KhEvent) -> bool {
     for (term, values) in &self.terms {
-      for prop in event.get_properties_by_name(term) {
+      for prop in event.event.get_properties_by_name(term) {
         let value = prop.get_value().to_lowercase();
         if values.iter().any(|x| value.contains(x)) {
           return true;

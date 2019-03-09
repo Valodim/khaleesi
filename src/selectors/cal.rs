@@ -1,6 +1,7 @@
 use super::*;
 
-use crate::icalwrap::IcalVEvent;
+//use crate::icalwrap::IcalVEvent;
+use crate::khevent::KhEvent;
 
 pub struct CalendarFilter {
   cal_names: Vec<String>
@@ -16,8 +17,8 @@ impl SelectFilter for CalendarFilter {
     !self.cal_names.is_empty()
   }
 
-  fn includes(&self, event: &IcalVEvent) -> bool {
-    event.get_parent()
+  fn includes(&self, event: &KhEvent) -> bool {
+    event.event.get_parent()
       .and_then(|cal| cal.get_path())
       .and_then(|path| path.parent())
       .map(|path| path.to_string_lossy().to_lowercase())

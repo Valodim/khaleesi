@@ -29,15 +29,15 @@ pub fn show_events(config: &Config, args: &[&str]) -> KhResult<()> {
 
 pub fn show_events_cursor(
   config: &Config,
-  events: &mut Iterator<Item = IcalVEvent>,
+  events: &mut Iterator<Item = KhEvent>,
   cursor: Option<&KhLine>,
 ) {
 
-  let mut not_over_yet: Vec<(usize, IcalVEvent, Option<&CalendarConfig>)> = Vec::new();
+  let mut not_over_yet: Vec<(usize, KhEvent, Option<&CalendarConfig>)> = Vec::new();
   let mut cals_iter = events
     .enumerate()
     .map(|(i, event)| {
-      let config = event.get_parent().unwrap().get_calendar_name().and_then(|name| config.get_config_for_calendar(&name));
+      let config = event.get_calendar_name().and_then(|name| config.get_config_for_calendar(&name));
       (i, event, config)
     })
     .peekable();
@@ -61,7 +61,7 @@ pub fn show_events_cursor(
     maybe_print_date_line_header(&config, cur_day, start_day, &mut last_printed_day);
 
     not_over_yet.retain( |(index, event, cal_config)| {
-      let is_cursor = cursor.map(|c| c.matches(&event)).unwrap_or(false);
+      let is_cursor = cursor.map(|c| c.matches_khevent(&event)).unwrap_or(false);
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
       print_event_line(*cal_config, *index, &event, cur_day, is_cursor);
       event.continues_after(cur_day)
@@ -69,7 +69,7 @@ pub fn show_events_cursor(
 
     let relevant_events = cals_iter.peeking_take_while(|(_,event,_)| event.starts_on(cur_day));
     for (i, event, cal_config) in relevant_events {
-      let is_cursor = cursor.map(|c| c.matches(&event)).unwrap_or(false);
+      let is_cursor = cursor.map(|c| c.matches_khevent(&event)).unwrap_or(false);
       maybe_print_date_line(&config, cur_day, start_day, &mut last_printed_day);
       print_event_line(cal_config, i, &event, cur_day, is_cursor);
       if event.continues_after(cur_day) {
@@ -112,7 +112,7 @@ fn print_date_line(date: Date<Local>) {
 fn print_event_line(
   config: Option<&CalendarConfig>,
   index: usize,
-  event: &IcalVEvent,
+  event: &KhEvent,
   date: Date<Local>,
   is_cursor: bool
 ) {
@@ -124,7 +124,7 @@ fn print_event_line(
 
 pub fn event_line(
   config: Option<&CalendarConfig>,
-  event: &IcalVEvent,
+  event: &KhEvent,
   cur_day: Date<Local>,
   is_cursor: bool
 ) -> Result<String, String> {
@@ -164,7 +164,7 @@ pub fn event_line(
   }
 }
 
-impl IcalVEvent {
+impl KhEvent {
   fn starts_on(&self, date: Date<Local>) -> bool {
     let dtstart: Date<Local> = self.get_start().unwrap().into();
     dtstart == date

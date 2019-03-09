@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use crate::khline::{KhLine,khlines_to_events};
-use crate::icalwrap::IcalVEvent;
 use crate::khevent::KhEvent;
 
 use self::daterange::{SelectFilterFrom,SelectFilterTo};
@@ -28,7 +27,7 @@ pub struct SelectFilters {
 pub trait SelectFilter {
   fn add_term(&mut self, it: &mut dyn Iterator<Item = &&str>);
   fn is_not_empty(&self) -> bool;
-  fn includes(&self, event: &IcalVEvent) -> bool;
+  fn includes(&self, event: &KhEvent) -> bool;
 }
 
 impl SelectFilters {
@@ -91,13 +90,13 @@ impl SelectFilters {
     Ok(SelectFilters { from, to, range, others })
   }
 
-  fn line_is_from(&self, event: &IcalVEvent) -> bool {
+  fn line_is_from(&self, event: &KhEvent) -> bool {
     let starts_after = self.from.includes_date(event.get_start().unwrap().into());
     let ends_after = self.from.includes_date(event.get_end().unwrap().into());
     starts_after || ends_after
   }
 
-  fn line_is_to(&self, event: &IcalVEvent) -> bool {
+  fn line_is_to(&self, event: &KhEvent) -> bool {
     self.to.includes_date(event.get_start().unwrap().into())
   }
 
@@ -109,22 +108,22 @@ impl SelectFilters {
     }
   }
 
-  fn others(&self, event: &IcalVEvent) -> bool {
+  fn others(&self, event: &KhEvent) -> bool {
     self.others.is_empty() || self.others.iter().any(|filter| filter.includes(event))
   }
 
-  pub fn is_selected(&self, event: &IcalVEvent) -> bool {
+  pub fn is_selected(&self, event: &KhEvent) -> bool {
     self.line_is_from(event) && self.line_is_to(event) && self.others(event)
   }
 
-  pub fn is_selected_index(&self, index: usize, event: &IcalVEvent) -> bool {
+  pub fn is_selected_index(&self, index: usize, event: &KhEvent) -> bool {
     self.filter_index(index) && self.line_is_from(event) && self.line_is_to(event) && self.others(event)
   }
 
   pub fn filter_khlines(
     self,
     khlines: impl Iterator<Item = KhLine>,
-  ) -> impl Iterator<Item = IcalVEvent> {
+  ) -> impl Iterator<Item = KhEvent> {
     let events = khlines_to_events(khlines);
     events
       .enumerate()

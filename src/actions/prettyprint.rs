@@ -6,7 +6,7 @@ use crate::KhResult;
 pub fn prettyprint() -> KhResult<()> {
   let lines = input::default_input_khlines()?;
   for line in lines {
-    let event = line.to_event()?;
+    let event = line.to_event()?.event;
     prettyprint_comp(&event, line.get_path());
   }
   Ok(())

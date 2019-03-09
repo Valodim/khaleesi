@@ -31,17 +31,22 @@ impl KhLine {
     Ok(calendar)
   }
 
-  pub fn to_event(&self) -> io::Result<IcalVEvent> {
+  pub fn to_event(&self) -> io::Result<KhEvent> {
     let calendar = self.to_cal()?;
     let mut event = calendar.get_first_event();
-    if let Some(ref time) = self.time {
-      event = event.with_internal_timestamp(time);
-    }
-    Ok(event)
+    Ok(KhEvent::from_event_with_timestamp(event, self.time.clone()))
+    //if let Some(ref time) = self.time {
+      //event = event.with_internal_timestamp(time);
+    //}
+    //Ok(event)
   }
 
   pub fn with_index(self, index: usize) -> Self {
     Self { path: self.path, time: self.time, index: Some(index) }
+  }
+
+  pub fn matches_khevent(&self, event: &KhEvent) -> bool {
+    self == &KhLine::from(event)
   }
 
   pub fn matches(&self, event: &IcalVEvent) -> bool {
@@ -66,6 +71,15 @@ impl KhLine {
 impl From<&IcalVEvent> for KhLine {
   fn from(event: &IcalVEvent) -> Self {
     let path = event.get_parent().unwrap().get_path().unwrap().to_path_buf();
+    let time = event.get_dtstart();
+
+    KhLine{ path, time, index: None }
+  }
+}
+
+impl From<&KhEvent> for KhLine {
+  fn from(event: &KhEvent) -> Self {
+    let path = event.event.get_parent().unwrap().get_path().unwrap().to_path_buf();
     let time = event.get_start();
 
     KhLine{ path, time, index: None }
@@ -127,7 +141,7 @@ pub fn lines_to_khlines_indexed(lines: impl Iterator<Item = String>) -> impl Ite
     .flatten()
 }
 
-pub fn khlines_to_events(lines: impl Iterator<Item = KhLine>) -> impl Iterator<Item = IcalVEvent> {
+pub fn khlines_to_events(lines: impl Iterator<Item = KhLine>) -> impl Iterator<Item = KhEvent> {
   lines.map(|line| line.to_event()).flatten()
 }
 

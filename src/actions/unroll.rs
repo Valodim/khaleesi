@@ -24,7 +24,8 @@ fn do_unroll(filepath: &Path) -> KhResult<()> {
   let khline = path.parse::<KhLine>()?;
   let cal = khline.to_cal()?;
 
-  for event in cal.events_iter() {
+  for ical_event in cal.events_iter() {
+    let event = KhEvent::from_event(ical_event);
     if event.is_recur_master() {
       let recurs = event.get_recur_datetimes();
       for datetime in recurs {

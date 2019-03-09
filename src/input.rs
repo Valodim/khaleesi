@@ -6,8 +6,9 @@ use crate::khline::{KhLine,lines_to_khlines,khlines_to_events};
 use crate::utils::stdioutils;
 use crate::icalwrap::IcalVEvent;
 use crate::selectors::SelectFilters;
+use crate::khevent::KhEvent;
 
-pub fn selection(args: &[&str]) -> Result<Box<dyn Iterator<Item = IcalVEvent>>, String> {
+pub fn selection(args: &[&str]) -> Result<Box<dyn Iterator<Item = KhEvent>>, String> {
   if args.is_empty() {
     let khlines = default_input_khlines()?;
     let events = khlines_to_events(khlines);

@@ -1,6 +1,7 @@
 use super::*;
 
-use crate::icalwrap::IcalVEvent;
+//use crate::icalwrap::IcalVEvent;
+use crate::khevent::KhEvent;
 
 pub struct GrepFilter {
   terms: Vec<String>
@@ -16,7 +17,7 @@ impl SelectFilter for GrepFilter  {
     !self.terms.is_empty()
   }
 
-  fn includes(&self, event: &IcalVEvent) -> bool {
+  fn includes(&self, event: &KhEvent) -> bool {
     for term in &self.terms {
       if let Some(summary) = event.get_summary() {
         if summary.to_lowercase().contains(term) {

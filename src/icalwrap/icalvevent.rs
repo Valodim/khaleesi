@@ -32,34 +32,6 @@ impl IcalComponent for IcalVEvent {
   }
 }
 
-impl KhEvent for IcalVEvent {
-  fn get_start(&self) -> Option<IcalTime> {
-    //TODO: should probably depend on is_recur_master, not the instance timestamp
-    match self.instance_timestamp {
-      Some(ref timestamp) => Some(timestamp.clone()),
-      None => {
-        self.get_dtstart()
-      }
-    }
-  }
-
-  fn get_end(&self) -> Option<IcalTime> {
-    //TODO: should probably depend on is_recur_master, not the instance timestamp
-    match self.instance_timestamp {
-      Some(ref timestamp) => unsafe {
-        let icalduration = ical::icalcomponent_get_duration(self.ptr);
-        let dtend = ical::icaltime_add(**timestamp, icalduration);
-        Some(IcalTime::from(dtend))
-      },
-      None => self.get_dtend()
-    }
-  }
-
-  fn is_recur_master(&self) -> bool {
-    self.has_property_rrule() && self.instance_timestamp.is_none()
-  }
-}
-
 impl IcalVEvent {
   pub fn from_ptr_with_parent(
       ptr: *mut ical::icalcomponent,
@@ -106,14 +78,6 @@ impl IcalVEvent {
     }
   }
 
-  pub fn get_last_relevant_date(&self) -> Option<IcalTime> {
-    if self.is_allday() {
-      self.get_dtend().map(|dtend| dtend.pred())
-    } else {
-      self.get_dtend().map(|dtend| dtend)
-    }
-  }
-
   pub fn has_property_rrule(&self) -> bool {
     !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
   }
@@ -137,17 +101,6 @@ impl IcalVEvent {
     }
 
     result
-  }
-
-  pub fn is_recur_valid(&self) -> bool {
-    if self.is_recur_master() {
-      true
-    } else if let Some(ref timestamp) = self.instance_timestamp {
-      let recur_times = self.get_recur_datetimes();
-      recur_times.contains(timestamp)
-    } else {
-      self.instance_timestamp.is_none()
-    }
   }
 
   pub fn with_internal_timestamp(&self, datetime: &IcalTime) -> IcalVEvent {

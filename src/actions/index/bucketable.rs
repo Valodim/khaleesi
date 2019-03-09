@@ -2,7 +2,8 @@ use chrono::{Local, Date, Datelike, Duration};
 use std::collections::HashMap;
 use std::{hash, cmp};
 
-use crate::icalwrap::{IcalVEvent, IcalVCalendar};
+use crate::icalwrap::IcalVCalendar;
+//use crate::icalwrap::IcalVEvent;
 use crate::utils::misc;
 use crate::khline::KhLine;
 use crate::khevent::KhEvent;
@@ -22,18 +23,19 @@ pub trait Bucketable {
   }
 }
 
-impl Bucketable for IcalVEvent {
+impl Bucketable for KhEvent {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String> {
     let mut result:  HashMap<String, Vec<String>> = HashMap::new();
 
     let start_date: Date<Local> = self.get_start().ok_or_else(|| format!("Invalid DTSTART in {}", self.get_uid()))?.into();
-    let mut end_date: Date<Local> = self.get_end().map(|date| date.into()).unwrap_or(start_date);
+    //let mut end_date: Date<Local> = self.get_end().map(|date| date.into()).unwrap_or(start_date);
 
+    let mut end_date = self.get_last_relevant_date().map(|date| date.into()).unwrap_or(start_date);
     // end-dtimes are non-inclusive
     // so in case of date-only events, the last day of the event is dtend-1
-    if self.is_allday() {
-      end_date = end_date.pred();
-    }
+    //if self.is_allday() {
+      //end_date = end_date.pred();
+    //}
 
     let buckets = Self::buckets_for_interval(start_date, end_date);
     let khline = KhLine::from(self);
@@ -62,6 +64,7 @@ impl Bucketable for IcalVCalendar {
   fn get_buckets(&self) -> Result<HashMap<String, Vec<String>>, String> {
     let mut result:  HashMap<String, Vec<String>> = HashMap::new();
     for event in self.events_iter() {
+      let event = KhEvent::from_event(event);
       let recur_buckets = event.get_buckets()?;
       result.merge(recur_buckets);
     }
