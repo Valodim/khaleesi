@@ -368,6 +368,7 @@ impl Drop for IcalComponentOwner {
 mod tests {
   use super::*;
   use crate::testdata;
+  use crate::khevent::KhEvent;
   use chrono::{Local,TimeZone};
 
   #[test]
@@ -512,7 +513,7 @@ mod tests {
     let new_cal = cal.with_dtend(&timestamp);
 
     let event = new_cal.get_principal_event();
-    assert_eq!(timestamp, event.get_dtend().unwrap())
+    assert_eq!(timestamp, event.get_end().unwrap())
   }
 
   #[test]
@@ -524,7 +525,7 @@ mod tests {
     let new_cal = cal.with_dtstart(&timestamp);
 
     let event = new_cal.get_principal_event();
-    assert_eq!(timestamp, event.get_dtstart().unwrap())
+    assert_eq!(timestamp, event.get_start().unwrap())
   }
 
   #[test]
@@ -538,8 +539,8 @@ mod tests {
     let new_cal = cal.with_dtstart(&timestamp);
 
     let event = new_cal.get_principal_event();
-    assert_eq!(timestamp, event.get_dtstart().unwrap());
-    assert_eq!("Europe/Berlin", event.get_dtstart().unwrap().get_timezone().unwrap().get_name());
+    assert_eq!(timestamp, event.get_start().unwrap());
+    assert_eq!("Europe/Berlin", event.get_start().unwrap().get_timezone().unwrap().get_name());
   }
 
   #[test]
@@ -550,7 +551,7 @@ mod tests {
     let new_cal = cal.with_internal_timestamp(&timestamp);
 
     let event = new_cal.get_principal_event();
-    assert_eq!(timestamp, event.get_dtstart().unwrap());
+    assert_eq!(timestamp, event.get_start().unwrap());
   }
 
   #[test]

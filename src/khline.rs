@@ -6,6 +6,7 @@ use std::str::FromStr;
 use crate::icalwrap::{IcalVCalendar,IcalVEvent,IcalTime};
 use crate::utils::{fileutil,dateutil};
 use crate::defaults;
+use crate::khevent::KhEvent;
 
 #[derive(PartialEq,Eq,Debug)]
 pub struct KhLine {
@@ -65,7 +66,7 @@ impl KhLine {
 impl From<&IcalVEvent> for KhLine {
   fn from(event: &IcalVEvent) -> Self {
     let path = event.get_parent().unwrap().get_path().unwrap().to_path_buf();
-    let time = event.get_dtstart();
+    let time = event.get_start();
 
     KhLine{ path, time, index: None }
   }
@@ -250,7 +251,7 @@ mod tests {
       testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").path(),
       event.get_parent().unwrap().get_path().unwrap()
     );
-    assert_eq!(12345, event.get_dtstart().unwrap().timestamp());
+    assert_eq!(12345, event.get_start().unwrap().timestamp());
   }
 
   #[test]
@@ -266,7 +267,7 @@ mod tests {
     );
     assert_eq!(
       IcalTime::floating_ymd(2018, 12, 13).and_hms(23, 30, 00),
-      event.get_dtstart().unwrap()
+      event.get_start().unwrap()
     );
   }
 }

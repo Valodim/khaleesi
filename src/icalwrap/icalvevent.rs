@@ -6,6 +6,7 @@ use super::IcalTime;
 use super::IcalTimeZone;
 use super::IcalDuration;
 use crate::ical;
+use crate::khevent::KhEvent;
 
 pub struct IcalVEvent {
   ptr: *mut ical::icalcomponent,
@@ -31,6 +32,34 @@ impl IcalComponent for IcalVEvent {
   }
 }
 
+impl KhEvent for IcalVEvent {
+  fn get_start(&self) -> Option<IcalTime> {
+    //TODO: should probably depend on is_recur_master, not the instance timestamp
+    match self.instance_timestamp {
+      Some(ref timestamp) => Some(timestamp.clone()),
+      None => {
+        self.get_dtstart()
+      }
+    }
+  }
+
+  fn get_end(&self) -> Option<IcalTime> {
+    //TODO: should probably depend on is_recur_master, not the instance timestamp
+    match self.instance_timestamp {
+      Some(ref timestamp) => unsafe {
+        let icalduration = ical::icalcomponent_get_duration(self.ptr);
+        let dtend = ical::icaltime_add(**timestamp, icalduration);
+        Some(IcalTime::from(dtend))
+      },
+      None => self.get_dtend()
+    }
+  }
+
+  fn is_recur_master(&self) -> bool {
+    self.has_property_rrule() && self.instance_timestamp.is_none()
+  }
+}
+
 impl IcalVEvent {
   pub fn from_ptr_with_parent(
       ptr: *mut ical::icalcomponent,
@@ -44,22 +73,14 @@ impl IcalVEvent {
   }
 
   pub fn get_dtend(&self) -> Option<IcalTime> {
-    match self.instance_timestamp {
-      Some(ref timestamp) => unsafe {
-        let icalduration = ical::icalcomponent_get_duration(self.ptr);
-        let dtend = ical::icaltime_add(**timestamp, icalduration);
+    unsafe {
+      let dtend = ical::icalcomponent_get_dtend(self.ptr);
+      trace!("{:?}", dtend);
+      if ical::icaltime_is_null_time(dtend) == 1 {
+        None
+      } else {
         Some(IcalTime::from(dtend))
-      },
-      None =>
-        unsafe {
-          let dtend = ical::icalcomponent_get_dtend(self.ptr);
-          trace!("{:?}", dtend);
-          if ical::icaltime_is_null_time(dtend) == 1 {
-            None
-          } else {
-            Some(IcalTime::from(dtend))
-          }
-        }
+      }
     }
   }
 
@@ -75,15 +96,12 @@ impl IcalVEvent {
   }
 
   pub fn get_dtstart(&self) -> Option<IcalTime> {
-    match self.instance_timestamp {
-      Some(ref timestamp) => Some(timestamp.clone()),
-      None => unsafe {
-        let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
-        if ical::icaltime_is_null_time(dtstart) == 1 {
-          None
-        } else {
-          Some(IcalTime::from(dtstart))
-        }
+    unsafe {
+      let dtstart = ical::icalcomponent_get_dtstart(self.ptr);
+      if ical::icaltime_is_null_time(dtstart) == 1 {
+        None
+      } else {
+        Some(IcalTime::from(dtstart))
       }
     }
   }
@@ -96,11 +114,7 @@ impl IcalVEvent {
     }
   }
 
-  pub fn is_recur_master(&self) -> bool {
-    self.is_recur() && self.instance_timestamp.is_none()
-  }
-
-  pub fn is_recur(&self) -> bool {
+  pub fn has_property_rrule(&self) -> bool {
     !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
   }
 
@@ -349,8 +363,8 @@ mod tests {
     let event = cal.get_principal_event();
     let mut recur_instances = event.get_recur_instances();
     let local = IcalTimeZone::local();
-    assert_eq!(IcalTime::floating_ymd(2018, 10, 11).with_timezone(&local), recur_instances.next().unwrap().get_dtstart().unwrap());
-    assert_eq!(IcalTime::floating_ymd(2018, 10, 18).with_timezone(&local), recur_instances.next().unwrap().get_dtstart().unwrap());
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 11).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 18).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
   }
 
   #[test]

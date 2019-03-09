@@ -3,6 +3,7 @@ use structopt::StructOpt;
 
 use crate::khline::KhLine;
 use crate::KhResult;
+use crate::khevent::KhEvent;
 
 #[derive(Debug, StructOpt)]
 pub struct UnrollArgs {

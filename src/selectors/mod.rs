@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::khline::{KhLine,khlines_to_events};
 use crate::icalwrap::IcalVEvent;
+use crate::khevent::KhEvent;
 
 use self::daterange::{SelectFilterFrom,SelectFilterTo};
 use self::cal::CalendarFilter;
@@ -91,13 +92,13 @@ impl SelectFilters {
   }
 
   fn line_is_from(&self, event: &IcalVEvent) -> bool {
-    let starts_after = self.from.includes_date(event.get_dtstart().unwrap().into());
-    let ends_after = self.from.includes_date(event.get_dtend().unwrap().into());
+    let starts_after = self.from.includes_date(event.get_start().unwrap().into());
+    let ends_after = self.from.includes_date(event.get_end().unwrap().into());
     starts_after || ends_after
   }
 
   fn line_is_to(&self, event: &IcalVEvent) -> bool {
-    self.to.includes_date(event.get_dtstart().unwrap().into())
+    self.to.includes_date(event.get_start().unwrap().into())
   }
 
   fn filter_index(&self, index: usize) -> bool {

@@ -13,6 +13,7 @@ pub mod defaults;
 pub mod edit;
 pub mod icalwrap;
 pub mod input;
+pub mod khevent;
 pub mod khline;
 pub mod selectors;
 pub mod seqfile;

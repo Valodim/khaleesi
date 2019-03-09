@@ -145,6 +145,7 @@ mod integration {
   use super::*;
   use crate::testutils;
   use crate::testdata;
+  use crate::khevent::KhEvent;
 
   #[test]
   fn test_parse_calendar() {
@@ -265,8 +266,8 @@ mod integration {
       .with_eventprops(&ep);
 
     let event = cal.get_principal_event();
-    assert_eq!(Some(from), event.get_dtstart());
-    assert_eq!(Some(to), event.get_dtend());
+    assert_eq!(Some(from), event.get_start());
+    assert_eq!(Some(to), event.get_end());
     assert_eq!(summary, event.get_summary().unwrap());
     assert_eq!(location, event.get_location().unwrap());
   }

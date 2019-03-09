@@ -7,6 +7,7 @@ use crate::cursorfile;
 use crate::icalwrap::*;
 use crate::input;
 use crate::config::{Config,CalendarConfig};
+use crate::khevent::KhEvent;
 use crate::khline::KhLine;
 use crate::KhResult;
 
@@ -44,7 +45,7 @@ pub fn show_events_cursor(
   let start_day = match cals_iter.peek() {
     Some((_, event, _)) => {
       event
-        .get_dtstart()
+        .get_start()
         .map(|dtstart| dtstart.into())
         .unwrap_or_else(|| Local.timestamp(0, 0))
         .date()
@@ -143,7 +144,7 @@ pub fn event_line(
     Ok(format!("{:3}             {}", cursor_icon, summary))
   } else {
     let mut time_sep = " ";
-    let dtstart: DateTime<Local> = event.get_dtstart().ok_or("Invalid DTSTART")?.into();
+    let dtstart: DateTime<Local> = event.get_start().ok_or("Invalid DTSTART")?.into();
     let start_string = if dtstart.date() != cur_day {
       "".to_string()
     } else {
@@ -151,7 +152,7 @@ pub fn event_line(
       format!("{}", dtstart.format("%H:%M"))
     };
 
-    let dtend: DateTime<Local> = event.get_dtend().ok_or("Invalid DTEND")?.into();
+    let dtend: DateTime<Local> = event.get_end().ok_or("Invalid DTEND")?.into();
     let end_string = if dtend.date() != cur_day {
       "".to_string()
     } else {
@@ -165,12 +166,12 @@ pub fn event_line(
 
 impl IcalVEvent {
   fn starts_on(&self, date: Date<Local>) -> bool {
-    let dtstart: Date<Local> = self.get_dtstart().unwrap().into();
+    let dtstart: Date<Local> = self.get_start().unwrap().into();
     dtstart == date
   }
 
   fn relevant_on(&self, date: Date<Local>) -> bool {
-    let dtstart: Option<Date<Local>> = self.get_dtstart().map(|date| date.into());
+    let dtstart: Option<Date<Local>> = self.get_start().map(|date| date.into());
     let last_relevant_date: Option<Date<Local>> = self.get_last_relevant_date().map(|date| date.into());
 
     dtstart.map(|dtstart| dtstart <= date).unwrap_or(false) &&
