@@ -265,7 +265,7 @@ mod integration {
     let cal = khline.to_cal().unwrap()
       .with_eventprops(&ep);
 
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
     assert_eq!(Some(from), event.get_start());
     assert_eq!(Some(to), event.get_end());
     assert_eq!(summary, event.get_summary().unwrap());

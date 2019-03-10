@@ -505,7 +505,7 @@ mod tests {
     let summary = "test";
     let new_cal = cal.with_summary(summary);
 
-    let event = new_cal.get_principal_event();
+    let event = new_cal.get_principal_khevent();
     assert_eq!(summary, event.get_summary().unwrap())
   }
 
@@ -517,7 +517,7 @@ mod tests {
     let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
     let new_cal = cal.with_dtend(&timestamp);
 
-    let event = new_cal.get_principal_event();
+    let event = new_cal.get_principal_khevent();
     assert_eq!(timestamp, event.get_end().unwrap())
   }
 
@@ -529,7 +529,7 @@ mod tests {
     let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
     let new_cal = cal.with_dtstart(&timestamp);
 
-    let event = new_cal.get_principal_event();
+    let event = new_cal.get_principal_khevent();
     assert_eq!(timestamp, event.get_start().unwrap())
   }
 
@@ -543,7 +543,7 @@ mod tests {
 
     let new_cal = cal.with_dtstart(&timestamp);
 
-    let event = new_cal.get_principal_event();
+    let event = new_cal.get_principal_khevent();
     assert_eq!(timestamp, event.get_start().unwrap());
     assert_eq!("Europe/Berlin", event.get_start().unwrap().get_timezone().unwrap().get_name());
   }
@@ -555,7 +555,7 @@ mod tests {
     let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
     let new_cal = cal.with_internal_timestamp(&timestamp);
 
-    let event = new_cal.get_principal_event();
+    let event = new_cal.get_principal_khevent();
     assert_eq!(timestamp, event.get_start().unwrap());
   }
 

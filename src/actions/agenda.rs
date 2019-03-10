@@ -199,7 +199,7 @@ mod integration {
   #[test]
   fn test_starts_on() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
 
     let first_day = Local.ymd(2007, 6, 28);
     assert!(event.starts_on(first_day));
@@ -211,7 +211,7 @@ mod integration {
   #[test]
   fn test_continues_after_allday() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
     let first_day = Local.ymd(2007, 6, 28);
     assert!(event.continues_after(first_day));
     let last_day = Local.ymd(2007, 7, 8);
@@ -221,7 +221,7 @@ mod integration {
   #[test]
   fn test_continues_after_simple() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
     let date = Local.ymd(1997, 3, 24);
     assert!(!event.continues_after(date));
   }
@@ -229,7 +229,7 @@ mod integration {
   #[test]
   fn test_event_line_negative() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
     let date = Local.ymd(1998, 1, 1);
     let event_line = event_line(None, &event, date, false);
     assert!(event_line.is_err())
@@ -239,7 +239,7 @@ mod integration {
   fn test_event_line_simple() {
     testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
     let date = Local.ymd(1997, 3, 24);
     let event_line = event_line(None, &event, date, false).unwrap();
     assert_eq!("   13:30-22:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
@@ -249,7 +249,7 @@ mod integration {
   fn test_event_line_cursor() {
     testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
     let date = Local.ymd(1997, 3, 24);
     let event_line = event_line(None, &event, date, true).unwrap();
     assert_eq!(">  13:30-22:00  Calendaring Interoperability Planning Meeting".to_string(), event_line)
@@ -259,7 +259,7 @@ mod integration {
   fn test_event_line_multiday() {
     testdata::setup();
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
     let begin = Local.ymd(2007, 6, 28);
     let middle = Local.ymd(2007, 6, 30);
     let end = Local.ymd(2007, 7, 9);
@@ -274,7 +274,7 @@ mod integration {
   #[test]
   fn test_event_line_multiday_allday() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
-    let event = cal.get_principal_event();
+    let event = cal.get_principal_khevent();
     let date = Local.ymd(2007, 6, 28);
     let event_line = event_line(None, &event, date, false).unwrap();
     assert_eq!("                Festival International de Jazz de Montreal".to_string(), event_line)

@@ -103,6 +103,14 @@ impl IcalVEvent {
     result
   }
 
+  pub fn shallow_copy(&self) -> IcalVEvent {
+    IcalVEvent {
+      ptr: self.ptr,
+      parent: self.parent.as_ref().map(|parent| parent.shallow_copy()),
+      instance_timestamp: self.instance_timestamp.clone(),
+    }
+  }
+
   pub fn with_internal_timestamp(&self, datetime: &IcalTime) -> IcalVEvent {
     IcalVEvent {
       ptr: self.ptr,
@@ -287,16 +295,5 @@ mod tests {
     let event = cal.get_principal_event();
 
     assert_eq!(None, event.get_location());
-  }
-
-  #[test]
-  fn recur_datetimes_test() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-
-    let event = cal.get_principal_event();
-    let mut recur_instances = event.get_recur_instances();
-    let local = IcalTimeZone::local();
-    assert_eq!(IcalTime::floating_ymd(2018, 10, 11).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
-    assert_eq!(IcalTime::floating_ymd(2018, 10, 18).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
   }
 }

@@ -46,9 +46,9 @@ mod integration {
     let event = khline.to_event().unwrap();
 
     let dtstamp_prop = ical::icalproperty_kind_ICAL_DTSTAMP_PROPERTY;
-    assert_eq!("20130101T010203Z", event.get_property(dtstamp_prop).unwrap().get_value());
+    assert_eq!("20130101T010203Z", event.get_dtstamp().unwrap());
 
     let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
-    assert_eq!("20130101T010203Z", event.get_property(last_modified_kind).unwrap().get_value());
+    assert_eq!("20130101T010203Z", event.get_last_modified().unwrap());
   }
 }

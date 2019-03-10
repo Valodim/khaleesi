@@ -1,8 +1,10 @@
 use std::path::PathBuf;
 
 use crate::icalwrap::IcalTime;
+use crate::icalwrap::IcalTimeZone;
 use crate::icalwrap::IcalDuration;
 use crate::icalwrap::IcalVEvent;
+use crate::icalwrap::IcalComponent;
 
 pub struct KhEvent {
   //TODO event should be private
@@ -36,9 +38,9 @@ impl KhEvent {
     }
   }
 
-  pub fn with_internal_timestamp(self, timestamp: &IcalTime) -> Self {
+  pub fn with_internal_timestamp(&self, timestamp: &IcalTime) -> Self {
     Self {
-      event: self.event,
+      event: self.event.shallow_copy(),
       instance_timestamp: Some(timestamp.clone())
     }
   }
@@ -75,6 +77,16 @@ impl KhEvent {
     self.event.get_uid()
   }
 
+  pub fn get_dtstamp(&self) -> Option<String> {
+    let dtstamp_kind = ical::icalproperty_kind_ICAL_DTSTAMP_PROPERTY;
+    self.event.get_property(dtstamp_kind).map(|prop| prop.get_value())
+  }
+
+  pub fn get_last_modified(&self) -> Option<String> {
+    let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
+    self.event.get_property(last_modified_kind).map(|prop| prop.get_value())
+  }
+
   pub fn get_last_relevant_date(&self) -> Option<IcalTime> {
     //TODO this is still wrong
     //events can end at 00:00
@@ -100,10 +112,17 @@ impl KhEvent {
     }
   }
 
-  pub fn get_recur_instances(&self) -> impl Iterator<Item = KhEvent> + '_ {
-    self.event.get_recur_instances().map(|event| KhEvent::from_event(event))
-  }
+  //pub fn get_recur_instances(&self) -> impl Iterator<Item = KhEvent> + '_ {
+    //self.event
+      //.get_recur_instances()
+      //.map(|event| KhEvent::from_event_with_timestamp(event, event.instance_timestamp))
+  //}
 
+  pub fn get_recur_instances(&self) -> impl Iterator<Item = KhEvent> + '_ {
+    self.get_recur_datetimes().into_iter()
+      .map(|recur_utc| recur_utc.with_timezone(&IcalTimeZone::local()))
+      .map(move |recur_local| self.with_internal_timestamp(&recur_local))
+  }
 
   pub fn get_recur_datetimes(&self) -> Vec<IcalTime> {
     self.event.get_recur_datetimes()
@@ -130,6 +149,7 @@ mod tests {
   use super::*;
   use crate::testdata;
   use crate::icalwrap::IcalVCalendar;
+  use crate::icalwrap::IcalTimeZone;
   use chrono::NaiveDate;
 
   #[test]
@@ -144,8 +164,9 @@ mod tests {
   fn test_is_recur_valid_dtstart() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let event = cal.get_principal_khevent();
+    let start = &event.get_start().unwrap();
 
-    let event = event.with_internal_timestamp(&event.get_start().unwrap());
+    let event = event.with_internal_timestamp(start);
 
     assert!(event.is_recur_valid());
   }
@@ -197,4 +218,16 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     assert!(!cal.get_principal_khevent().is_recur_master());
   }
+
+  #[test]
+  fn recur_datetimes_test() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+
+    let event = cal.get_principal_khevent();
+    let mut recur_instances = event.get_recur_instances();
+    let local = IcalTimeZone::local();
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 11).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 18).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
+  }
+
 }
