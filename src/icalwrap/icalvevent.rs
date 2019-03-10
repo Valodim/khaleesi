@@ -290,26 +290,6 @@ mod tests {
   }
 
   #[test]
-  fn test_is_recur_master() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    assert!(cal.get_principal_event().is_recur_master());
-  }
-
-  #[test]
-  fn test_is_recur_master_instance() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_event();
-    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2018, 01, 01));
-    assert!(!event.is_recur_master());
-  }
-
-  #[test]
-  fn test_is_recur_master_invalid() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    assert!(!cal.get_principal_event().is_recur_master());
-  }
-
-  #[test]
   fn recur_datetimes_test() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
 
@@ -319,51 +299,4 @@ mod tests {
     assert_eq!(IcalTime::floating_ymd(2018, 10, 11).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
     assert_eq!(IcalTime::floating_ymd(2018, 10, 18).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
   }
-
-  #[test]
-  fn test_is_recur_valid_master() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_event();
-
-    assert!(event.is_recur_valid());
-  }
-
-  #[test]
-  fn test_is_recur_valid_dtstart() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_event();
-
-    let event = event.with_internal_timestamp(&event.get_dtstart().unwrap());
-
-    assert!(event.is_recur_valid());
-  }
-
-  #[test]
-  fn test_is_recur_valid_incorrect() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_event();
-
-    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2010, 01, 01));
-
-    assert!(!event.is_recur_valid());
-  }
-
-  #[test]
-  fn test_is_recur_valid_other() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_event();
-
-    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2018, 10, 25));
-
-    assert!(event.is_recur_valid());
-  }
-
-  #[test]
-  fn test_is_recur_valid_nonrecur() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    let event = cal.get_principal_event();
-
-    assert!(event.is_recur_valid());
-  }
-
 }

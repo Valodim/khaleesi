@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::icalwrap::IcalTime;
 use crate::icalwrap::IcalDuration;
 use crate::icalwrap::IcalVEvent;
@@ -34,8 +36,19 @@ impl KhEvent {
     }
   }
 
+  pub fn with_internal_timestamp(self, timestamp: &IcalTime) -> Self {
+    Self {
+      event: self.event,
+      instance_timestamp: Some(timestamp.clone())
+    }
+  }
+
   pub fn get_calendar_name(&self) -> Option<String> {
     self.event.get_parent().and_then(|cal| cal.get_calendar_name())
+  }
+
+  pub fn get_path(&self) -> Option<&PathBuf> {
+    self.event.get_parent()?.get_path()
   }
 
   pub fn is_allday(&self) -> bool {
@@ -112,3 +125,76 @@ impl KhEvent {
 
 }
 
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::testdata;
+  use crate::icalwrap::IcalVCalendar;
+  use chrono::NaiveDate;
+
+  #[test]
+  fn test_is_recur_valid_master() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_khevent();
+
+    assert!(event.is_recur_valid());
+  }
+
+  #[test]
+  fn test_is_recur_valid_dtstart() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_khevent();
+
+    let event = event.with_internal_timestamp(&event.get_start().unwrap());
+
+    assert!(event.is_recur_valid());
+  }
+
+  #[test]
+  fn test_is_recur_valid_incorrect() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_khevent();
+
+    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2010, 01, 01));
+
+    assert!(!event.is_recur_valid());
+  }
+
+  #[test]
+  fn test_is_recur_valid_other() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_khevent();
+
+    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2018, 10, 25));
+
+    assert!(event.is_recur_valid());
+  }
+
+  #[test]
+  fn test_is_recur_valid_nonrecur() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    let event = cal.get_principal_khevent();
+
+    assert!(event.is_recur_valid());
+  }
+
+  #[test]
+  fn test_is_recur_master_instance() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_khevent();
+    let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2018, 01, 01));
+    assert!(!event.is_recur_master());
+  }
+
+  #[test]
+  fn test_is_recur_master() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    assert!(cal.get_principal_khevent().is_recur_master());
+  }
+
+  #[test]
+  fn test_is_recur_master_invalid() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    assert!(!cal.get_principal_khevent().is_recur_master());
+  }
+}

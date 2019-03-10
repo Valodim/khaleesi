@@ -263,7 +263,7 @@ mod tests {
 
     assert_eq!(
       testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").path(),
-      event.get_parent().unwrap().get_path().unwrap()
+      event.get_path().unwrap()
     );
     assert_eq!(12345, event.get_start().unwrap().timestamp());
   }
@@ -277,7 +277,7 @@ mod tests {
 
     assert_eq!(
       testdir.child(".khaleesi/cal/twodaysacrossbuckets.ics").path(),
-      event.get_parent().unwrap().get_path().unwrap()
+      event.get_path().unwrap()
     );
     assert_eq!(
       IcalTime::floating_ymd(2018, 12, 13).and_hms(23, 30, 00),

@@ -248,13 +248,14 @@ pub fn setup() {
 }
 
 #[cfg(test)]
-use crate::icalwrap::{IcalVCalendar,IcalVEvent};
+use crate::icalwrap::{IcalVCalendar, IcalVEvent};
+use crate::khevent::KhEvent;
 #[cfg(test)]
 use std::path::Path;
 #[cfg(test)]
-pub fn get_test_event(str: &str, path: Option<&Path>) -> IcalVEvent {
+pub fn get_test_event(str: &str, path: Option<&Path>) -> KhEvent {
   IcalVCalendar::from_str(str, path)
-    .map(|cal| cal.get_principal_event())
+    .map(|cal| KhEvent::from_event(cal.get_principal_event()))
     .unwrap()
 }
 

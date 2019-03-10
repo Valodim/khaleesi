@@ -6,6 +6,7 @@ use std::io;
 use super::IcalVEvent;
 use super::IcalComponent;
 use super::IcalTime;
+use crate::khevent::KhEvent;
 use crate::ical;
 
 pub struct IcalVCalendar {
@@ -259,6 +260,10 @@ impl IcalVCalendar {
       event = event.with_internal_timestamp(timestamp)
     }
     event
+  }
+
+  pub fn get_principal_khevent(&self) -> KhEvent {
+    KhEvent::from_event_with_timestamp(self.get_first_event(), self.instance_timestamp.clone())
   }
 
   pub fn check_for_errors(&self) -> Option<Vec<String>> {
