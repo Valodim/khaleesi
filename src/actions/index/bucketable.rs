@@ -28,9 +28,10 @@ impl Bucketable for KhEvent {
     let mut result:  HashMap<String, Vec<String>> = HashMap::new();
 
     let start_date: Date<Local> = self.get_start().ok_or_else(|| format!("Invalid DTSTART in {}", self.get_uid()))?.into();
+    //TODO
     //let mut end_date: Date<Local> = self.get_end().map(|date| date.into()).unwrap_or(start_date);
 
-    let mut end_date = self.get_last_relevant_date().map(|date| date.into()).unwrap_or(start_date);
+    let end_date = self.get_last_relevant_date().map(|date| date.into()).unwrap_or(start_date);
     // end-dtimes are non-inclusive
     // so in case of date-only events, the last day of the event is dtend-1
     //if self.is_allday() {

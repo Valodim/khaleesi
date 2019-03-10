@@ -26,13 +26,10 @@ impl KhEvent {
   pub fn get_end(&self) -> Option<IcalTime> {
     //TODO: should probably depend on is_recur_master, not the instance timestamp
     match self.instance_timestamp {
-      Some(ref timestamp) => unsafe {
+      Some(ref timestamp) => {
         let dur = self.get_duration().unwrap();
         let dtend = timestamp.to_owned() + dur;
         Some(dtend)
-        //let icalduration = ical::icalcomponent_get_duration(self.event.ptr);
-        //let dtend = ical::icaltime_add(**timestamp, icalduration);
-        //Some(IcalTime::from(dtend))
       },
       None => self.event.get_dtend()
     }

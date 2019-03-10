@@ -33,12 +33,8 @@ impl KhLine {
 
   pub fn to_event(&self) -> io::Result<KhEvent> {
     let calendar = self.to_cal()?;
-    let mut event = calendar.get_first_event();
+    let event = calendar.get_first_event();
     Ok(KhEvent::from_event_with_timestamp(event, self.time.clone()))
-    //if let Some(ref time) = self.time {
-      //event = event.with_internal_timestamp(time);
-    //}
-    //Ok(event)
   }
 
   pub fn with_index(self, index: usize) -> Self {

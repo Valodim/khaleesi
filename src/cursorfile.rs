@@ -3,7 +3,6 @@ use std::io;
 
 use crate::defaults::*;
 use crate::khline::KhLine;
-use crate::khevent::KhEvent;
 use crate::utils::fileutil;
 use crate::KhResult;
 
