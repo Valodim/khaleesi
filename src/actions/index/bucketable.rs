@@ -150,12 +150,12 @@ mod tests {
     let path = PathBuf::from("test/path");
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, Some(&path)).unwrap();
 
-    //let event = cal.get_principal_khevent();
-    //let event_buckets = event.get_buckets().unwrap();
+    let event = cal.get_principal_khevent();
+    let event_buckets = event.get_buckets().unwrap();
     let cal_buckets = cal.get_buckets().unwrap();
-    //assert_eq!(event_buckets, cal_buckets);
-    //let mut cal_bucket_names = cal_buckets.keys().collect::<Vec<&String>>();
-    //cal_bucket_names.sort_unstable();
-    //assert_eq!(vec!("2018-W41", "2018-W42", "2018-W43", "2018-W44", "2018-W45", "2018-W46", "2018-W47", "2018-W48", "2018-W49", "2018-W50"), cal_bucket_names);
+    assert_eq!(event_buckets, cal_buckets);
+    let mut cal_bucket_names = cal_buckets.keys().collect::<Vec<&String>>();
+    cal_bucket_names.sort_unstable();
+    assert_eq!(vec!("2018-W41", "2018-W42", "2018-W43", "2018-W44", "2018-W45", "2018-W46", "2018-W47", "2018-W48", "2018-W49", "2018-W50"), cal_bucket_names);
   }
 }

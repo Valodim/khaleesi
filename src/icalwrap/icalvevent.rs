@@ -6,7 +6,6 @@ use super::IcalTime;
 use super::IcalTimeZone;
 use super::IcalDuration;
 use crate::ical;
-use crate::khevent::KhEvent;
 
 pub struct IcalVEvent {
   ptr: *mut ical::icalcomponent,

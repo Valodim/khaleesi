@@ -4,7 +4,6 @@ use itertools::Itertools;
 use structopt::StructOpt;
 
 use crate::cursorfile;
-use crate::icalwrap::*;
 use crate::input;
 use crate::config::{Config,CalendarConfig};
 use crate::khevent::KhEvent;
@@ -193,6 +192,7 @@ mod integration {
   use crate::testutils::*;
   use crate::utils::stdioutils;
   use crate::config::Config;
+  use crate::icalwrap::IcalVCalendar;
 
   use chrono::{Local, TimeZone};
 

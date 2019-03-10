@@ -4,7 +4,6 @@ use crate::seqfile;
 use crate::cursorfile;
 use crate::khline::{KhLine,lines_to_khlines,khlines_to_events};
 use crate::utils::stdioutils;
-use crate::icalwrap::IcalVEvent;
 use crate::selectors::SelectFilters;
 use crate::khevent::KhEvent;
 
