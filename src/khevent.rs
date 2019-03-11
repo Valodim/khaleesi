@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
-use crate::icalwrap::IcalTime;
-use crate::icalwrap::IcalProperty;
-use crate::icalwrap::IcalTimeZone;
-use crate::icalwrap::IcalDuration;
-use crate::icalwrap::IcalVEvent;
 use crate::icalwrap::IcalComponent;
+use crate::icalwrap::IcalDuration;
+use crate::icalwrap::IcalProperty;
+use crate::icalwrap::IcalTime;
+use crate::icalwrap::IcalTimeZone;
+use crate::icalwrap::IcalVEvent;
 
 pub struct KhEvent {
   //TODO event should be private
@@ -18,9 +18,7 @@ impl KhEvent {
     //TODO: should probably depend on is_recur_master, not the instance timestamp
     match self.instance_timestamp {
       Some(ref timestamp) => Some(timestamp.clone()),
-      None => {
-        self.event.get_dtstart()
-      }
+      None => self.event.get_dtstart(),
     }
   }
 
@@ -31,20 +29,23 @@ impl KhEvent {
         let dur = self.get_duration().unwrap();
         let dtend = timestamp.to_owned() + dur;
         Some(dtend)
-      },
-      None => self.event.get_dtend()
+      }
+      None => self.event.get_dtend(),
     }
   }
 
   pub fn with_internal_timestamp(&self, timestamp: &IcalTime) -> Self {
     Self {
       event: self.event.shallow_copy(),
-      instance_timestamp: Some(timestamp.clone())
+      instance_timestamp: Some(timestamp.clone()),
     }
   }
 
   pub fn get_calendar_name(&self) -> Option<String> {
-    self.event.get_parent().and_then(|cal| cal.get_calendar_name())
+    self
+      .event
+      .get_parent()
+      .and_then(|cal| cal.get_calendar_name())
   }
 
   pub fn get_path(&self) -> Option<&PathBuf> {
@@ -77,12 +78,18 @@ impl KhEvent {
 
   pub fn get_dtstamp(&self) -> Option<String> {
     let dtstamp_kind = ical::icalproperty_kind_ICAL_DTSTAMP_PROPERTY;
-    self.event.get_property(dtstamp_kind).map(|prop| prop.get_value())
+    self
+      .event
+      .get_property(dtstamp_kind)
+      .map(|prop| prop.get_value())
   }
 
   pub fn get_last_modified(&self) -> Option<String> {
     let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
-    self.event.get_property(last_modified_kind).map(|prop| prop.get_value())
+    self
+      .event
+      .get_property(last_modified_kind)
+      .map(|prop| prop.get_value())
   }
 
   pub fn get_last_relevant_date(&self) -> Option<IcalTime> {
@@ -111,7 +118,9 @@ impl KhEvent {
   }
 
   pub fn get_recur_instances(&self) -> impl Iterator<Item = KhEvent> + '_ {
-    self.get_recur_datetimes().into_iter()
+    self
+      .get_recur_datetimes()
+      .into_iter()
       .map(|recur_utc| recur_utc.with_timezone(&IcalTimeZone::local()))
       .map(move |recur_local| self.with_internal_timestamp(&recur_local))
   }
@@ -131,21 +140,23 @@ impl KhEvent {
     }
   }
 
-  pub fn from_event_with_timestamp(event: IcalVEvent, instance_timestamp: Option<IcalTime>) -> Self {
+  pub fn from_event_with_timestamp(
+    event: IcalVEvent,
+    instance_timestamp: Option<IcalTime>,
+  ) -> Self {
     Self {
       event,
       instance_timestamp,
     }
   }
-
 }
 
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::testdata;
-  use crate::icalwrap::IcalVCalendar;
   use crate::icalwrap::IcalTimeZone;
+  use crate::icalwrap::IcalVCalendar;
+  use crate::testdata;
 
   #[test]
   fn test_is_recur_valid_master() {
@@ -221,8 +232,14 @@ mod tests {
     let event = cal.get_principal_khevent();
     let mut recur_instances = event.get_recur_instances();
     let local = IcalTimeZone::local();
-    assert_eq!(IcalTime::floating_ymd(2018, 10, 11).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
-    assert_eq!(IcalTime::floating_ymd(2018, 10, 18).with_timezone(&local), recur_instances.next().unwrap().get_start().unwrap());
+    assert_eq!(
+      IcalTime::floating_ymd(2018, 10, 11).with_timezone(&local),
+      recur_instances.next().unwrap().get_start().unwrap()
+    );
+    assert_eq!(
+      IcalTime::floating_ymd(2018, 10, 18).with_timezone(&local),
+      recur_instances.next().unwrap().get_start().unwrap()
+    );
   }
 
 }
