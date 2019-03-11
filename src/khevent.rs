@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::icalwrap::IcalTime;
+use crate::icalwrap::IcalProperty;
 use crate::icalwrap::IcalTimeZone;
 use crate::icalwrap::IcalDuration;
 use crate::icalwrap::IcalVEvent;
@@ -8,7 +9,7 @@ use crate::icalwrap::IcalComponent;
 
 pub struct KhEvent {
   //TODO event should be private
-  pub event: IcalVEvent,
+  event: IcalVEvent,
   instance_timestamp: Option<IcalTime>,
 }
 
@@ -123,6 +124,10 @@ impl KhEvent {
 
   pub fn get_recur_datetimes(&self) -> Vec<IcalTime> {
     self.event.get_recur_datetimes()
+  }
+
+  pub fn get_properties_by_name(&self, property_name: &str) -> Vec<IcalProperty> {
+    self.event.get_properties_by_name(property_name)
   }
 
   pub fn from_event(event: IcalVEvent) -> Self {

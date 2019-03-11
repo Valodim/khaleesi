@@ -75,7 +75,7 @@ impl From<&IcalVEvent> for KhLine {
 
 impl From<&KhEvent> for KhLine {
   fn from(event: &KhEvent) -> Self {
-    let path = event.event.get_parent().unwrap().get_path().unwrap().to_path_buf();
+    let path = event.get_path().unwrap().to_path_buf();
     let time = event.get_start();
 
     KhLine{ path, time, index: None }

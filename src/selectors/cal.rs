@@ -18,8 +18,7 @@ impl SelectFilter for CalendarFilter {
   }
 
   fn includes(&self, event: &KhEvent) -> bool {
-    event.event.get_parent()
-      .and_then(|cal| cal.get_path())
+    event.get_path()
       .and_then(|path| path.parent())
       .map(|path| path.to_string_lossy().to_lowercase())
       .map(|path| self.cal_names.iter().any(|cal| path.contains(cal)) )
