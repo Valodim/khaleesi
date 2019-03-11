@@ -145,7 +145,6 @@ mod integration {
   use super::*;
   use crate::testutils;
   use crate::testdata;
-  use crate::khevent::KhEvent;
 
   #[test]
   fn test_parse_calendar() {

@@ -373,7 +373,6 @@ impl Drop for IcalComponentOwner {
 mod tests {
   use super::*;
   use crate::testdata;
-  use crate::khevent::KhEvent;
   use chrono::{Local,TimeZone};
 
   #[test]

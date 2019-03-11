@@ -110,12 +110,6 @@ impl KhEvent {
     }
   }
 
-  //pub fn get_recur_instances(&self) -> impl Iterator<Item = KhEvent> + '_ {
-    //self.event
-      //.get_recur_instances()
-      //.map(|event| KhEvent::from_event_with_timestamp(event, event.instance_timestamp))
-  //}
-
   pub fn get_recur_instances(&self) -> impl Iterator<Item = KhEvent> + '_ {
     self.get_recur_datetimes().into_iter()
       .map(|recur_utc| recur_utc.with_timezone(&IcalTimeZone::local()))
@@ -152,7 +146,6 @@ mod tests {
   use crate::testdata;
   use crate::icalwrap::IcalVCalendar;
   use crate::icalwrap::IcalTimeZone;
-  use chrono::NaiveDate;
 
   #[test]
   fn test_is_recur_valid_master() {

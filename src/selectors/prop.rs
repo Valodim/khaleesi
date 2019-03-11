@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use super::*;
 
 use crate::khevent::KhEvent;
-use crate::icalwrap::IcalComponent;
 
 pub struct PropFilter {
   terms: HashMap<String,Vec<String>>
