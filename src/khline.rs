@@ -45,7 +45,8 @@ impl KhLine {
     self == &KhLine::from(event)
   }
 
-  pub fn matches(&self, event: &IcalVEvent) -> bool {
+  //TODO deprecated
+  fn matches(&self, event: &IcalVEvent) -> bool {
     self == &KhLine::from(event)
   }
 
@@ -84,7 +85,7 @@ impl From<&KhEvent> for KhLine {
 
 impl From<&IcalVCalendar> for KhLine {
   fn from(cal: &IcalVCalendar) -> Self {
-    (&cal.get_principal_event()).into()
+    (&cal.get_principal_khevent()).into()
   }
 }
 
@@ -247,7 +248,7 @@ mod tests {
 
     let khline = KhLine::from(&cal);
 
-    assert!(khline.matches(&cal.get_principal_event()));
+    assert!(khline.matches_khevent(&cal.get_principal_khevent()));
   }
 
   #[test]

@@ -1,5 +1,5 @@
 use std::ffi::{CStr, CString};
-use std::path::{PathBuf,Path};
+use std::path::{PathBuf, Path};
 use std::rc::Rc;
 use std::io;
 
@@ -69,6 +69,7 @@ impl IcalVCalendar {
     self
   }
 
+  //TODO should probably be private
   pub fn from_str(str: &str, path: Option<&Path>) -> io::Result<Self> {
     unsafe {
       let c_str = CString::new(str).unwrap();
@@ -254,7 +255,7 @@ impl IcalVCalendar {
     IcalVEvent::from_ptr_with_parent(event, self)
   }
 
-  pub fn get_principal_event(&self) -> IcalVEvent {
+  pub(in crate::icalwrap) fn get_principal_event(&self) -> IcalVEvent {
     let mut event = self.get_first_event();
     if let Some(ref timestamp) = self.instance_timestamp {
       event = event.with_internal_timestamp(timestamp)

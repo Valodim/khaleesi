@@ -10,7 +10,6 @@ use crate::ical;
 pub struct IcalVEvent {
   ptr: *mut ical::icalcomponent,
   parent: Option<IcalVCalendar>,
-  instance_timestamp: Option<IcalTime>,
 }
 
 impl Drop for IcalVEvent {
@@ -39,7 +38,7 @@ impl IcalVEvent {
     IcalVEvent {
       ptr,
       parent: Some(parent.shallow_copy()),
-      instance_timestamp: None,
+      //instance_timestamp: None,
     }
   }
 
@@ -106,15 +105,13 @@ impl IcalVEvent {
     IcalVEvent {
       ptr: self.ptr,
       parent: self.parent.as_ref().map(|parent| parent.shallow_copy()),
-      instance_timestamp: self.instance_timestamp.clone(),
     }
   }
 
-  pub fn with_internal_timestamp(&self, datetime: &IcalTime) -> IcalVEvent {
+  pub(in crate::icalwrap) fn with_internal_timestamp(&self, datetime: &IcalTime) -> IcalVEvent {
     IcalVEvent {
       ptr: self.ptr,
       parent: self.parent.as_ref().map(|parent| parent.shallow_copy()),
-      instance_timestamp: Some(datetime.clone()),
     }
   }
 

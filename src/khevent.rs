@@ -1,14 +1,15 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::icalwrap::IcalComponent;
 use crate::icalwrap::IcalDuration;
 use crate::icalwrap::IcalProperty;
 use crate::icalwrap::IcalTime;
 use crate::icalwrap::IcalTimeZone;
+use crate::icalwrap::IcalVCalendar;
 use crate::icalwrap::IcalVEvent;
+use crate::KhResult;
 
 pub struct KhEvent {
-  //TODO event should be private
   event: IcalVEvent,
   instance_timestamp: Option<IcalTime>,
 }
@@ -149,19 +150,22 @@ impl KhEvent {
       instance_timestamp,
     }
   }
+
+  pub fn from_str(input: &str, path: Option<&Path>) -> KhResult<Self> {
+    let cal = IcalVCalendar::from_str(input, path)?;
+    Ok(cal.get_principal_khevent())
+  }
 }
 
 #[cfg(test)]
 mod tests {
   use super::*;
   use crate::icalwrap::IcalTimeZone;
-  use crate::icalwrap::IcalVCalendar;
   use crate::testdata;
 
   #[test]
   fn test_is_recur_valid_master() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_khevent();
+    let event = KhEvent::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
 
     assert!(event.is_recur_valid());
   }
