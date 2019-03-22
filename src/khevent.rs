@@ -17,26 +17,29 @@ pub struct KhEvent {
 impl KhEvent {
   pub fn get_start(&self) -> Option<IcalTime> {
     //TODO: should probably depend on is_recur_master, not the instance timestamp
-    match self.instance_timestamp {
-      Some(ref timestamp) => Some(timestamp.clone()),
-      None => self.event.get_dtstart(),
+    if self.is_recur_instance() {
+      self.instance_timestamp.clone()
+    } else {
+      self.event.get_dtstart()
     }
   }
 
   pub fn get_end(&self) -> Option<IcalTime> {
     //TODO: should probably depend on is_recur_master, not the instance timestamp
-    match self.instance_timestamp {
+    let dtend = match self.instance_timestamp {
       Some(ref timestamp) => {
         let dur = self.get_duration().unwrap();
         let dtend = timestamp.to_owned() + dur;
         Some(dtend)
       }
       None => self.event.get_dtend(),
-    }
+    };
+    dtend.or(self.get_start().map(|start| start.succ()))
   }
 
   pub fn with_internal_timestamp(&self, timestamp: &IcalTime) -> Self {
     Self {
+      //why shallow copy?
       event: self.event.shallow_copy(),
       instance_timestamp: Some(timestamp.clone()),
     }
@@ -106,6 +109,11 @@ impl KhEvent {
   pub fn is_recur_master(&self) -> bool {
     self.event.has_property_rrule() && self.instance_timestamp.is_none()
   }
+
+  pub fn is_recur_instance(&self) -> bool {
+    self.event.has_property_rrule() && self.instance_timestamp.is_some()
+  }
+
 
   pub fn is_recur_valid(&self) -> bool {
     if self.is_recur_master() {
