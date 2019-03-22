@@ -59,10 +59,10 @@ impl IcalVCalendar {
     }
   }
 
-  pub fn with_internal_timestamp(mut self, datetime: &IcalTime) -> IcalVCalendar {
-    self.instance_timestamp = Some(datetime.clone());
-    self
-  }
+  //pub fn with_internal_timestamp(mut self, datetime: &IcalTime) -> IcalVCalendar {
+    //self.instance_timestamp = Some(datetime.clone());
+    //self
+  //}
 
   pub fn with_path(mut self, path: &Path) -> IcalVCalendar {
     self.path = Some(path.to_path_buf());
@@ -548,16 +548,16 @@ mod tests {
     assert_eq!("Europe/Berlin", event.get_start().unwrap().get_timezone().unwrap().get_name());
   }
 
-  #[test]
-  fn test_with_internal_timestamp() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-
-    let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
-    let new_cal = cal.with_internal_timestamp(&timestamp);
-
-    let event = new_cal.get_principal_khevent();
-    assert_eq!(timestamp, event.get_start().unwrap());
-  }
+  //#[test]
+  //fn test_with_internal_timestamp() {
+    //let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+//
+    //let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
+    //let new_cal = cal.with_internal_timestamp(&timestamp);
+//
+    //let event = new_cal.get_principal_event();
+    //assert_eq!(timestamp, event.get_dtstart().unwrap());
+  //}
 
   #[test]
   fn with_uid_test() {
