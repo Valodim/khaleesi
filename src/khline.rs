@@ -45,11 +45,6 @@ impl KhLine {
     self == &KhLine::from(event)
   }
 
-  //TODO deprecated
-  fn matches(&self, event: &IcalVEvent) -> bool {
-    self == &KhLine::from(event)
-  }
-
   pub fn get_path(&self) -> &Path {
     &self.path
   }
