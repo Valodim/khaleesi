@@ -116,12 +116,6 @@ impl IcalVEvent {
     }
   }
 
-  pub fn get_recur_instances(&self) -> impl Iterator<Item = IcalVEvent> + '_ {
-    self.get_recur_datetimes().into_iter()
-      .map(|recur_utc| recur_utc.with_timezone(&IcalTimeZone::local()))
-      .map(move |recur_local| self.with_internal_timestamp(&recur_local))
-  }
-
   pub fn get_parent(&self) -> Option<&IcalVCalendar> {
     self.parent.as_ref()
   }
@@ -194,17 +188,6 @@ mod tests {
   use crate::testdata;
   use chrono::NaiveDate;
 
-  #[test]
-  fn recur_iterator_test() {
-    testdata::setup();
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_event();
-    assert_eq!(IcalTime::floating_ymd(2018, 10, 11), event.get_dtstart().unwrap());
-    assert_eq!(IcalTime::floating_ymd(2018, 10, 13), event.get_dtend().unwrap());
-    assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).unwrap().as_ical_string());
-    assert_eq!(10, event.get_recur_datetimes().len());
-    assert_eq!(10, event.get_recur_instances().count());
-  }
 
   #[test]
   fn test_get_all_properties() {

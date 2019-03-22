@@ -254,4 +254,17 @@ mod tests {
     );
   }
 
+  #[test]
+  fn recur_iterator_test() {
+    testdata::setup();
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = cal.get_principal_khevent();
+
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 11), event.get_start().unwrap());
+    assert_eq!(IcalTime::floating_ymd(2018, 10, 13), event.get_end().unwrap());
+    assert_eq!("RRULE:FREQ=WEEKLY;COUNT=10", event.event.get_property(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).unwrap().as_ical_string());
+    assert_eq!(10, event.get_recur_datetimes().len());
+    assert_eq!(10, event.get_recur_instances().count());
+  }
+
 }
