@@ -3,7 +3,6 @@ use std::ffi::CStr;
 use super::IcalComponent;
 use super::IcalVCalendar;
 use super::IcalTime;
-use super::IcalTimeZone;
 use super::IcalDuration;
 use crate::ical;
 

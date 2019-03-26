@@ -16,7 +16,6 @@ pub struct KhEvent {
 
 impl KhEvent {
   pub fn get_start(&self) -> Option<IcalTime> {
-    //TODO: should probably depend on is_recur_master, not the instance timestamp
     if self.is_recur_instance() {
       self.instance_timestamp.clone()
     } else {
@@ -25,7 +24,6 @@ impl KhEvent {
   }
 
   pub fn get_end(&self) -> Option<IcalTime> {
-    //TODO: should probably depend on is_recur_master, not the instance timestamp
     if self.is_recur_instance() {
       let dur = self.get_duration().unwrap();
       let dtend = self.instance_timestamp.clone().unwrap() + dur;
