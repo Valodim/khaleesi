@@ -26,15 +26,22 @@ impl KhEvent {
 
   pub fn get_end(&self) -> Option<IcalTime> {
     //TODO: should probably depend on is_recur_master, not the instance timestamp
-    let dtend = match self.instance_timestamp {
-      Some(ref timestamp) => {
-        let dur = self.get_duration().unwrap();
-        let dtend = timestamp.to_owned() + dur;
-        Some(dtend)
+    if self.is_recur_instance() {
+      let dur = self.get_duration().unwrap();
+      let dtend = self.instance_timestamp.clone().unwrap() + dur;
+      Some(dtend)
+    } else {
+      match self.event.get_dtend() {
+        Some(dtend) => Some(dtend),
+        None => {
+          if self.get_start().unwrap().is_date() {
+            self.get_start().map(|start| start.succ())
+          } else {
+            self.get_start()
+          }
+        }
       }
-      None => self.event.get_dtend(),
-    };
-    dtend.or(self.get_start().map(|start| start.succ()))
+    }
   }
 
   pub fn with_internal_timestamp(&self, timestamp: &IcalTime) -> Self {
