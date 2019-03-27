@@ -1,9 +1,9 @@
 use std::ffi::CStr;
 
 use super::IcalComponent;
-use super::IcalVCalendar;
-use super::IcalTime;
 use super::IcalDuration;
+use super::IcalTime;
+use super::IcalVCalendar;
 use crate::ical;
 
 pub struct IcalVEvent {
@@ -21,7 +21,7 @@ impl Drop for IcalVEvent {
 }
 
 impl IcalComponent for IcalVEvent {
-  fn get_ptr (&self) -> *mut ical::icalcomponent {
+  fn get_ptr(&self) -> *mut ical::icalcomponent {
     self.ptr
   }
   fn as_component(&self) -> &dyn IcalComponent {
@@ -30,10 +30,7 @@ impl IcalComponent for IcalVEvent {
 }
 
 impl IcalVEvent {
-  pub fn from_ptr_with_parent(
-      ptr: *mut ical::icalcomponent,
-      parent: &IcalVCalendar,
-      ) -> IcalVEvent {
+  pub fn from_ptr_with_parent(ptr: *mut ical::icalcomponent, parent: &IcalVCalendar) -> IcalVEvent {
     IcalVEvent {
       ptr,
       parent: Some(parent.shallow_copy()),
@@ -76,12 +73,15 @@ impl IcalVEvent {
   }
 
   pub fn has_property_rrule(&self) -> bool {
-    !self.get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY).is_empty()
+    !self
+      .get_properties(ical::icalproperty_kind_ICAL_RRULE_PROPERTY)
+      .is_empty()
   }
 
   pub fn get_recur_datetimes(&self) -> Vec<IcalTime> {
-    let mut result: Vec<IcalTime> = vec!();
-    let result_ptr: *mut ::std::os::raw::c_void = &mut result as *mut _ as *mut ::std::os::raw::c_void;
+    let mut result: Vec<IcalTime> = vec![];
+    let result_ptr: *mut ::std::os::raw::c_void =
+      &mut result as *mut _ as *mut ::std::os::raw::c_void;
 
     let dtstart = self.get_dtstart().unwrap();
     unsafe {
@@ -90,7 +90,13 @@ impl IcalVEvent {
       //unroll up to 1 year in the future
       dtend.year += 1;
 
-      ical::icalcomponent_foreach_recurrence(self.ptr, *dtstart, dtend, Some(recur_callback), result_ptr);
+      ical::icalcomponent_foreach_recurrence(
+        self.ptr,
+        *dtstart,
+        dtend,
+        Some(recur_callback),
+        result_ptr,
+      );
     }
 
     if dtstart.is_date() {
@@ -168,9 +174,10 @@ impl IcalVEvent {
 }
 
 extern "C" fn recur_callback(
-                         _comp: *mut ical::icalcomponent,
-                         span: *mut ical::icaltime_span,
-                         data: *mut ::std::os::raw::c_void) {
+  _comp: *mut ical::icalcomponent,
+  span: *mut ical::icaltime_span,
+  data: *mut ::std::os::raw::c_void,
+) {
   let data: &mut Vec<IcalTime> = unsafe { &mut *(data as *mut Vec<IcalTime>) };
 
   let spanstart = unsafe {
@@ -186,7 +193,6 @@ mod tests {
   use super::*;
   use crate::testdata;
   use chrono::NaiveDate;
-
 
   #[test]
   fn test_get_all_properties() {
@@ -206,14 +212,19 @@ mod tests {
     assert_eq!(1, prop.len());
     assert_eq!("DTSTART", prop[0].get_name());
     assert_eq!("20070628", prop[0].get_value());
-    assert_eq!(NaiveDate::from_ymd_opt(2007,6,28), prop[0].get_value_as_date());
+    assert_eq!(
+      NaiveDate::from_ymd_opt(2007, 6, 28),
+      prop[0].get_value_as_date()
+    );
   }
 
   #[test]
   fn test_get_property_debug() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY_ALLDAY, None).unwrap();
     let event = cal.get_principal_event();
-    let prop = event.get_property(ical::icalproperty_kind_ICAL_DTSTART_PROPERTY).unwrap();
+    let prop = event
+      .get_property(ical::icalproperty_kind_ICAL_DTSTART_PROPERTY)
+      .unwrap();
 
     assert_eq!("DTSTART;VALUE=DATE:20070628", format!("{:?}", prop));
   }
@@ -223,7 +234,10 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
 
-    assert_eq!(Some("Festival International de Jazz de Montreal".to_string()), event.get_summary());
+    assert_eq!(
+      Some("Festival International de Jazz de Montreal".to_string()),
+      event.get_summary()
+    );
   }
 
   #[test]
@@ -239,16 +253,24 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
 
-    assert_eq!(Some(IcalDuration::from_seconds(10*24*60*60 + 18*60*60)), event.get_duration());
+    assert_eq!(
+      Some(IcalDuration::from_seconds(10 * 24 * 60 * 60 + 18 * 60 * 60)),
+      event.get_duration()
+    );
   }
-
 
   #[test]
   fn test_get_description() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
     let event = cal.get_principal_event();
 
-    assert_eq!(Some("Discuss how we can test c&s interoperability\nusing iCalendar and other IETF standards.".to_string()), event.get_description());
+    assert_eq!(
+      Some(
+        "Discuss how we can test c&s interoperability\nusing iCalendar and other IETF standards."
+          .to_string()
+      ),
+      event.get_description()
+    );
   }
 
   #[test]
@@ -266,7 +288,6 @@ mod tests {
 
     assert_eq!(Some("LDB Lobby".to_string()), event.get_location());
   }
-
 
   #[test]
   fn test_get_location_none() {
