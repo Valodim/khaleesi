@@ -261,6 +261,44 @@ mod tests {
   }
 
   #[test]
+  fn test_get_dtstart() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(
+      IcalTime::floating_ymd(2007, 06, 28).and_hms(13, 29, 00),
+      event.get_dtstart().unwrap()
+    );
+  }
+
+  #[test]
+  fn test_get_dtstart_negative() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_NO_DTSTART, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert!(event.get_dtstart().is_none());
+  }
+
+  #[test]
+  fn test_get_dtend() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(
+      IcalTime::floating_ymd(2007, 7, 9).and_hms(7, 29, 00),
+      event.get_dtend().unwrap()
+    );
+  }
+
+  #[test]
+  fn test_get_dtend_negative() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_NO_DTSTART, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert!(event.get_dtend().is_none());
+  }
+
+  #[test]
   fn test_get_duration_internal_normal() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
@@ -354,5 +392,4 @@ mod tests {
 
     assert_eq!(None, event.get_location());
   }
-
 }

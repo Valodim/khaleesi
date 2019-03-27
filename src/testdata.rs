@@ -216,6 +216,16 @@ pub static TEST_MULTIPLE_EVENTS: &str = indoc!("
     END:VCALENDAR
 ");
 
+pub static TEST_NO_DTSTART: &str = indoc!("
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//ABC Corporation//NONSGML My Product//EN
+    BEGIN:VEVENT
+    UID:uid3
+    DTSTAMP:20070423T123432Z
+    END:VEVENT
+    END:VCALENDAR
+");
 
 pub static TEST_NO_SUMMARY: &str = indoc!("
     BEGIN:VCALENDAR

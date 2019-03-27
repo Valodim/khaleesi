@@ -265,4 +265,15 @@ mod tests {
       event.get_duration()
     );
   }
+
+  #[test]
+  fn test_get_dtstart() {
+    let event = KhEvent::from_str(testdata::TEST_DTSTART_ONLY_DATE, None).unwrap();
+
+    assert!(event.is_allday());
+    assert_eq!(
+      Some(IcalDuration::from_seconds(24 * 60 * 60)),
+      event.get_duration()
+    );
+  }
 }
