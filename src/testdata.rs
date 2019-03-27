@@ -48,6 +48,36 @@ pub static TEST_EVENT_MULTIDAY_LASTMODIFIED: &str = indoc!("
     END:VCALENDAR
 ");
 
+pub static TEST_DTSTART_ONLY_DATE: &str = indoc!("
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//ABC Corporation//NONSGML My Product//EN
+    BEGIN:VEVENT
+    UID:20070423T123432Z-541111@example.com
+    DTSTAMP:20070423T123432Z
+    DTSTART;VALUE=DATE:20070628
+    SUMMARY:Festival International de Jazz de Montreal
+    LOCATION:LDB Lobby
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    END:VCALENDAR
+");
+
+pub static TEST_DTSTART_ONLY_DATETIME: &str = indoc!("
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//ABC Corporation//NONSGML My Product//EN
+    BEGIN:VEVENT
+    UID:20070423T123432Z-541111@example.com
+    DTSTAMP:20070423T123432Z
+    DTSTART:20070628T132900
+    SUMMARY:Festival International de Jazz de Montreal
+    LOCATION:LDB Lobby
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    END:VCALENDAR
+");
+
 pub static TEST_EVENT_EMPTY_SUMMARY: &str = indoc!("
     BEGIN:VCALENDAR
     VERSION:2.0

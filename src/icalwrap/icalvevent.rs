@@ -50,13 +50,28 @@ impl IcalVEvent {
     }
   }
 
-  pub fn get_duration(&self) -> Option<IcalDuration> {
+  fn get_duration_internal(&self) -> Option<IcalDuration> {
     unsafe {
       let duration = ical::icalcomponent_get_duration(self.ptr);
-      if ical::icaldurationtype_is_bad_duration(duration) == 0 {
+      if ical::icaldurationtype_is_bad_duration(duration) == 0
+        && ical::icaldurationtype_is_null_duration(duration) == 0
+      {
         Some(IcalDuration::from(duration))
       } else {
         None
+      }
+    }
+  }
+
+  pub fn get_duration(&self) -> Option<IcalDuration> {
+    match self.get_duration_internal() {
+      Some(duration) => Some(duration),
+      None => {
+        if self.get_dtstart()?.is_date() {
+          Some(IcalDuration::from_seconds(24 * 60 * 60))
+        } else {
+          Some(IcalDuration::from_seconds(0))
+        }
       }
     }
   }
@@ -249,12 +264,61 @@ mod tests {
   }
 
   #[test]
-  fn test_get_duration() {
+  fn test_get_duration_internal_normal() {
     let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
     let event = cal.get_principal_event();
 
     assert_eq!(
       Some(IcalDuration::from_seconds(10 * 24 * 60 * 60 + 18 * 60 * 60)),
+      event.get_duration_internal()
+    );
+  }
+
+  #[test]
+  fn test_get_duration_normal() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(
+      Some(IcalDuration::from_seconds(10 * 24 * 60 * 60 + 18 * 60 * 60)),
+      event.get_duration()
+    );
+  }
+
+  #[test]
+  fn test_get_duration_inernal_startdate_only() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_DTSTART_ONLY_DATE, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert!(event.get_duration_internal().is_none());
+  }
+
+  #[test]
+  fn test_get_duration_startdate_only() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_DTSTART_ONLY_DATE, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(
+      Some(IcalDuration::from_seconds(24 * 60 * 60)),
+      event.get_duration()
+    );
+  }
+
+  #[test]
+  fn test_get_duration_internal_startdatetime_only() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_DTSTART_ONLY_DATETIME, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert!(event.get_duration_internal().is_none());
+  }
+
+  #[test]
+  fn test_get_duration_startdatetime_only() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_DTSTART_ONLY_DATETIME, None).unwrap();
+    let event = cal.get_principal_event();
+
+    assert_eq!(
+      Some(IcalDuration::from_seconds(0)),
       event.get_duration()
     );
   }
@@ -296,4 +360,5 @@ mod tests {
 
     assert_eq!(None, event.get_location());
   }
+
 }

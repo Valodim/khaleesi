@@ -24,21 +24,11 @@ impl KhEvent {
   }
 
   pub fn get_end(&self) -> Option<IcalTime> {
+    let dur = self.get_duration().unwrap();
     if self.is_recur_instance() {
-      let dur = self.get_duration().unwrap();
-      let dtend = self.instance_timestamp.clone().unwrap() + dur;
-      Some(dtend)
+      self.instance_timestamp.clone().map(|start| start + dur)
     } else {
-      match self.event.get_dtend() {
-        Some(dtend) => Some(dtend),
-        None => {
-          if self.get_start().unwrap().is_date() {
-            self.get_start().map(|start| start.succ())
-          } else {
-            self.get_start()
-          }
-        }
-      }
+      self.get_start().clone().map(|start| start + dur)
     }
   }
 
@@ -272,4 +262,14 @@ mod tests {
     assert_eq!(10, event.get_recur_instances().count());
   }
 
+  #[test]
+  fn get_duration_test() {
+    let cal = IcalVCalendar::from_str(testdata::TEST_DTSTART_ONLY_DATE, None).unwrap();
+    let event = cal.get_principal_khevent();
+    assert!(event.is_allday());
+    assert_eq!(
+      Some(IcalDuration::from_seconds(24 * 60 * 60)),
+      event.get_duration()
+    );
+  }
 }
