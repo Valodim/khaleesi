@@ -15,7 +15,7 @@ stderrlog = "0.4"
 atty = "0.2"
 walkdir = "2.2.7"
 ical = { package = "libical-sys", version = "0.1.1" }
-toml = "0.4.2"
+toml = "0.5.0"
 serde = "1.0.82"
 serde_derive = "1.0.82"
 tempfile = "3.0.5"
