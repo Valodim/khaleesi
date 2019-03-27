@@ -175,8 +175,7 @@ mod tests {
 
   #[test]
   fn test_is_recur_valid_dtstart() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_khevent();
+    let event = KhEvent::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let start = &event.get_start().unwrap();
 
     let event = event.with_internal_timestamp(start);
@@ -186,8 +185,7 @@ mod tests {
 
   #[test]
   fn test_is_recur_valid_incorrect() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_khevent();
+    let event = KhEvent::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
 
     let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2010, 01, 01));
 
@@ -196,8 +194,7 @@ mod tests {
 
   #[test]
   fn test_is_recur_valid_other() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_khevent();
+    let event = KhEvent::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
 
     let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2018, 10, 25));
 
@@ -206,37 +203,34 @@ mod tests {
 
   #[test]
   fn test_is_recur_valid_nonrecur() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    let event = cal.get_principal_khevent();
+    let event = KhEvent::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
 
     assert!(event.is_recur_valid());
   }
 
   #[test]
   fn test_is_recur_master_instance() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_khevent();
+    let event = KhEvent::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
     let event = event.with_internal_timestamp(&IcalTime::floating_ymd(2018, 01, 01));
     assert!(!event.is_recur_master());
   }
 
   #[test]
   fn test_is_recur_master() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    assert!(cal.get_principal_khevent().is_recur_master());
+    let event = KhEvent::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    assert!(event.is_recur_master());
   }
 
   #[test]
   fn test_is_recur_master_invalid() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
-    assert!(!cal.get_principal_khevent().is_recur_master());
+    let event = KhEvent::from_str(testdata::TEST_EVENT_ONE_MEETING, None).unwrap();
+    assert!(!event.is_recur_master());
   }
 
   #[test]
   fn recur_datetimes_test() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
+    let event = KhEvent::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
 
-    let event = cal.get_principal_khevent();
     let mut recur_instances = event.get_recur_instances();
     let local = IcalTimeZone::local();
     assert_eq!(
@@ -252,8 +246,7 @@ mod tests {
   #[test]
   fn recur_iterator_test() {
     testdata::setup();
-    let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
-    let event = cal.get_principal_khevent();
+    let event = KhEvent::from_str(testdata::TEST_EVENT_RECUR, None).unwrap();
 
     assert_eq!(IcalTime::floating_ymd(2018, 10, 11), event.get_start().unwrap());
     assert_eq!(IcalTime::floating_ymd(2018, 10, 13), event.get_end().unwrap());
@@ -264,8 +257,8 @@ mod tests {
 
   #[test]
   fn get_duration_test() {
-    let cal = IcalVCalendar::from_str(testdata::TEST_DTSTART_ONLY_DATE, None).unwrap();
-    let event = cal.get_principal_khevent();
+    let event = KhEvent::from_str(testdata::TEST_DTSTART_ONLY_DATE, None).unwrap();
+
     assert!(event.is_allday());
     assert_eq!(
       Some(IcalDuration::from_seconds(24 * 60 * 60)),
