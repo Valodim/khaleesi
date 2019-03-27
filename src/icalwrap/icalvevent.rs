@@ -64,16 +64,13 @@ impl IcalVEvent {
   }
 
   pub fn get_duration(&self) -> Option<IcalDuration> {
-    match self.get_duration_internal() {
-      Some(duration) => Some(duration),
-      None => {
-        if self.get_dtstart()?.is_date() {
-          Some(IcalDuration::from_seconds(24 * 60 * 60))
-        } else {
-          Some(IcalDuration::from_seconds(0))
-        }
+    self.get_duration_internal().or_else(|| {
+      if self.get_dtstart()?.is_date() {
+        Some(IcalDuration::from_seconds(24 * 60 * 60))
+      } else {
+        Some(IcalDuration::from_seconds(0))
       }
-    }
+    })
   }
 
   pub fn get_dtstart(&self) -> Option<IcalTime> {
@@ -317,10 +314,7 @@ mod tests {
     let cal = IcalVCalendar::from_str(testdata::TEST_DTSTART_ONLY_DATETIME, None).unwrap();
     let event = cal.get_principal_event();
 
-    assert_eq!(
-      Some(IcalDuration::from_seconds(0)),
-      event.get_duration()
-    );
+    assert_eq!(Some(IcalDuration::from_seconds(0)), event.get_duration());
   }
 
   #[test]
