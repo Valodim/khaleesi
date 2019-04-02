@@ -38,6 +38,8 @@ pub enum Command {
   #[structopt(name = "cursor", author = "")]
   Cursor(CursorArgs),
   /// Delete event
+  ///
+  /// deletes a single event, either from stdin or the current cursor
   #[structopt(name = "delete", author = "")]
   Delete,
   /// Edit event
