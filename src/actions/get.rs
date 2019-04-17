@@ -12,13 +12,13 @@ pub struct GetArgs {
 arg_enum! {
 #[derive(Debug)]
   pub enum GetQueryArgs{
-    calendars,
+    Calendars,
   }
 }
 
 pub fn action_get(args: &GetArgs) -> KhResult<()> {
   match args.query {
-    GetQueryArgs::calendars => action_get_calendars(),
+    GetQueryArgs::Calendars => action_get_calendars(),
   }
 }
 
@@ -41,7 +41,7 @@ mod integration {
   fn test_get_calendars() {
     let _testdir = testutils::prepare_testdir("testdir_two_cals");
 
-    let args = GetArgs { query: GetQueryArgs::calendars };
+    let args = GetArgs { query: GetQueryArgs::Calendars };
     action_get(&args).unwrap();
 
     assert_eq!("first\nsecond\nsecond/second_sub\n", stdioutils::test_stdout_clear());

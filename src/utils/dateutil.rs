@@ -55,7 +55,7 @@ pub fn now() -> DateTime<Utc> {
 #[cfg(test)]
 pub fn now() -> DateTime<Utc> {
   use crate::testdata;
-  *testdata::now_test
+  *testdata::NOW_TEST
 }
 
 pub fn week_from_str_end(date_str: &str) -> Result<Date<Local>,String> {

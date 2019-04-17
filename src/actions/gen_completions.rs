@@ -15,10 +15,10 @@ pub struct GenCompletionsArgs {
 arg_enum! {
 #[derive(Debug)]
   pub enum ShellArg{
-    bash,
-    zsh,
-    fish,
-    elvish
+    Bash,
+    Zsh,
+    Fish,
+    Elvish
   }
 }
 
@@ -26,10 +26,10 @@ pub fn gen_completions(args: &GenCompletionsArgs) -> KhResult<()> {
   let mut app = CommandLine::clap();
   let binary_name = "khaleesi";
   match args.shell {
-    ShellArg::bash => app.gen_completions_to(binary_name, Shell::Bash, &mut io::stdout()),
-    ShellArg::zsh => app.gen_completions_to(binary_name, Shell::Zsh, &mut io::stdout()),
-    ShellArg::fish => app.gen_completions_to(binary_name, Shell::Fish, &mut io::stdout()),
-    ShellArg::elvish => app.gen_completions_to(binary_name, Shell::Elvish, &mut io::stdout()),
+    ShellArg::Bash => app.gen_completions_to(binary_name, Shell::Bash, &mut io::stdout()),
+    ShellArg::Zsh => app.gen_completions_to(binary_name, Shell::Zsh, &mut io::stdout()),
+    ShellArg::Fish => app.gen_completions_to(binary_name, Shell::Fish, &mut io::stdout()),
+    ShellArg::Elvish => app.gen_completions_to(binary_name, Shell::Elvish, &mut io::stdout()),
   }
   Ok(())
 }
