@@ -55,8 +55,7 @@ impl EventProperties {
       Err("no start date/time given")?
     };
     let time = arg.parse::<IcalTime>()?;
-    let timezone = IcalTimeZone::local();
-    Ok(time.with_timezone(&timezone))
+    Ok(time)
   }
 
   fn parse_to(arg: &str) -> KhResult<IcalTime> {
@@ -64,8 +63,7 @@ impl EventProperties {
       Err("no end date/time given")?
     };
     let time = arg.parse::<IcalTime>()?;
-    let timezone = IcalTimeZone::local();
-    Ok(time.with_timezone(&timezone))
+    Ok(time)
   }
 
   fn parse_location(arg: &str) -> KhResult<String> {
@@ -200,7 +198,6 @@ mod integration {
     let from = EventProperties::parse_from("2017-07-14T17:45:00").unwrap();
     let expected = IcalTime::floating_ymd(2017, 7, 14).and_hms(17, 45, 0);
     assert_eq!(expected, from);
-    assert_eq!("Europe/Berlin", from.get_timezone().unwrap().get_name());
   }
 
   #[test]
