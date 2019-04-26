@@ -1,3 +1,4 @@
+#![allow(clippy::redundant_closure)] // disable "redundant closure" lint
 use log::{debug, error};
 
 use khaleesi::actions::*;

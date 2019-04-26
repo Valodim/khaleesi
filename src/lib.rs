@@ -1,3 +1,4 @@
+#![allow(clippy::redundant_closure)] // disable "redundant closure" lint
 #[macro_use] mod macros;
 
 pub mod errors;
