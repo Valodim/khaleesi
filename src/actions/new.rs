@@ -5,6 +5,7 @@ use crate::icalwrap::{IcalTime, IcalVCalendar};
 use crate::khline::KhLine;
 use crate::utils::{fileutil, misc};
 use crate::KhResult;
+use std::path::PathBuf;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -96,9 +97,7 @@ pub fn do_new(args: &NewArgs) -> KhResult<()> {
   let uid = misc::make_new_uid();
   let ep = EventProperties::parse_from_args(args)?;
 
-  let mut path = defaults::get_caldir();
-  path.push(&ep.calendar);
-  path.push(&(uid.clone() + ".ics"));
+  let path = assemble_file_path(&ep.calendar, &uid);
 
   let new_cal = IcalVCalendar::from_str(TEMPLATE_EVENT, Some(&path))?
     .with_uid(&uid)?
@@ -114,6 +113,14 @@ pub fn do_new(args: &NewArgs) -> KhResult<()> {
   khprintln!("{}", khline);
 
   Ok(())
+}
+
+fn assemble_file_path(cal_name: &String, uid: &String ) -> PathBuf {
+  let mut path = defaults::get_caldir();
+  path.push(cal_name);
+  path.push(uid);
+  path.set_extension("ics");
+  path
 }
 
 impl IcalVCalendar {
