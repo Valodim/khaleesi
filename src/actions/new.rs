@@ -1,10 +1,10 @@
-use crate::defaults;
-use crate::icalwrap::{IcalVCalendar,IcalTime,IcalTimeZone};
-use crate::khline::KhLine;
-use crate::utils::{misc,fileutil};
-use crate::KhResult;
-use crate::cursorfile;
 use crate::calendars;
+use crate::cursorfile;
+use crate::defaults;
+use crate::icalwrap::{IcalTime, IcalTimeZone, IcalVCalendar};
+use crate::khline::KhLine;
+use crate::utils::{fileutil, misc};
+use crate::KhResult;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -31,7 +31,7 @@ struct EventProperties {
   from: IcalTime,
   to: IcalTime,
   summary: String,
-  location: String
+  location: String,
 }
 
 impl EventProperties {
@@ -41,7 +41,13 @@ impl EventProperties {
     let to = EventProperties::parse_to(&args.to)?;
     let summary = EventProperties::parse_summary(&args.summary)?;
     let location = EventProperties::parse_location(&args.location)?;
-    Ok(EventProperties{ calendar, from, to, summary, location })
+    Ok(EventProperties {
+      calendar,
+      from,
+      to,
+      summary,
+      location,
+    })
   }
 
   fn parse_from(arg: &str) -> KhResult<IcalTime> {
@@ -122,7 +128,8 @@ impl IcalVCalendar {
   }
 }
 
-static TEMPLATE_EVENT: &str = indoc!("
+static TEMPLATE_EVENT: &str = indoc!(
+  "
   BEGIN:VCALENDAR
   VERSION:2.0
   PRODID:-//khaleesi //EN
@@ -135,7 +142,8 @@ static TEMPLATE_EVENT: &str = indoc!("
   UID:foo
   END:VEVENT
   END:VCALENDAR
-");
+"
+);
 
 #[cfg(test)]
 mod integration {
@@ -143,8 +151,8 @@ mod integration {
   use predicates::prelude::*;
 
   use super::*;
-  use crate::testutils;
   use crate::testdata;
+  use crate::testutils;
 
   #[test]
   fn test_parse_calendar() {
@@ -222,11 +230,12 @@ mod integration {
   #[test]
   fn test_parse_from_args() {
     let _testdir = testutils::prepare_testdir("testdir_two_cals");
-    let args = NewArgs { calendar: "second".to_string(),
+    let args = NewArgs {
+      calendar: "second".to_string(),
       from: "2017-11-03T12:30:00".to_string(),
       to: "2017-11-07T11:11:00".to_string(),
       summary: "summary text".to_string(),
-      location: "location text".to_string()
+      location: "location text".to_string(),
     };
     let ep = EventProperties::parse_from_args(&args).unwrap();
     assert_eq!("second".to_string(), ep.calendar);
@@ -261,8 +270,7 @@ mod integration {
     let _testdir = testutils::prepare_testdir("testdir");
     let khline = "twodaysacrossbuckets.ics".parse::<KhLine>().unwrap();
 
-    let cal = khline.to_cal().unwrap()
-      .with_eventprops(&ep);
+    let cal = khline.to_cal().unwrap().with_eventprops(&ep);
 
     let event = cal.get_principal_khevent();
     assert_eq!(Some(from), event.get_start());
@@ -276,17 +284,19 @@ mod integration {
     testdata::setup();
     let testdir = testutils::prepare_testdir("testdir_two_cals");
 
-    let args = NewArgs { calendar: "second".to_string(),
+    let args = NewArgs {
+      calendar: "second".to_string(),
       from: "2017-11-03T12:30:00".to_string(),
       to: "2017-11-07T11:11:00".to_string(),
       summary: "summary text".to_string(),
-      location: "location text".to_string()
+      location: "location text".to_string(),
     };
 
     let result = do_new(&args);
     assert!(result.is_ok());
 
-    let expected = indoc!("
+    let expected = indoc!(
+      "
       BEGIN:VCALENDAR
       VERSION:2.0
       PRODID:-//khaleesi //EN
@@ -302,9 +312,13 @@ mod integration {
       LAST-MODIFIED:20130101T010203Z
       END:VEVENT
       END:VCALENDAR
-    ").replace("\n", "\r\n");
+    "
+    )
+    .replace("\n", "\r\n");
     let predicate = predicate::str::similar(expected);
-    testdir.child(".khaleesi/cal/second/11111111-2222-3333-4444-444444444444@khaleesi.ics").assert(predicate);
+    testdir
+      .child(".khaleesi/cal/second/11111111-2222-3333-4444-444444444444@khaleesi.ics")
+      .assert(predicate);
 
     let cursor_expected = "1509708600 second/11111111-2222-3333-4444-444444444444@khaleesi.ics";
     testdir.child(".khaleesi/cursor").assert(cursor_expected);
