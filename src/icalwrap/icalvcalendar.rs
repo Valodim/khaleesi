@@ -141,7 +141,15 @@ impl IcalVCalendar {
   pub fn with_dtstart(self, dtstart: &IcalTime) -> Self {
     let event = self.get_principal_event();
     unsafe {
-      ical::icalcomponent_set_dtstart(event.get_ptr(), **dtstart);
+      let timezone = event.get_dtstart().and_then(|x| x.get_timezone());
+      match timezone {
+        Some(timezone) => {
+          ical::icalcomponent_set_dtstart(event.get_ptr(), *dtstart.with_timezone(&timezone));
+        },
+        None => {
+          ical::icalcomponent_set_dtstart(event.get_ptr(), **dtstart);
+        }
+      }
     }
     self
   }
@@ -149,7 +157,15 @@ impl IcalVCalendar {
   pub fn with_dtend(self, dtend: &IcalTime) -> Self {
     let event = self.get_principal_event();
     unsafe {
-      ical::icalcomponent_set_dtend(event.get_ptr(), **dtend);
+      let timezone = event.get_dtend().and_then(|x| x.get_timezone());
+      match timezone {
+        Some(timezone) => {
+          ical::icalcomponent_set_dtend(event.get_ptr(), *dtend.with_timezone(&timezone));
+        },
+        None => {
+          ical::icalcomponent_set_dtend(event.get_ptr(), **dtend);
+        }
+      }
     }
     self
   }
