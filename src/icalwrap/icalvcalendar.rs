@@ -1,13 +1,13 @@
 use std::ffi::{CStr, CString};
-use std::path::{PathBuf, Path};
-use std::rc::Rc;
 use std::io;
+use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
-use super::IcalVEvent;
 use super::IcalComponent;
 use super::IcalTime;
-use crate::khevent::KhEvent;
+use super::IcalVEvent;
 use crate::ical;
+use crate::khevent::KhEvent;
 
 pub struct IcalVCalendar {
   comp: Rc<IcalComponentOwner>,
@@ -21,7 +21,7 @@ pub struct IcalEventIter<'a> {
 }
 
 impl IcalComponent for IcalVCalendar {
-  fn get_ptr(&self) -> *mut ical::icalcomponent  {
+  fn get_ptr(&self) -> *mut ical::icalcomponent {
     self.comp.ptr
   }
 
@@ -32,9 +32,7 @@ impl IcalComponent for IcalVCalendar {
 
 impl Clone for IcalVCalendar {
   fn clone(&self) -> Self {
-    let new_comp_ptr = unsafe {
-      ical::icalcomponent_new_clone(self.comp.ptr)
-    };
+    let new_comp_ptr = unsafe { ical::icalcomponent_new_clone(self.comp.ptr) };
     let mut new_calendar = IcalVCalendar::from_ptr(new_comp_ptr);
     new_calendar.path = self.path.clone();
     new_calendar.instance_timestamp = self.instance_timestamp.clone();
@@ -60,8 +58,8 @@ impl IcalVCalendar {
   }
 
   //pub fn with_internal_timestamp(mut self, datetime: &IcalTime) -> IcalVCalendar {
-    //self.instance_timestamp = Some(datetime.clone());
-    //self
+  //self.instance_timestamp = Some(datetime.clone());
+  //self
   //}
 
   pub fn with_path(mut self, path: &Path) -> IcalVCalendar {
@@ -75,13 +73,16 @@ impl IcalVCalendar {
       let c_str = CString::new(str).unwrap();
       let parsed_cal = ical::icalparser_parse_string(c_str.as_ptr());
       if parsed_cal.is_null() {
-        return Err(io::Error::new(io::ErrorKind::Other, "calendar has no path"))
+        return Err(io::Error::new(io::ErrorKind::Other, "calendar has no path"));
       }
 
       let kind = ical::icalcomponent_isa(parsed_cal);
       if kind != ical::icalcomponent_kind_ICAL_VCALENDAR_COMPONENT {
         let kind = CStr::from_ptr(ical::icalcomponent_kind_to_string(kind)).to_string_lossy();
-        return Err(io::Error::new(io::ErrorKind::Other, format!("expected VCALENDAR component, got {}", kind)))
+        return Err(io::Error::new(
+          io::ErrorKind::Other,
+          format!("expected VCALENDAR component, got {}", kind),
+        ));
       }
 
       let mut cal = IcalVCalendar::from_ptr(parsed_cal);
@@ -107,7 +108,9 @@ impl IcalVCalendar {
 
   pub fn get_uid(&self) -> String {
     unsafe {
-      let uid_cstr = CStr::from_ptr(ical::icalcomponent_get_uid(self.get_principal_event().get_ptr()));
+      let uid_cstr = CStr::from_ptr(ical::icalcomponent_get_uid(
+        self.get_principal_event().get_ptr(),
+      ));
       uid_cstr.to_string_lossy().into_owned()
     }
   }
@@ -116,7 +119,10 @@ impl IcalVCalendar {
     {
       let events = self.events_iter();
       if events.unique_uid_count() > 1 {
-        return Err(format!("More than one event in file: {}", self.get_path_as_string().unwrap_or_else(|| "".to_string())));
+        return Err(format!(
+          "More than one event in file: {}",
+          self.get_path_as_string().unwrap_or_else(|| "".to_string())
+        ));
       }
       let events = self.events_iter();
       let uid_cstr = CString::new(uid).unwrap();
@@ -126,7 +132,9 @@ impl IcalVCalendar {
         }
       }
     }
-    self.path = self.path.map(|path| path.with_file_name(uid.to_owned() + ".ics"));
+    self.path = self
+      .path
+      .map(|path| path.with_file_name(uid.to_owned() + ".ics"));
     Ok(self)
   }
 
@@ -145,7 +153,7 @@ impl IcalVCalendar {
       match timezone {
         Some(timezone) => {
           ical::icalcomponent_set_dtstart(event.get_ptr(), *dtstart.with_timezone(&timezone));
-        },
+        }
         None => {
           ical::icalcomponent_set_dtstart(event.get_ptr(), **dtstart);
         }
@@ -161,7 +169,7 @@ impl IcalVCalendar {
       match timezone {
         Some(timezone) => {
           ical::icalcomponent_set_dtend(event.get_ptr(), *dtend.with_timezone(&timezone));
-        },
+        }
         None => {
           ical::icalcomponent_set_dtend(event.get_ptr(), **dtend);
         }
@@ -210,9 +218,7 @@ impl IcalVCalendar {
       ical::icalproperty_string_to_kind(c_str.as_ptr())
     };
 
-    let count = unsafe {
-      IcalComponent::remove_property_all(&self, property_kind)
-    };
+    let count = unsafe { IcalComponent::remove_property_all(&self, property_kind) };
     (self, count)
   }
 
@@ -230,13 +236,16 @@ impl IcalVCalendar {
         }
         let uid_ptr = ical::icalcomponent_get_uid(comp);
         if !uid_ptr.is_null() {
-            let uid = CStr::from_ptr(uid_ptr).to_string_lossy();
-            if uid != uid_to_keep {
-              ical::icalcomponent_remove_component(self.comp.ptr, comp);
-              continue;
-            }
+          let uid = CStr::from_ptr(uid_ptr).to_string_lossy();
+          if uid != uid_to_keep {
+            ical::icalcomponent_remove_component(self.comp.ptr, comp);
+            continue;
+          }
         }
-        ical::icalcomponent_get_next_component(self.comp.ptr, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
+        ical::icalcomponent_get_next_component(
+          self.comp.ptr,
+          ical::icalcomponent_kind_ICAL_ANY_COMPONENT,
+        );
       }
     }
   }
@@ -250,8 +259,8 @@ impl IcalVCalendar {
   }
 
   pub fn get_calendar_name(&self) -> Option<String> {
-      let calendar_name = self.path.as_ref()?.parent()?.file_name()?;
-      Some(calendar_name.to_string_lossy().into_owned())
+    let calendar_name = self.path.as_ref()?.parent()?.file_name()?;
+    Some(calendar_name.to_string_lossy().into_owned())
   }
 
   pub fn events_iter(&self) -> IcalEventIter {
@@ -266,7 +275,10 @@ impl IcalVCalendar {
       )
     };
     if self.events_iter().unique_uid_count() > 1 {
-      warn!("More than one event in file: {}", self.get_path_as_string().unwrap_or_else(|| "".to_string()))
+      warn!(
+        "More than one event in file: {}",
+        self.get_path_as_string().unwrap_or_else(|| "".to_string())
+      )
     }
     IcalVEvent::from_ptr_with_parent(event, self)
   }
@@ -284,9 +296,7 @@ impl IcalVCalendar {
   }
 
   pub fn check_for_errors(&self) -> Option<Vec<String>> {
-    unsafe {
-      IcalVCalendar::check_icalcomponent(self.get_ptr())
-    }
+    unsafe { IcalVCalendar::check_icalcomponent(self.get_ptr()) }
   }
 
   /// to be used after parsing, parser adds X-LIC-ERROR properties for any error
@@ -297,13 +307,14 @@ impl IcalVCalendar {
     let error_count = ical::icalcomponent_count_errors(comp);
     let mut output: Vec<String> = Vec::new();
     if error_count > 0 {
-
       output.append(&mut IcalVCalendar::get_errors(comp));
 
-      let mut inner_comp = ical::icalcomponent_get_first_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
+      let mut inner_comp =
+        ical::icalcomponent_get_first_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT);
       while !inner_comp.is_null() {
         output.append(&mut IcalVCalendar::get_errors(inner_comp));
-        inner_comp = ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
+        inner_comp =
+          ical::icalcomponent_get_next_component(comp, ical::icalcomponent_kind_ICAL_ANY_COMPONENT)
       }
     }
     if let Some(errstring) = IcalVCalendar::check_uid(comp) {
@@ -326,12 +337,18 @@ impl IcalVCalendar {
   }
 
   unsafe fn get_errors(comp: *mut ical::icalcomponent) -> Vec<String> {
-    let mut prop = ical::icalcomponent_get_first_property(comp, ical::icalproperty_kind_ICAL_XLICERROR_PROPERTY);
+    let mut prop =
+      ical::icalcomponent_get_first_property(comp, ical::icalproperty_kind_ICAL_XLICERROR_PROPERTY);
     let mut output: Vec<String> = Vec::new();
     while !prop.is_null() {
-      let error_cstr = CStr::from_ptr(ical::icalproperty_get_xlicerror(prop)).to_str().unwrap();
+      let error_cstr = CStr::from_ptr(ical::icalproperty_get_xlicerror(prop))
+        .to_str()
+        .unwrap();
       output.push(error_cstr.to_owned());
-      prop = ical::icalcomponent_get_next_property(comp, ical::icalproperty_kind_ICAL_XLICERROR_PROPERTY);
+      prop = ical::icalcomponent_get_next_property(
+        comp,
+        ical::icalproperty_kind_ICAL_XLICERROR_PROPERTY,
+      );
     }
     output
   }
@@ -340,23 +357,19 @@ impl IcalVCalendar {
 impl<'a> IcalEventIter<'a> {
   fn from_vcalendar(cal: &'a IcalVCalendar) -> Self {
     let vevent_kind = ical::icalcomponent_kind_ICAL_VEVENT_COMPONENT;
-    let iter = unsafe {
-      ical::icalcomponent_begin_component(cal.get_ptr(), vevent_kind)
-    };
-    IcalEventIter{iter, parent: &cal}
+    let iter = unsafe { ical::icalcomponent_begin_component(cal.get_ptr(), vevent_kind) };
+    IcalEventIter { iter, parent: &cal }
   }
 
   fn unique_uid_count(self) -> usize {
-    let mut uids = self.map(|event| {
-      event.get_uid()
-    }).collect::<Vec<String>>();
+    let mut uids = self.map(|event| event.get_uid()).collect::<Vec<String>>();
     uids.sort_unstable();
     uids.dedup();
     uids.len()
   }
 }
 
-impl <'a> Iterator for IcalEventIter<'a> {
+impl<'a> Iterator for IcalEventIter<'a> {
   type Item = IcalVEvent;
 
   fn next(&mut self) -> Option<Self::Item> {
@@ -374,7 +387,7 @@ impl <'a> Iterator for IcalEventIter<'a> {
 }
 
 struct IcalComponentOwner {
-  ptr: *mut ical::icalcomponent
+  ptr: *mut ical::icalcomponent,
 }
 
 impl Drop for IcalComponentOwner {
@@ -390,7 +403,7 @@ impl Drop for IcalComponentOwner {
 mod tests {
   use super::*;
   use crate::testdata;
-  use chrono::{Local,TimeZone};
+  use chrono::{Local, TimeZone};
 
   #[test]
   fn test_from_str_empty() {
@@ -489,7 +502,10 @@ mod tests {
     let event = new_cal.get_principal_event();
 
     let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
-    assert_eq!("20130101T010203Z", event.get_property(last_modified_kind).unwrap().get_value());
+    assert_eq!(
+      "20130101T010203Z",
+      event.get_property(last_modified_kind).unwrap().get_value()
+    );
   }
 
   #[test]
@@ -500,7 +516,10 @@ mod tests {
     let event = new_cal.get_principal_event();
 
     let last_modified_kind = ical::icalproperty_kind_ICAL_LASTMODIFIED_PROPERTY;
-    assert_eq!("20130101T010203Z", event.get_property(last_modified_kind).unwrap().get_value());
+    assert_eq!(
+      "20130101T010203Z",
+      event.get_property(last_modified_kind).unwrap().get_value()
+    );
   }
 
   #[test]
@@ -561,18 +580,26 @@ mod tests {
 
     let event = new_cal.get_principal_khevent();
     assert_eq!(timestamp, event.get_start().unwrap());
-    assert_eq!("Europe/Berlin", event.get_start().unwrap().get_timezone().unwrap().get_name());
+    assert_eq!(
+      "Europe/Berlin",
+      event
+        .get_start()
+        .unwrap()
+        .get_timezone()
+        .unwrap()
+        .get_name()
+    );
   }
 
   //#[test]
   //fn test_with_internal_timestamp() {
-    //let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
-//
-    //let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
-    //let new_cal = cal.with_internal_timestamp(&timestamp);
-//
-    //let event = new_cal.get_principal_event();
-    //assert_eq!(timestamp, event.get_dtstart().unwrap());
+  //let cal = IcalVCalendar::from_str(testdata::TEST_EVENT_MULTIDAY, None).unwrap();
+  //
+  //let timestamp = IcalTime::floating_ymd(2018, 1, 1).and_hms(11, 30, 20);
+  //let new_cal = cal.with_internal_timestamp(&timestamp);
+  //
+  //let event = new_cal.get_principal_event();
+  //assert_eq!(timestamp, event.get_dtstart().unwrap());
   //}
 
   #[test]
@@ -586,7 +613,10 @@ mod tests {
     for event in new_cal.events_iter() {
       assert_eq!(uid, event.get_uid());
     }
-    assert_eq!(Some(path.with_file_name(uid.to_owned() + ".ics")), new_cal.path);
+    assert_eq!(
+      Some(path.with_file_name(uid.to_owned() + ".ics")),
+      new_cal.path
+    );
   }
 
   #[test]

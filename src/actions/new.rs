@@ -1,7 +1,7 @@
 use crate::calendars;
 use crate::cursorfile;
 use crate::defaults;
-use crate::icalwrap::{IcalTime, IcalTimeZone, IcalVCalendar};
+use crate::icalwrap::{IcalTime, IcalVCalendar};
 use crate::khline::KhLine;
 use crate::utils::{fileutil, misc};
 use crate::KhResult;
