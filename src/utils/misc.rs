@@ -16,8 +16,7 @@ pub fn joinlines(first: &str, second: &str) -> String {
 }
 
 pub fn format_duration(duration: &time::Duration) -> impl Display {
-  //TODO replace this with duration.as_millis() when it becomes stable
-  duration.as_secs() * 1000 + u64::from(duration.subsec_millis())
+  duration.as_millis()
 }
 
 pub fn get_bucket_for_date(date: Date<Local>) -> String {
