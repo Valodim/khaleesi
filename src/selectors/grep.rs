@@ -4,10 +4,10 @@ use super::*;
 use crate::khevent::KhEvent;
 
 pub struct GrepFilter {
-  terms: Vec<String>
+  terms: Vec<String>,
 }
 
-impl SelectFilter for GrepFilter  {
+impl SelectFilter for GrepFilter {
   fn add_term(&mut self, it: &mut dyn Iterator<Item = &&str>) {
     let term = it.next().unwrap();
     self.terms.push(term.to_lowercase());
@@ -52,7 +52,11 @@ mod tests {
 
   #[test]
   fn test_grep() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "International"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["grep", "International"],
+    );
     assert_eq!(true, filtered);
   }
 
@@ -64,19 +68,31 @@ mod tests {
 
   #[test]
   fn test_grep_description() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_ONE_MEETING, None, &["grep", "interoperability"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_ONE_MEETING,
+      None,
+      &["grep", "interoperability"],
+    );
     assert_eq!(true, filtered);
   }
 
   #[test]
   fn test_grep_case() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "InTeRnAtIOnAl"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["grep", "InTeRnAtIOnAl"],
+    );
     assert_eq!(true, filtered);
   }
 
   #[test]
   fn test_grep_negative() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["grep", "nonexistent term"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["grep", "nonexistent term"],
+    );
     assert_eq!(false, filtered);
   }
 }

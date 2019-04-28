@@ -21,7 +21,10 @@ impl SelectFilterFrom {
   }
 
   fn from_date(date: Option<Date<Local>>) -> Self {
-    Self { date, bucket: date.map(misc::get_bucket_for_date)  }
+    Self {
+      date,
+      bucket: date.map(misc::get_bucket_for_date),
+    }
   }
 
   pub fn combine_with(self, other: &Self) -> Self {
@@ -40,7 +43,10 @@ impl SelectFilterTo {
   }
 
   fn from_date(date: Option<Date<Local>>) -> Self {
-    Self { date, bucket: date.map(misc::get_bucket_for_date)  }
+    Self {
+      date,
+      bucket: date.map(misc::get_bucket_for_date),
+    }
   }
 
   pub fn combine_with(self, other: &Self) -> Self {
@@ -101,32 +107,48 @@ mod tests {
   fn test_from_ends_before() {
     // DTSTART: 2007-06-28
     // DTEND: 2007-07-09
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-08-01"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["from", "2007-08-01"],
+    );
     assert_eq!(false, filtered)
   }
   #[test]
   fn test_from_begins_after() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-06-01"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["from", "2007-06-01"],
+    );
     assert_eq!(true, filtered);
   }
   #[test]
   fn test_from_begins_before_ends_after() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-07-01"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["from", "2007-07-01"],
+    );
     assert_eq!(true, filtered);
   }
   #[test]
   fn test_from_week_before() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-W17" ]);
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-W17"]);
     assert_eq!(true, filtered);
   }
   #[test]
   fn test_from_week_after() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-W30" ]);
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-W30"]);
     assert_eq!(false, filtered);
   }
   #[test]
   fn test_from_redundant() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["from", "2007-06-01", "from", "2007-08-01"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["from", "2007-06-01", "from", "2007-08-01"],
+    );
     assert_eq!(false, filtered);
   }
   #[test]
@@ -146,17 +168,21 @@ mod tests {
   }
   #[test]
   fn test_to_week_before() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-W17" ]);
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-W17"]);
     assert_eq!(false, filtered);
   }
   #[test]
   fn test_to_week_after() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-W30" ]);
+    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-W30"]);
     assert_eq!(true, filtered);
   }
   #[test]
   fn test_to_begins_redundant() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["to", "2007-06-01", "to", "2007-08-01"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["to", "2007-06-01", "to", "2007-08-01"],
+    );
     assert_eq!(false, filtered);
   }
 }

@@ -1,19 +1,19 @@
 use std::collections::HashMap;
 
-use crate::khline::{KhLine,khlines_to_events};
 use crate::khevent::KhEvent;
+use crate::khline::{khlines_to_events, KhLine};
 
-use self::daterange::{SelectFilterFrom,SelectFilterTo};
 use self::cal::CalendarFilter;
+use self::daterange::{SelectFilterFrom, SelectFilterTo};
 use self::grep::GrepFilter;
 use self::prop::PropFilter;
 use self::range::RangeFilter;
 
 mod cal;
+pub mod daterange;
 mod grep;
 mod prop;
 mod range;
-pub mod daterange;
 #[cfg(test)]
 mod test;
 
@@ -69,25 +69,31 @@ impl SelectFilters {
             filter.add_term(&mut it);
           } else if let Ok(parsed_range) = term.parse::<RangeFilter>() {
             if !with_range {
-              return Err("Range selector not allowed here!".to_string())
+              return Err("Range selector not allowed here!".to_string());
             }
             if range.is_some() {
-              return Err("Duplicate range selector!".to_string())
+              return Err("Duplicate range selector!".to_string());
             }
             range = Some(parsed_range);
           } else {
-            return Err("select [from|to|in|on|grep|cal parameter]+".to_string())
+            return Err("select [from|to|in|on|grep|cal parameter]+".to_string());
           }
         }
       }
     }
 
-    let others = others.drain()
+    let others = others
+      .drain()
       .map(|x| x.1)
       .filter(|filter| filter.is_not_empty())
       .collect();
 
-    Ok(SelectFilters { from, to, range, others })
+    Ok(SelectFilters {
+      from,
+      to,
+      range,
+      others,
+    })
   }
 
   fn line_is_from(&self, event: &KhEvent) -> bool {
@@ -117,7 +123,10 @@ impl SelectFilters {
   }
 
   pub fn is_selected_index(&self, index: usize, event: &KhEvent) -> bool {
-    self.filter_index(index) && self.line_is_from(event) && self.line_is_to(event) && self.others(event)
+    self.filter_index(index)
+      && self.line_is_from(event)
+      && self.line_is_to(event)
+      && self.others(event)
   }
 
   pub fn filter_khlines(

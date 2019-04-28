@@ -5,16 +5,18 @@ use super::*;
 use crate::khevent::KhEvent;
 
 pub struct PropFilter {
-  terms: HashMap<String,Vec<String>>
+  terms: HashMap<String, Vec<String>>,
 }
 
-impl SelectFilter for PropFilter  {
+impl SelectFilter for PropFilter {
   fn add_term(&mut self, it: &mut dyn Iterator<Item = &&str>) {
     let term = it.next().unwrap().to_uppercase();
     let value = it.next().unwrap();
-    self.terms.entry(term)
+    self
+      .terms
+      .entry(term)
       .and_modify(|x| x.push(value.to_lowercase()))
-      .or_insert_with(|| vec!(value.to_lowercase()));
+      .or_insert_with(|| vec![value.to_lowercase()]);
   }
 
   fn is_not_empty(&self) -> bool {
@@ -36,7 +38,9 @@ impl SelectFilter for PropFilter  {
 
 impl Default for PropFilter {
   fn default() -> Self {
-    PropFilter { terms: HashMap::new() }
+    PropFilter {
+      terms: HashMap::new(),
+    }
   }
 }
 
@@ -47,19 +51,31 @@ mod tests {
 
   #[test]
   fn test_prop() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "TRANSP", "TRANSPARENT"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["prop", "TRANSP", "TRANSPARENT"],
+    );
     assert_eq!(true, filtered);
   }
 
   #[test]
   fn test_prop_nocase() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "tRaNsP", "tRaNsPaReNt"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["prop", "tRaNsP", "tRaNsPaReNt"],
+    );
     assert_eq!(true, filtered);
   }
 
   #[test]
   fn test_prop_negative() {
-    let filtered = test_filter_event(&testdata::TEST_EVENT_MULTIDAY, None, &["prop", "TRANSP", "nonexistent term"]);
+    let filtered = test_filter_event(
+      &testdata::TEST_EVENT_MULTIDAY,
+      None,
+      &["prop", "TRANSP", "nonexistent term"],
+    );
     assert_eq!(false, filtered);
   }
 }

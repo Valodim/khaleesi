@@ -15,12 +15,22 @@ impl FromStr for RangeFilter {
   type Err = ();
 
   fn from_str(s: &str) -> Result<RangeFilter, Self::Err> {
-    let bounds: Vec<usize> = s.splitn(2, ':').map(|x| x.parse::<usize>()).flatten().collect();
+    let bounds: Vec<usize> = s
+      .splitn(2, ':')
+      .map(|x| x.parse::<usize>())
+      .flatten()
+      .collect();
     if bounds.len() == 2 {
-      return Ok(RangeFilter { from: bounds[0], to: bounds[1] });
+      return Ok(RangeFilter {
+        from: bounds[0],
+        to: bounds[1],
+      });
     }
     if let Ok(index) = s.parse::<usize>() {
-      return Ok(RangeFilter { from: index, to: index });
+      return Ok(RangeFilter {
+        from: index,
+        to: index,
+      });
     }
     Err(())
   }
