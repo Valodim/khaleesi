@@ -1,4 +1,4 @@
-use chrono::*;
+use chrono::prelude::*;
 use std::cmp;
 use std::str::FromStr;
 

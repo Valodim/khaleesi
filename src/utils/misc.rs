@@ -1,4 +1,4 @@
-use chrono::*;
+use chrono::prelude::*;
 use std::fmt::Display;
 use std::time;
 
