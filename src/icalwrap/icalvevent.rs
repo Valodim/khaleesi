@@ -97,9 +97,8 @@ impl IcalVEvent {
 
     let dtstart = self.get_dtstart().unwrap();
     unsafe {
-      let mut dtend = ical::icalcomponent_get_dtend(self.ptr);
-
       //unroll up to 1 year in the future
+      let mut dtend = ical::icaltime_today();
       dtend.year += 1;
 
       ical::icalcomponent_foreach_recurrence(
