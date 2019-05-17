@@ -2,7 +2,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: puzzlewolf/rust-libical3:0.3
+      - image: puzzlewolf/rust-libical3:0.4
     working_directory: /mnt/crate
     steps:
       - checkout
