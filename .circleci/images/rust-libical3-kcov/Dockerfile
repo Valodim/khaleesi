@@ -1,5 +1,5 @@
 #FROM debian:buster
-FROM puzzlewolf/rust-libical3:0.6
+FROM puzzlewolf/rust-libical3:0.7
 
 ARG KCOV_GIT_REF
 
