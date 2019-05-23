@@ -1,7 +1,7 @@
 FROM buildpack-deps:buster
 
 # Some of the dependencies I need to build a few libraries,
-# personalize to your needs. You can use multi-stage builds 
+# personalize to your needs. You can use multi-stage builds
 # to produce a lightweight image.
 #RUN apt-get update && \
 #    apt-get install -y curl file gcc g++ git make openssh-client \
@@ -10,7 +10,7 @@ FROM buildpack-deps:buster
 #    xz-utils pkg-config python
 
 RUN apt-get update && \
-    apt-get install -y rustc libical-dev clang
+    apt-get install -y libical-dev clang
 
 #ENV KCOV_VERSION 33
 #RUN wget https://github.com/SimonKagstrom/kcov/archive/v$KCOV_VERSION.tar.gz && \

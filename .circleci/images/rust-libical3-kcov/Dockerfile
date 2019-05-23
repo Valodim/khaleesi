@@ -1,5 +1,5 @@
 #FROM debian:buster
-FROM puzzlewolf/rust-libical3:0.3
+FROM puzzlewolf/rust-libical3:0.5
 
 ARG KCOV_GIT_REF
 
@@ -8,7 +8,7 @@ RUN apt-get update
 # is installed we do not repeat the whole image build.
 #RUN apt-get install -y --fix-missing pkg-config
 RUN apt-get install -y wget libcurl4-openssl-dev libelf-dev libdw-dev cmake cmake-data g++ binutils-dev \
-                       libiberty-dev 
+                       libiberty-dev
 #RUN apt-get install -y libical-dev
 
 ENV SRC_DIR=/home/kcov-src \

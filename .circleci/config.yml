@@ -2,7 +2,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: puzzlewolf/rust-libical3:0.4
+      - image: puzzlewolf/rust-libical3:0.5
     working_directory: /mnt/crate
     steps:
       - checkout
@@ -42,7 +42,7 @@ jobs:
             - target/debug/*
   coverage:
     docker:
-      - image: puzzlewolf/rust-libical3-kcov:0.3
+      - image: puzzlewolf/rust-libical3-kcov:0.5
         entrypoint: /bin/bash
     working_directory: /mnt/crate
     steps:
