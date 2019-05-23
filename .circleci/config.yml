@@ -58,7 +58,7 @@ jobs:
             flags=( tests integration );
             for flag in ${flags[@]}; do
               echo "Running coverage for $flag";
-              kcov --verify --include-path $(pwd) --exclude-pattern=tests \
+              sudo kcov --verify --include-path $(pwd) --exclude-pattern=tests \
                   target/coverage/$flag \
                   $testsuite --quiet ::${flag}::
               # -c deletes coverage data after submission
