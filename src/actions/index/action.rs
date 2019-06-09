@@ -80,7 +80,9 @@ fn index_dir(dir: &Path, reindex: bool) -> KhResult<()> {
 pub fn get_ics_files(dir: &Path, modified_since: i64) -> impl Iterator<Item = PathBuf> {
   use walkdir::WalkDir;
 
-  WalkDir::new(dir).into_iter()
+  WalkDir::new(dir)
+    .follow_links(true)
+    .into_iter()
     .filter_entry(move |entry| accept_entry(entry, modified_since))
     .filter_map(|e| e.ok())
     .filter(|e| e.file_type().is_file())

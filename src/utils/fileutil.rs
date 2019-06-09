@@ -9,7 +9,9 @@ use crate::icalwrap::IcalVCalendar;
 pub fn file_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
   use walkdir::WalkDir;
 
-  WalkDir::new(dir).into_iter()
+  WalkDir::new(dir)
+    .follow_links(true)
+    .into_iter()
     .filter_map(|e| e.ok())
     .filter(|e| e.file_type().is_file())
     .map(|entry| entry.into_path())
@@ -19,7 +21,9 @@ pub fn dir_iter(dir: &Path) -> impl Iterator<Item = PathBuf> {
   use walkdir::WalkDir;
 
   let dir = dir.to_path_buf();
-  WalkDir::new(&dir).into_iter()
+  WalkDir::new(&dir)
+    .follow_links(true)
+    .into_iter()
     .filter_map(|e| e.ok())
     .filter(|e| e.file_type().is_dir())
     .filter(move |f| f.path() != dir)
