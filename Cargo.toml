@@ -23,7 +23,7 @@ uuid = { version = "0.7", features = ["v4"] }
 fs2 = "0.4.3"
 lazy_static = "1.2.0"
 backtrace = "0.3"
-dirs = "1.0.4"
+dirs = "2.0.0"
 structopt = "0.2.14"
 clap = "2.32.0"
 
