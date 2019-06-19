@@ -113,12 +113,11 @@ impl FromStr for KhLine {
 }
 
 fn to_filepath_checked(path_str: &str) -> Result<PathBuf, String> {
-
   let path = PathBuf::from(path_str);
-  if defaults::get_caldir().join(path.clone()).is_file() {
+  if defaults::get_caldir().join(&path).is_file() {
     Ok(path)
   } else {
-    Err("path is not a file".to_string())
+    Err(format!("path {} is not a file", path_str))
   }
 }
 
