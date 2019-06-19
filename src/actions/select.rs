@@ -38,16 +38,6 @@ impl SelectFilters {
 
 impl SelectFilterFrom {
   fn is_bucket_before(&self, bucketname: &str) -> bool {
-    // cargo check && cargo build are fine,
-    // cargo test gives this error:
-    // error[E0277]: can't compare `str` with `std::string::String`
-    //--> src/actions/select.rs:47:59
-    //|
-    //|     self.bucket.as_ref().map_or(true, |bucket| bucketname < bucket)
-    //|                                                           ^ no implementation for `str < std::string::String` and `str > std::string::String`
-    //|
-    //= help: the trait `std::cmp::PartialOrd<std::string::String>` is not implemented for `str`
-    //= note: required because of the requirements on the impl of `std::cmp::PartialOrd<&std::string::String>` for `&str`
     self.bucket.as_ref().map_or(false, |bucket| bucketname < bucket.as_str())
   }
 }
