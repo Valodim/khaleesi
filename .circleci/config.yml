@@ -40,35 +40,8 @@ jobs:
           root: "."
           paths:
             - target/debug/*
-  coverage:
-    docker:
-      - image: puzzlewolf/rust-libical3-kcov:0.7
-        entrypoint: /bin/bash
-    working_directory: /mnt/crate
-    steps:
-      - checkout
-      - attach_workspace:
-          at: "."
-      - run: mkdir target/coverage
-      - run:
-          name: Run coverage for unit tests
-          command: |
-            # hack - find biggest binary in dir
-            testsuite=$(ls --sort=size ./target/debug/khaleesi-* | head -n 1)
-            flags=( tests integration );
-            for flag in ${flags[@]}; do
-              echo "Running coverage for $flag";
-              sudo kcov --verify --include-path $(pwd) --exclude-pattern=tests \
-                  target/coverage/$flag \
-                  $testsuite --quiet ::${flag}::
-              # -c deletes coverage data after submission
-              bash <(curl -s https://codecov.io/bash) -c -F $flag;
-            done
 workflows:
   version: 2
-  test_all_and_coverage:
+  test_all:
     jobs:
       - test
-      - coverage:
-          requires:
-            - test
